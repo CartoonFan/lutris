@@ -1,5 +1,10 @@
 """Module to deal with various aspects of displays"""
 # isort:skip_file
+from lutris.util.log import logger
+from lutris.util.graphics.xrandr import LegacyDisplayManager, change_resolution, get_outputs
+from lutris.util.graphics.displayconfig import MutterDisplayManager
+from lutris.util import system
+from gi.repository import Gdk, GLib, GnomeDesktop, Gio
 import enum
 import os
 import subprocess
@@ -12,13 +17,6 @@ try:
     DBUS_AVAILABLE = True
 except ImportError:
     DBUS_AVAILABLE = False
-
-from gi.repository import Gdk, GLib, GnomeDesktop, Gio
-
-from lutris.util import system
-from lutris.util.graphics.displayconfig import MutterDisplayManager
-from lutris.util.graphics.xrandr import LegacyDisplayManager, change_resolution, get_outputs
-from lutris.util.log import logger
 
 
 class NoScreenDetected(Exception):
