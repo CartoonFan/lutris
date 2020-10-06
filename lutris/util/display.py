@@ -28,7 +28,6 @@ except ImportError:
 
 
 class NoScreenDetected(Exception):
-
     """Raise this when unable to detect screens"""
 
 
@@ -52,20 +51,17 @@ def _get_graphics_adapters():
     lspci_path = system.find_executable("lspci")
     dev_subclasses = ["VGA", "XGA", "3D controller", "Display controller"]
     if not lspci_path:
-        logger.warning("lspci is not available. List of graphics cards not available")
+        logger.warning(
+            "lspci is not available. List of graphics cards not available")
         return []
-    return [
-        (pci_id, device_desc.split(": ")[1])
-        for pci_id, device_desc in [
-            line.split(maxsplit=1)
-            for line in system.execute(lspci_path, timeout=3).split("\n")
-            if any(subclass in line for subclass in dev_subclasses)
-        ]
-    ]
+    return [(pci_id, device_desc.split(": ")[1]) for pci_id, device_desc in [
+        line.split(maxsplit=1)
+        for line in system.execute(lspci_path, timeout=3).split("\n")
+        if any(subclass in line for subclass in dev_subclasses)
+    ]]
 
 
 class DisplayManager:
-
     """Get display and resolution using GnomeDesktop"""
 
     def __init__(self):
@@ -89,9 +85,9 @@ class DisplayManager:
             "%sx%s" % (mode.get_width(), mode.get_height())
             for mode in self.rr_screen.list_modes()
         ]
-        return sorted(
-            set(resolutions), key=lambda x: int(x.split("x")[0]), reverse=True
-        )
+        return sorted(set(resolutions),
+                      key=lambda x: int(x.split("x")[0]),
+                      reverse=True)
 
     def _get_primary_output(self):
         """Return the RROutput used as a primary display"""
@@ -142,7 +138,8 @@ def get_display_manager():
                 ex,
             )
     else:
-        logger.error("DBus is not available, lutris was not properly installed.")
+        logger.error(
+            "DBus is not available, lutris was not properly installed.")
     try:
         return DisplayManager()
     except (GLib.Error, NoScreenDetected):
@@ -154,7 +151,6 @@ USE_DRI_PRIME = len(_get_graphics_adapters()) > 1
 
 
 class DesktopEnvironment(enum.Enum):
-
     """Enum of desktop environments."""
 
     PLASMA = 0
@@ -186,9 +182,10 @@ def get_desktop_environment():
 def _get_command_output(*command):
     """Some rogue function that gives no shit about residing in the correct module"""
     try:
-        return subprocess.Popen(
-            command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, close_fds=True
-        ).communicate()[0]
+        return subprocess.Popen(command,
+                                stdin=subprocess.DEVNULL,
+                                stdout=subprocess.PIPE,
+                                close_fds=True).communicate()[0]
     except FileNotFoundError:
         logger.error("Unable to run command, %s not found", command[0])
 
@@ -199,42 +196,29 @@ def is_compositing_enabled():
     """
     desktop_environment = get_desktop_environment()
     if desktop_environment is DesktopEnvironment.PLASMA:
-        return (
-            _get_command_output(
-                "qdbus",
-                "org.kde.KWin",
-                "/Compositor",
-                "org.kde.kwin.Compositing.active",
-            )
-            == b"true\n"
-        )
+        return (_get_command_output(
+            "qdbus",
+            "org.kde.KWin",
+            "/Compositor",
+            "org.kde.kwin.Compositing.active",
+        ) == b"true\n")
     if desktop_environment is DesktopEnvironment.MATE:
-        return (
-            _get_command_output(
-                "gsettings", "get org.mate.Marco.general", "compositing-manager"
-            )
-            == b"true\n"
-        )
+        return (_get_command_output("gsettings", "get org.mate.Marco.general",
+                                    "compositing-manager") == b"true\n")
     if desktop_environment is DesktopEnvironment.XFCE:
-        return (
-            _get_command_output(
-                "xfconf-query", "--channel=xfwm4", "--property=/general/use_compositing"
-            )
-            == b"true\n"
-        )
+        return (_get_command_output(
+            "xfconf-query", "--channel=xfwm4",
+            "--property=/general/use_compositing") == b"true\n")
     if desktop_environment is DesktopEnvironment.DEEPIN:
-        return (
-            _get_command_output(
-                "dbus-send",
-                "--session",
-                "--dest=com.deepin.WMSwitcher",
-                "--type=method_call",
-                "--print-reply=literal",
-                "/com/deepin/WMSwitcher",
-                "com.deepin.WMSwitcher.CurrentWM",
-            )
-            == b"deepin wm\n"
-        )
+        return (_get_command_output(
+            "dbus-send",
+            "--session",
+            "--dest=com.deepin.WMSwitcher",
+            "--type=method_call",
+            "--print-reply=literal",
+            "/com/deepin/WMSwitcher",
+            "com.deepin.WMSwitcher.CurrentWM",
+        ) == b"deepin wm\n")
     return None
 
 
@@ -309,7 +293,9 @@ def _run_command(*command):
     are you lost little _run_command?
     """
     try:
-        return subprocess.Popen(command, stdin=subprocess.DEVNULL, close_fds=True)
+        return subprocess.Popen(command,
+                                stdin=subprocess.DEVNULL,
+                                close_fds=True)
     except FileNotFoundError:
         logger.error("Oh no")
 
@@ -341,21 +327,22 @@ def enable_compositing():
 
 
 class DBusScreenSaverInhibitor:
-
     """Inhibit and uninhibit the screen saver using DBus.
     Requires the Inhibit() and UnInhibit() methods to be exposed over DBus."""
 
     def __init__(self, name, path, interface, bus_type=Gio.BusType.SESSION):
-        self.proxy = Gio.DBusProxy.new_for_bus_sync(
-            bus_type, Gio.DBusProxyFlags.NONE, None, name, path, interface, None
-        )
+        self.proxy = Gio.DBusProxy.new_for_bus_sync(bus_type,
+                                                    Gio.DBusProxyFlags.NONE,
+                                                    None, name, path,
+                                                    interface, None)
 
     def inhibit(self, game_name):
         """Inhibit the screen saver.
         Returns a cookie that must be passed to the corresponding uninhibit() call.
         If an error occurs, None is returned instead."""
         try:
-            return self.proxy.Inhibit("(ss)", "Lutris", "Running game: %s" % game_name)
+            return self.proxy.Inhibit("(ss)", "Lutris",
+                                      "Running game: %s" % game_name)
         except Exception:
             return None
 
@@ -383,9 +370,8 @@ def _get_screen_saver_inhibitor():
     try:
         return DBusScreenSaverInhibitor(interface, path, interface)
     except GLib.Error as err:
-        logger.error(
-            "Error during creation of DBusScreenSaverInhibitor: %s", err.message
-        )  # pylint: disable=no-member
+        logger.error("Error during creation of DBusScreenSaverInhibitor: %s",
+                     err.message)  # pylint: disable=no-member
         return None
 
 

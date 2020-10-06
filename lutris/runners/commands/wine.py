@@ -24,13 +24,13 @@ from lutris.util.wine.wine import WINE_DIR
 
 
 def set_regedit(
-    path,
-    key,
-    value="",
-    type="REG_SZ",  # pylint: disable=redefined-builtin
-    wine_path=None,
-    prefix=None,
-    arch=WINE_DEFAULT_ARCH,
+        path,
+        key,
+        value="",
+        type="REG_SZ",  # pylint: disable=redefined-builtin
+        wine_path=None,
+        prefix=None,
+        arch=WINE_DEFAULT_ARCH,
 ):
     """Add keys to the windows registry.
 
@@ -46,15 +46,17 @@ def set_regedit(
     # Make temporary reg file
     reg_path = os.path.join(settings.CACHE_DIR, "winekeys.reg")
     with open(reg_path, "w") as reg_file:
-        reg_file.write(
-            'REGEDIT4\n\n[%s]\n"%s"=%s\n' % (path, key, formatted_value[type])
-        )
+        reg_file.write('REGEDIT4\n\n[%s]\n"%s"=%s\n' %
+                       (path, key, formatted_value[type]))
     logger.debug("Setting [%s]:%s=%s", path, key, formatted_value[type])
     set_regedit_file(reg_path, wine_path=wine_path, prefix=prefix, arch=arch)
     os.remove(reg_path)
 
 
-def set_regedit_file(filename, wine_path=None, prefix=None, arch=WINE_DEFAULT_ARCH):
+def set_regedit_file(filename,
+                     wine_path=None,
+                     prefix=None,
+                     arch=WINE_DEFAULT_ARCH):
     """Apply a regedit file to the Windows registry."""
     if arch == "win64" and wine_path and system.path_exists(wine_path + "64"):
         # Use wine64 by default if set to a 64bit prefix. Using regular wine
@@ -72,7 +74,10 @@ def set_regedit_file(filename, wine_path=None, prefix=None, arch=WINE_DEFAULT_AR
     )
 
 
-def delete_registry_key(key, wine_path=None, prefix=None, arch=WINE_DEFAULT_ARCH):
+def delete_registry_key(key,
+                        wine_path=None,
+                        prefix=None,
+                        arch=WINE_DEFAULT_ARCH):
     """Deletes a registry key from a Wine prefix"""
     wineexec(
         "regedit",
@@ -85,12 +90,12 @@ def delete_registry_key(key, wine_path=None, prefix=None, arch=WINE_DEFAULT_ARCH
 
 
 def create_prefix(  # noqa: C901
-    prefix,
-    wine_path=None,
-    arch=WINE_DEFAULT_ARCH,
-    overrides=None,
-    install_gecko=None,
-    install_mono=None,
+        prefix,
+        wine_path=None,
+        arch=WINE_DEFAULT_ARCH,
+        overrides=None,
+        install_gecko=None,
+        install_mono=None,
 ):
     """Create a new Wine prefix."""
     # pylint: disable=too-many-locals
@@ -141,11 +146,11 @@ def create_prefix(  # noqa: C901
         if system.path_exists(os.path.join(prefix, "user.reg")):
             break
         if loop_index == 20:
-            logger.warning("Wine prefix creation is taking longer than expected...")
+            logger.warning(
+                "Wine prefix creation is taking longer than expected...")
     if not os.path.exists(os.path.join(prefix, "user.reg")):
-        logger.error(
-            "No user.reg found after prefix creation. " "Prefix might not be valid"
-        )
+        logger.error("No user.reg found after prefix creation. "
+                     "Prefix might not be valid")
         return
     logger.info("%s Prefix created in %s", arch, prefix)
     prefix_manager = WinePrefixManager(prefix)
@@ -154,15 +159,20 @@ def create_prefix(  # noqa: C901
         from lutris.runners.winesteam import winesteam
 
         runner = winesteam()
-        logger.info("Transfering Steam information from default prefix to new prefix")
+        logger.info(
+            "Transfering Steam information from default prefix to new prefix")
         dest_path = "/tmp/steam.reg"
         default_prefix = runner.get_default_prefix(runner.default_arch)
         wineexec(
             "regedit",
-            args=r"/E '%s' 'HKEY_CURRENT_USER\Software\Valve\Steam'" % dest_path,
+            args=r"/E '%s' 'HKEY_CURRENT_USER\Software\Valve\Steam'" %
+            dest_path,
             prefix=default_prefix,
         )
-        set_regedit_file(dest_path, wine_path=wine_path, prefix=prefix, arch=arch)
+        set_regedit_file(dest_path,
+                         wine_path=wine_path,
+                         prefix=prefix,
+                         arch=arch)
         try:
             os.remove(dest_path)
         except FileNotFoundError:
@@ -170,12 +180,15 @@ def create_prefix(  # noqa: C901
         steam_drive_path = os.path.join(prefix, "dosdevices", "s:")
         if not system.path_exists(steam_drive_path):
             logger.info("Linking Steam default prefix to drive S:")
-            os.symlink(os.path.join(default_prefix, "drive_c"), steam_drive_path)
+            os.symlink(os.path.join(default_prefix, "drive_c"),
+                       steam_drive_path)
 
 
-def winekill(
-    prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_pids=None
-):
+def winekill(prefix,
+             arch=WINE_DEFAULT_ARCH,
+             wine_path=None,
+             env=None,
+             initial_pids=None):
     """Kill processes in Wine prefix."""
 
     initial_pids = initial_pids or []
@@ -219,20 +232,20 @@ def winekill(
 
 # pragma pylint: disable=too-many-locals
 def wineexec(  # noqa: C901
-    executable,
-    args="",
-    wine_path=None,
-    prefix=None,
-    arch=None,
-    working_dir=None,
-    winetricks_wine="",
-    blocking=False,
-    config=None,
-    include_processes=None,
-    exclude_processes=None,
-    disable_runtime=False,
-    env=None,
-    overrides=None,
+        executable,
+        args="",
+        wine_path=None,
+        prefix=None,
+        arch=None,
+        working_dir=None,
+        winetricks_wine="",
+        blocking=False,
+        config=None,
+        include_processes=None,
+        exclude_processes=None,
+        disable_runtime=False,
+        env=None,
+        overrides=None,
 ):
     """
     Execute a Wine command.
@@ -273,7 +286,8 @@ def wineexec(  # noqa: C901
     if not working_dir and os.path.isfile(executable):
         working_dir = os.path.dirname(executable)
 
-    executable, _args, working_dir = get_real_executable(executable, working_dir)
+    executable, _args, working_dir = get_real_executable(
+        executable, working_dir)
     if _args:
         args = '{} "{}"'.format(_args[0], _args[1])
 
@@ -293,8 +307,10 @@ def wineexec(  # noqa: C901
         wineenv["WINEPREFIX"] = prefix
 
     wine_config = config or LutrisConfig(runner_slug="wine")
-    disable_runtime = disable_runtime or wine_config.system_config["disable_runtime"]
-    if use_lutris_runtime(wine_path=wineenv["WINE"], force_disable=disable_runtime):
+    disable_runtime = disable_runtime or wine_config.system_config[
+        "disable_runtime"]
+    if use_lutris_runtime(wine_path=wineenv["WINE"],
+                          force_disable=disable_runtime):
         if WINE_DIR in wine_path:
             wine_root_path = os.path.dirname(os.path.dirname(wine_path))
         elif WINE_DIR in winetricks_wine:
@@ -303,10 +319,10 @@ def wineexec(  # noqa: C901
             wine_root_path = None
         wineenv["LD_LIBRARY_PATH"] = ":".join(
             runtime.get_paths(
-                prefer_system_libs=wine_config.system_config["prefer_system_libs"],
+                prefer_system_libs=wine_config.
+                system_config["prefer_system_libs"],
                 wine_path=wine_root_path,
-            )
-        )
+            ))
 
     if overrides:
         wineenv["WINEDLLOVERRIDES"] = get_overrides_env(overrides)
@@ -337,21 +353,21 @@ def wineexec(  # noqa: C901
 
 
 def winetricks(
-    app,
-    prefix=None,
-    arch=None,
-    silent=True,
-    wine_path=None,
-    config=None,
-    env=None,
-    disable_runtime=False,
+        app,
+        prefix=None,
+        arch=None,
+        silent=True,
+        wine_path=None,
+        config=None,
+        env=None,
+        disable_runtime=False,
 ):
     """Execute winetricks."""
     wine_config = config or LutrisConfig(runner_slug="wine")
-    winetricks_path = os.path.join(settings.RUNTIME_DIR, "winetricks/winetricks")
-    if wine_config.runner_config.get("system_winetricks") or not system.path_exists(
-        winetricks_path
-    ):
+    winetricks_path = os.path.join(settings.RUNTIME_DIR,
+                                   "winetricks/winetricks")
+    if wine_config.runner_config.get(
+            "system_winetricks") or not system.path_exists(winetricks_path):
         winetricks_path = system.find_executable("winetricks")
         if not winetricks_path:
             raise RuntimeError("No installation of winetricks found")
@@ -378,7 +394,11 @@ def winetricks(
     )
 
 
-def winecfg(wine_path=None, prefix=None, arch=WINE_DEFAULT_ARCH, config=None, env=None):
+def winecfg(wine_path=None,
+            prefix=None,
+            arch=WINE_DEFAULT_ARCH,
+            config=None,
+            env=None):
     """Execute winecfg."""
     if not wine_path:
         logger.debug("winecfg: Reverting to default wine")
@@ -405,11 +425,18 @@ def eject_disc(wine_path, prefix):
     wineexec("eject", prefix=prefix, wine_path=wine_path, args="-a")
 
 
-def install_cab_component(cabfile, component, wine_path=None, prefix=None, arch=None):
+def install_cab_component(cabfile,
+                          component,
+                          wine_path=None,
+                          prefix=None,
+                          arch=None):
     """Install a component from a cabfile in a prefix"""
     cab_installer = CabInstaller(prefix, wine_path=wine_path, arch=arch)
     files = cab_installer.extract_from_cab(cabfile, component)
     registry_files = cab_installer.get_registry_files(files)
     for registry_file, _arch in registry_files:
-        set_regedit_file(registry_file, wine_path=wine_path, prefix=prefix, arch=_arch)
+        set_regedit_file(registry_file,
+                         wine_path=wine_path,
+                         prefix=prefix,
+                         arch=_arch)
     cab_installer.cleanup()

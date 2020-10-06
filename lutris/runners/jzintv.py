@@ -12,36 +12,46 @@ class jzintv(Runner):
     description = _("Intellivision Emulator")
     platforms = [_("Intellivision")]
     runner_executable = "jzintv/bin/jzintv"
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "file",
-            "label": _("ROM file"),
-            "default_path": "game_path",
-            "help": _(
-                "The game data, commonly called a ROM image. \n"
-                "Supported rom formats: .rom, .bin+.cfg, .int, .itv \n"
-                "The file extension must be lower-case."
-            ),
-        }
-    ]
+    game_options = [{
+        "option":
+        "main_file",
+        "type":
+        "file",
+        "label":
+        _("ROM file"),
+        "default_path":
+        "game_path",
+        "help":
+        _("The game data, commonly called a ROM image. \n"
+          "Supported rom formats: .rom, .bin+.cfg, .int, .itv \n"
+          "The file extension must be lower-case."),
+    }]
     runner_options = [
         {
-            "option": "bios_path",
-            "type": "directory_chooser",
-            "label": _("Bios location"),
-            "help": _(
-                "Choose the folder containing the Intellivision bios "
-                "files (exec.bin and grom.bin).\n"
-                "These files contain code from the original hardware "
-                "necessary to the emulation."
-            ),
+            "option":
+            "bios_path",
+            "type":
+            "directory_chooser",
+            "label":
+            _("Bios location"),
+            "help":
+            _("Choose the folder containing the Intellivision bios "
+              "files (exec.bin and grom.bin).\n"
+              "These files contain code from the original hardware "
+              "necessary to the emulation."),
         },
-        {"option": "fullscreen", "type": "bool", "label": _("Fullscreen")},
         {
-            "option": "resolution",
-            "type": "choice",
-            "label": "Resolution",
+            "option": "fullscreen",
+            "type": "bool",
+            "label": _("Fullscreen")
+        },
+        {
+            "option":
+            "resolution",
+            "type":
+            "choice",
+            "label":
+            "Resolution",
             "choices": (
                 ("320 x 200", "0"),
                 ("640 x 480", "1"),
@@ -51,7 +61,8 @@ class jzintv(Runner):
                 ("1680 x 1050", "4"),
                 ("1600 x 1200", "6"),
             ),
-            "default": "0",
+            "default":
+            "0",
         },
     ]
 

@@ -13,13 +13,15 @@ RESIDUALVM_CONFIG_FILE = os.path.join(os.path.expanduser("~"), ".residualvmrc")
 class residualvm(Runner):
     human_name = _("ResidualVM")
     platforms = [_("Linux")]  # TODO
-    description = _(
-        "Runs various 3D point-and-click adventure games, "
-        "like Grim Fandango and Escape from Monkey Island."
-    )
+    description = _("Runs various 3D point-and-click adventure games, "
+                    "like Grim Fandango and Escape from Monkey Island.")
     runner_executable = "residualvm/residualvm"
     game_options = [
-        {"option": "game_id", "type": "string", "label": _("Game identifier")},
+        {
+            "option": "game_id",
+            "type": "string",
+            "label": _("Game identifier")
+        },
         {
             "option": "path",
             "type": "directory_chooser",
@@ -40,15 +42,19 @@ class residualvm(Runner):
             "default": False,
         },
         {
-            "option": "renderer",
-            "label": _("Renderer"),
-            "type": "choice",
+            "option":
+            "renderer",
+            "label":
+            _("Renderer"),
+            "type":
+            "choice",
             "choices": (
                 ("OpenGL", "opengl"),
                 (_("OpenGL shaders"), "opengl_shaders"),
                 (_("Software"), "software"),
             ),
-            "default": "opengl",
+            "default":
+            "opengl",
         },
         {
             "option": "show-fps",
@@ -103,8 +109,8 @@ class residualvm(Runner):
     def get_game_list(self):
         """Return the entire list of games supported by ResidualVM."""
         residual_output = subprocess.Popen(
-            [self.get_executable(), "--list-games"], stdout=subprocess.PIPE
-        ).communicate()[0]
+            [self.get_executable(), "--list-games"],
+            stdout=subprocess.PIPE).communicate()[0]
         game_list = str.split(residual_output, "\n")
         game_array = []
         game_list_start = False
@@ -113,7 +119,7 @@ class residualvm(Runner):
                 dir_limit = game.index(" ") if len(game) > 1 else None
                 if dir_limit is not None:
                     game_dir = game[0:dir_limit]
-                    game_name = game[dir_limit + 1 : len(game)].strip()
+                    game_name = game[dir_limit + 1:len(game)].strip()
                     game_array.append([game_dir, game_name])
             # The actual list is below a separator
             if game.startswith("-----"):

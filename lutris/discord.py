@@ -15,7 +15,6 @@ except ImportError:
 
 
 class DiscordPresence(object):
-
     """Provide rich presence integration with Discord for games"""
 
     def __init__(self):
@@ -57,7 +56,8 @@ class DiscordPresence(object):
             try:
                 self.rpc_client.close()
             except Exception as e:
-                logger.exception("Unable to close Discord RPC connection: %s", e)
+                logger.exception("Unable to close Discord RPC connection: %s",
+                                 e)
             if self.rpc_client.sock_writer is not None:
                 try:
                     logger.debug("Forcefully closing sock writer.")

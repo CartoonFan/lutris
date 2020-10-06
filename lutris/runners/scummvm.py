@@ -17,7 +17,11 @@ class scummvm(Runner):
     runnable_alone = True
     runner_executable = "scummvm/bin/scummvm"
     game_options = [
-        {"option": "game_id", "type": "string", "label": _("Game identifier")},
+        {
+            "option": "game_id",
+            "type": "string",
+            "label": _("Game identifier")
+        },
         {
             "option": "path",
             "type": "directory_chooser",
@@ -44,22 +48,29 @@ class scummvm(Runner):
             "default": False,
         },
         {
-            "option": "aspect",
-            "label": _("Aspect ratio correction"),
-            "type": "bool",
-            "default": True,
-            "help": _(
-                "Most games supported by ScummVM were made for VGA "
-                "display modes using rectangular pixels. Activating "
-                "this option for these games will preserve the 4:3 "
-                "aspect ratio they were made for."
-            ),
+            "option":
+            "aspect",
+            "label":
+            _("Aspect ratio correction"),
+            "type":
+            "bool",
+            "default":
+            True,
+            "help":
+            _("Most games supported by ScummVM were made for VGA "
+              "display modes using rectangular pixels. Activating "
+              "this option for these games will preserve the 4:3 "
+              "aspect ratio they were made for."),
         },
         {
-            "option": "gfx-mode",
-            "label": _("Graphic scaler"),
-            "type": "choice",
-            "default": "3x",
+            "option":
+            "gfx-mode",
+            "label":
+            _("Graphic scaler"),
+            "type":
+            "choice",
+            "default":
+            "3x",
             "choices": [
                 ("1x", "1x"),
                 ("2x", "2x"),
@@ -74,10 +85,9 @@ class scummvm(Runner):
                 ("tv2x", "tv2x"),
                 ("dotmatrix", "dotmatrix"),
             ],
-            "help": _(
-                "The algorithm used to scale up the game's base "
-                "resolution, resulting in different visual styles. "
-            ),
+            "help":
+            _("The algorithm used to scale up the game's base "
+              "resolution, resulting in different visual styles. "),
         },
         {
             "option": "datadir",
@@ -146,8 +156,8 @@ class scummvm(Runner):
     def get_game_list(self):
         """Return the entire list of games supported by ScummVM."""
         scumm_output = subprocess.Popen(
-            [self.get_executable(), "--list-games"], stdout=subprocess.PIPE
-        ).communicate()[0]
+            [self.get_executable(), "--list-games"],
+            stdout=subprocess.PIPE).communicate()[0]
         game_list = str.split(scumm_output, "\n")
         game_array = []
         game_list_start = False
@@ -156,7 +166,7 @@ class scummvm(Runner):
                 dir_limit = game.index(" ") if len(game) > 1 else None
                 if dir_limit is not None:
                     game_dir = game[0:dir_limit]
-                    game_name = game[dir_limit + 1 : len(game)].strip()
+                    game_name = game[dir_limit + 1:len(game)].strip()
                     game_array.append([game_dir, game_name])
             # The actual list is below a separator
             if game.startswith("-----"):

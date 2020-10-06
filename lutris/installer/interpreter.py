@@ -55,11 +55,13 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
             0  # Current installer command when iterating through them
         )
         self.runners_to_install = []
-        self.installer = LutrisInstaller(
-            installer, self, service=self.service, appid=self.appid
-        )
+        self.installer = LutrisInstaller(installer,
+                                         self,
+                                         service=self.service,
+                                         appid=self.appid)
         if not self.installer.script:
-            raise ScriptingError("This installer doesn't have a 'script' section")
+            raise ScriptingError(
+                "This installer doesn't have a 'script' section")
         script_errors = self.installer.get_errors()
         if script_errors:
             raise ScriptingError(
@@ -76,18 +78,17 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
     def get_default_target(self):
         """Return default installation dir"""
         config = LutrisConfig(runner_slug=self.installer.runner)
-        games_dir = config.system_config.get("game_path", os.path.expanduser("~"))
+        games_dir = config.system_config.get("game_path",
+                                             os.path.expanduser("~"))
         service_dir = self.service.id if self.service else ""
         return os.path.expanduser(
-            os.path.join(games_dir, service_dir, self.installer.game_slug)
-        )
+            os.path.join(games_dir, service_dir, self.installer.game_slug))
 
     @property
     def cache_path(self):
         """Return the directory used as a cache for the duration of the installation"""
-        return os.path.join(
-            settings.CACHE_DIR, "installer/%s" % self.installer.game_slug
-        )
+        return os.path.join(settings.CACHE_DIR,
+                            "installer/%s" % self.installer.game_slug)
 
     @property
     def script_env(self):
@@ -97,9 +98,8 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
         """
         return {
             key: self._substitute(value)
-            for key, value in self.installer.script.get("system", {})
-            .get("env", {})
-            .items()
+            for key, value in self.installer.script.get("system", {}).get(
+                "env", {}).items()
         }
 
     # --------------------------
@@ -123,24 +123,23 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
         the `requires` entry.
         """
         binary_dependencies = unpack_dependencies(
-            self.installer.script.get("require-binaries")
-        )
+            self.installer.script.get("require-binaries"))
         for dependency in binary_dependencies:
             if isinstance(dependency, tuple):
                 installed_binaries = {
-                    dependency_option: bool(system.find_executable(dependency_option))
+                    dependency_option:
+                    bool(system.find_executable(dependency_option))
                     for dependency_option in dependency
                 }
                 if not any(installed_binaries.values()):
                     raise ScriptingError(
-                        "This installer requires %s on your system"
-                        % " or ".join(dependency)
-                    )
+                        "This installer requires %s on your system" %
+                        " or ".join(dependency))
             else:
                 if not system.find_executable(dependency):
                     raise ScriptingError(
-                        "This installer requires %s on your system" % dependency
-                    )
+                        "This installer requires %s on your system" %
+                        dependency)
 
     def _check_dependency(self):
         """When a game is a mod or an extension of another game, check that the base
@@ -157,16 +156,16 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
         for index, dependency in enumerate(dependencies):
             if isinstance(dependency, tuple):
                 installed_games = [
-                    dep
-                    for dep in [
-                        self._get_installed_dependency(dep) for dep in dependency
-                    ]
-                    if dep
+                    dep for dep in [
+                        self._get_installed_dependency(dep)
+                        for dep in dependency
+                    ] if dep
                 ]
                 if not installed_games:
                     if len(dependency) == 1:
                         raise MissingGameDependency(slug=dependency)
-                    raise ScriptingError(error_message.format(" or ".join(dependency)))
+                    raise ScriptingError(
+                        error_message.format(" or ".join(dependency)))
                 if index == 0:
                     self.target_path = installed_games[0]["directory"]
                     self.requires = installed_games[0]["installer_slug"]
@@ -186,12 +185,9 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
 
     def create_game_folder(self):
         """Create the game folder if needed and store if is was created"""
-        if (
-            self.installer.files
-            and self.target_path
-            and not system.path_exists(self.target_path)
-            and self.installer.creates_game_folder
-        ):
+        if (self.installer.files and self.target_path
+                and not system.path_exists(self.target_path)
+                and self.installer.creates_game_folder):
             try:
                 logger.debug("Creating destination path %s", self.target_path)
                 os.makedirs(self.target_path)
@@ -215,14 +211,15 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
         required_runners.append(runner())
 
         for command in self.installer.script.get("installer", []):
-            command_name, command_params = self._get_command_name_and_params(command)
+            command_name, command_params = self._get_command_name_and_params(
+                command)
             if command_name == "task":
                 runner_name, _task_name = self._get_task_runner_and_name(
-                    command_params["name"]
-                )
+                    command_params["name"])
                 runner_names = [r.name for r in required_runners]
                 if runner_name not in runner_names:
-                    required_runners.append(self.get_runner_class(runner_name)())
+                    required_runners.append(
+                        self.get_runner_class(runner_name)())
 
         for runner in required_runners:
             params = {}
@@ -239,30 +236,28 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
                     # Looking up default wine version
                     default_wine = runner.get_runner_version() or {}
                     if "version" in default_wine:
-                        logger.debug(
-                            "Default wine version is %s", default_wine["version"]
-                        )
+                        logger.debug("Default wine version is %s",
+                                     default_wine["version"])
                         # Set the version to both the is_installed params and
                         # the script itself so the version gets saved at the
                         # end of the install.
                         if self.installer.runner not in self.installer.script:
                             self.installer.script[self.installer.runner] = {}
-                        version = "{}-{}".format(
-                            default_wine["version"], default_wine["architecture"]
-                        )
+                        version = "{}-{}".format(default_wine["version"],
+                                                 default_wine["architecture"])
                         params["version"] = self.installer.script[
-                            self.installer.runner
-                        ]["version"] = version
+                            self.installer.runner]["version"] = version
                     else:
                         logger.error(
-                            "Failed to get default wine version (got %s)", default_wine
-                        )
+                            "Failed to get default wine version (got %s)",
+                            default_wine)
 
             if not runner.is_installed(**params):
                 logger.info("Runner %s needs to be installed", runner)
                 runners_to_install.append(runner)
 
-        if self.installer.runner.startswith("wine") and not get_system_wine_version():
+        if self.installer.runner.startswith(
+                "wine") and not get_system_wine_version():
             WineNotInstalledWarning(parent=self.parent)
         return runners_to_install
 
@@ -318,7 +313,8 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
             try:
                 command = commands[self.current_command]
             except KeyError:
-                raise ScriptingError("Installer commands are not formatted correctly")
+                raise ScriptingError(
+                    "Installer commands are not formatted correctly")
             self.current_command += 1
             method, params = self._map_command(command)
             if isinstance(params, dict):
@@ -347,39 +343,36 @@ class ScriptInterpreter(GObject.Object, CommandsMixin):
     def _map_command(self, command_data):
         """Map a directive from the `installer` section to an internal
         method."""
-        command_name, command_params = self._get_command_name_and_params(command_data)
+        command_name, command_params = self._get_command_name_and_params(
+            command_data)
         if not hasattr(self, command_name):
-            raise ScriptingError('The command "%s" does not exist.' % command_name)
+            raise ScriptingError('The command "%s" does not exist.' %
+                                 command_name)
         return getattr(self, command_name), command_params
 
     def _finish_install(self):
         game = self.installer.script.get("game")
         launcher_value = None
         if game:
-            _launcher, launcher_value = get_game_launcher(self.installer.script)
+            _launcher, launcher_value = get_game_launcher(
+                self.installer.script)
         path = None
         if launcher_value:
             path = self._substitute(launcher_value)
             if not os.path.isabs(path) and self.target_path:
                 path = os.path.join(self.target_path, path)
         self.installer.save()
-        if (
-            path
-            and not os.path.isfile(path)
-            and self.installer.runner not in ("web", "browser")
-        ):
+        if (path and not os.path.isfile(path)
+                and self.installer.runner not in ("web", "browser")):
             self.parent.set_status(
-                _(
-                    "The executable at path %s can't be found, please check the destination folder.\n"
-                    "Some parts of the installation process may have not completed successfully."
-                )
-                % path
-            )
-            logger.warning("No executable found at specified location %s", path)
+                _("The executable at path %s can't be found, please check the destination folder.\n"
+                  "Some parts of the installation process may have not completed successfully."
+                  ) % path)
+            logger.warning("No executable found at specified location %s",
+                           path)
         else:
             install_complete_text = self.installer.script.get(
-                "install_complete_text"
-            ) or _("Installation completed!")
+                "install_complete_text") or _("Installation completed!")
             self.parent.set_status(install_complete_text)
         self.parent.on_install_finished()
 

@@ -26,7 +26,6 @@ from lutris.util.wine.wine import WINE_DEFAULT_ARCH
 
 
 class CommandsMixin:
-
     """The directives for the `installer:` part of the install script."""
 
     def __init__(self):
@@ -35,9 +34,9 @@ class CommandsMixin:
 
     def _get_runner_version(self):
         """Return the version of the runner used for the installer"""
-        if self.installer.runner in ("wine", "winesteam") and self.installer.script.get(
-            self.installer.runner
-        ):
+        if self.installer.runner in (
+                "wine", "winesteam") and self.installer.script.get(
+                    self.installer.runner):
             return self.installer.script[self.installer.runner].get("version")
         if self.installer.runner == "libretro":
             return self.installer.script["game"]["core"]
@@ -53,15 +52,15 @@ class CommandsMixin:
                 param_present = any(key in command_data for key in param)
                 if not param_present:
                     raise ScriptingError(
-                        "One of %s parameter is mandatory for the %s command"
-                        % (" or ".join(param), command_name),
+                        "One of %s parameter is mandatory for the %s command" %
+                        (" or ".join(param), command_name),
                         command_data,
                     )
             else:
                 if param not in command_data:
                     raise ScriptingError(
-                        "The %s parameter is mandatory for the %s command"
-                        % (param, command_name),
+                        "The %s parameter is mandatory for the %s command" %
+                        (param, command_name),
                         command_data,
                     )
 
@@ -78,8 +77,7 @@ class CommandsMixin:
         filename = self._substitute(filename)
         if not system.path_exists(filename):
             raise ScriptingError(
-                "Invalid file '%s'. Can't make it executable" % filename
-            )
+                "Invalid file '%s'. Can't make it executable" % filename)
         system.make_executable(filename)
 
     def execute(self, data):
@@ -112,9 +110,10 @@ class CommandsMixin:
 
             # Environment variables can also be passed to the execute command
             local_env = data.get("env") or {}
-            env.update(
-                {key: self._substitute(value) for key, value in local_env.items()}
-            )
+            env.update({
+                key: self._substitute(value)
+                for key, value in local_env.items()
+            })
             include_processes = shlex.split(data.get("include_processes", ""))
             exclude_processes = shlex.split(data.get("exclude_processes", ""))
         elif isinstance(data, str):
@@ -122,7 +121,8 @@ class CommandsMixin:
             include_processes = []
             exclude_processes = []
         else:
-            raise ScriptingError("No parameters supplied to execute command.", data)
+            raise ScriptingError("No parameters supplied to execute command.",
+                                 data)
 
         if command:
             file_ref = "bash"
@@ -178,9 +178,8 @@ class CommandsMixin:
             merge_single = "nomerge" not in data
             extractor = data.get("format")
             logger.debug("extracting file %s to %s", filename, dest_path)
-            self._killable_process(
-                extract.extract_archive, filename, dest_path, merge_single, extractor
-            )
+            self._killable_process(extract.extract_archive, filename,
+                                   dest_path, merge_single, extractor)
         logger.debug("Extract done")
 
     def input_menu(self, data):
@@ -216,24 +215,17 @@ class CommandsMixin:
         requires = data.get("requires")
         message = data.get(
             "message",
-            _(
-                "Insert or mount game disc and click Autodetect or\n"
-                "use Browse if the disc is mounted on a non standard location."
-            ),
+            _("Insert or mount game disc and click Autodetect or\n"
+              "use Browse if the disc is mounted on a non standard location."),
         )
         message += (
-            _(
-                "\n\nLutris is looking for a mounted disk drive or image \n"
-                "containing the following file or folder:\n"
-                "<i>%s</i>"
-            )
-            % requires
-        )
+            _("\n\nLutris is looking for a mounted disk drive or image \n"
+              "containing the following file or folder:\n"
+              "<i>%s</i>") % requires)
         if self.installer.runner == "wine":
             GLib.idle_add(self.parent.eject_button.show)
-        GLib.idle_add(
-            self.parent.ask_for_disc, message, self._find_matching_disc, requires
-        )
+        GLib.idle_add(self.parent.ask_for_disc, message,
+                      self._find_matching_disc, requires)
         return "STOP"
 
     def _find_matching_disc(self, _widget, requires, extra_path=None):
@@ -277,8 +269,7 @@ class CommandsMixin:
                 self._killable_process(shutil.copy, src, dst)
             if params["src"] in self.game_files.keys():
                 self.game_files[params["src"]] = os.path.join(
-                    dst, os.path.basename(src)
-                )
+                    dst, os.path.basename(src))
             return
         self._killable_process(system.merge_folders, src, dst)
 
@@ -311,21 +302,24 @@ class CommandsMixin:
             action = shutil.copy if self._is_cached_file(src) else shutil.move
             self._killable_process(action, src, dst)
         except shutil.Error:
-            raise ScriptingError("Can't move %s \nto destination %s" % (src, dst))
+            raise ScriptingError("Can't move %s \nto destination %s" %
+                                 (src, dst))
 
     def rename(self, params):
         """Rename file or folder."""
         self._check_required_params(["src", "dst"], params, "rename")
         src, dst = self._get_move_paths(params)
         if not os.path.exists(src):
-            raise ScriptingError("Rename error, source path does not exist: %s" % src)
+            raise ScriptingError(
+                "Rename error, source path does not exist: %s" % src)
         if os.path.isdir(dst):
             try:
                 os.rmdir(dst)  # Remove if empty
             except OSError:
                 pass
         if os.path.exists(dst):
-            raise ScriptingError("Rename error, destination already exists: %s" % src)
+            raise ScriptingError(
+                "Rename error, destination already exists: %s" % src)
         dst_dir = os.path.dirname(dst)
 
         # Pre-move on dest filesystem to avoid error with
@@ -384,7 +378,8 @@ class CommandsMixin:
         self._check_required_params("name", data, "task")
         if self.parent:
             GLib.idle_add(self.parent.cancel_button.set_sensitive, False)
-        runner_name, task_name = self._get_task_runner_and_name(data.pop("name"))
+        runner_name, task_name = self._get_task_runner_and_name(
+            data.pop("name"))
 
         wine_version = None
 
@@ -392,16 +387,10 @@ class CommandsMixin:
             wine_version = self._get_runner_version()
             if wine_version:
                 data["wine_path"] = get_wine_version_exe(wine_version)
-            data["prefix"] = (
-                data.get("prefix")
-                or self.installer.script.get("game", {}).get("prefix")
-                or "$GAMEDIR"
-            )
-            data["arch"] = (
-                data.get("arch")
-                or self.installer.script.get("game", {}).get("arch")
-                or WINE_DEFAULT_ARCH
-            )
+            data["prefix"] = (data.get("prefix") or self.installer.script.get(
+                "game", {}).get("prefix") or "$GAMEDIR")
+            data["arch"] = (data.get("arch") or self.installer.script.get(
+                "game", {}).get("arch") or WINE_DEFAULT_ARCH)
             if task_name == "wineexec" and self.script_env:
                 data["env"] = self.script_env
 
@@ -447,7 +436,8 @@ class CommandsMixin:
 
         mode = params.get("mode", "w")
         if not mode.startswith(("a", "w")):
-            raise ScriptingError("Wrong value for write_file mode: '%s'" % mode)
+            raise ScriptingError("Wrong value for write_file mode: '%s'" %
+                                 mode)
 
         with open(dest_file_path, mode) as dest_file:
             dest_file.write(self._substitute(params["content"]))
@@ -486,11 +476,11 @@ class CommandsMixin:
     def write_config(self, params):
         """Write a key-value pair into an INI type config file."""
         if params.get("data", None):
-            self._check_required_params(["file", "data"], params, "write_config")
+            self._check_required_params(["file", "data"], params,
+                                        "write_config")
         else:
-            self._check_required_params(
-                ["file", "section", "key", "value"], params, "write_config"
-            )
+            self._check_required_params(["file", "section", "key", "value"],
+                                        params, "write_config")
         # Get file
         config_file_path = self._get_file(params["file"])
 
@@ -501,9 +491,9 @@ class CommandsMixin:
 
         merge = params.get("merge", True)
 
-        parser = EvilConfigParser(
-            allow_no_value=True, dict_type=MultiOrderedDict, strict=False
-        )
+        parser = EvilConfigParser(allow_no_value=True,
+                                  dict_type=MultiOrderedDict,
+                                  strict=False)
         parser.optionxform = str  # Preserve text case
         if merge:
             parser.read(config_file_path)

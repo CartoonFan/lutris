@@ -53,7 +53,6 @@ class GogLargeBanner(GogSmallBanner):
 
 
 class GOGGame(ServiceGame):
-
     """Representation of a GOG game"""
 
     service = "gog"
@@ -125,7 +124,9 @@ class GOGService(OnlineService):
 
     def load(self):
         """Load the user game library from the GOG API"""
-        games = [GOGGame.new_from_gog_game(game) for game in self.get_library()]
+        games = [
+            GOGGame.new_from_gog_game(game) for game in self.get_library()
+        ]
         for game in games:
             game.save()
         self.emit("service-games-loaded")
@@ -251,13 +252,15 @@ class GOGService(OnlineService):
             params["page"] = page
         if search:
             params["search"] = search
-        url = self.embed_url + "/account/getFilteredProducts?" + urlencode(params)
+        url = self.embed_url + "/account/getFilteredProducts?" + urlencode(
+            params)
         return self.make_request(url)
 
     def get_game_details(self, product_id):
         """Return game information for a given game"""
         logger.info("Getting game details for %s", product_id)
-        url = "{}/products/{}?expand=downloads".format(self.api_url, product_id)
+        url = "{}/products/{}?expand=downloads".format(self.api_url,
+                                                       product_id)
         return self.make_api_request(url)
 
     def get_download_info(self, downlink):
@@ -274,8 +277,7 @@ class GOGService(OnlineService):
             parsed = urlparse(field_url)
             query = dict(parse_qsl(parsed.query))
             response[field + "_filename"] = os.path.basename(
-                query.get("path") or parsed.path
-            )
+                query.get("path") or parsed.path)
         return response
 
     def get_installers(self, gogid, runner, language="en"):
@@ -288,8 +290,7 @@ class GOGService(OnlineService):
 
         # Filter out Mac installers
         gog_installers = [
-            installer
-            for installer in gog_data["downloads"]["installers"]
+            installer for installer in gog_data["downloads"]["installers"]
             if installer["os"] != "mac"
         ]
         available_platforms = {installer["os"] for installer in gog_installers}
@@ -297,25 +298,25 @@ class GOGService(OnlineService):
         if "linux" in available_platforms:
             filter_os = "windows" if runner == "linux" else "linux"
             gog_installers = [
-                installer
-                for installer in gog_installers
+                installer for installer in gog_installers
                 if installer["os"] != filter_os
             ]
 
         # Keep only the english installer until we have locale detection
         # and / or language selection implemented
         gog_installers = [
-            installer
-            for installer in gog_installers
+            installer for installer in gog_installers
             if installer["language"] == language
         ]
         return gog_installers
 
     def get_installer_files(self, installer, installer_file_id):
         try:
-            links = get_gog_download_links(installer.service_appid, installer.runner)
+            links = get_gog_download_links(installer.service_appid,
+                                           installer.runner)
         except HTTPError:
-            raise UnavailableGame("Couldn't load the download links for this game")
+            raise UnavailableGame(
+                "Couldn't load the download links for this game")
         if not links:
             raise UnavailableGame("Could not fing GOG game")
         files = []
@@ -323,7 +324,8 @@ class GOGService(OnlineService):
         for index, link in enumerate(links):
             url = link["url"] if isinstance(link, dict) else link
             filename = link["filename"]
-            if filename.lower().endswith((".exe", ".sh")) and not file_id_provided:
+            if filename.lower().endswith(
+                (".exe", ".sh")) and not file_id_provided:
                 file_id = installer_file_id
                 file_id_provided = True
             else:
@@ -336,12 +338,10 @@ class GOGService(OnlineService):
                         "url": url,
                         "filename": filename,
                     },
-                )
-            )
+                ))
         if not file_id_provided:
             raise UnavailableGame(
-                "Unable to determine correct file to launch installer"
-            )
+                "Unable to determine correct file to launch installer")
         return files
 
     def generate_installer(self, db_game):
@@ -357,14 +357,30 @@ class GOGService(OnlineService):
             runner = "linux"
             game_config = {"exe": AUTO_ELF_EXE}
             script = [
-                {"extract": {"file": "goginstaller", "format": "zip", "dst": "$CACHE"}},
-                {"merge": {"src": "$CACHE/data/noarch", "dst": "$GAMEDIR"}},
+                {
+                    "extract": {
+                        "file": "goginstaller",
+                        "format": "zip",
+                        "dst": "$CACHE"
+                    }
+                },
+                {
+                    "merge": {
+                        "src": "$CACHE/data/noarch",
+                        "dst": "$GAMEDIR"
+                    }
+                },
             ]
         else:
             runner = "wine"
             game_config = {"exe": AUTO_WIN32_EXE}
             script = [
-                {"task": {"name": "create_prefix", "prefix": "$GAMEDIR"}},
+                {
+                    "task": {
+                        "name": "create_prefix",
+                        "prefix": "$GAMEDIR"
+                    }
+                },
                 {
                     "task": {
                         "name": "wineexec",
@@ -383,7 +399,9 @@ class GOGService(OnlineService):
             "script": {
                 "game": game_config,
                 "system": system_config,
-                "files": [{"goginstaller": "N/A:Select the installer from GOG"}],
+                "files": [{
+                    "goginstaller": "N/A:Select the installer from GOG"
+                }],
                 "installer": script,
             },
         }
@@ -414,10 +432,10 @@ def get_gog_download_links(gogid, runner):
         for field in ("checksum", "downlink"):
             url = download_info[field]
             logger.info("Adding %s to download links", url)
-            download_links.append(
-                {
-                    "url": download_info[field],
-                    "filename": download_info[field + "_filename"],
-                }
-            )
+            download_links.append({
+                "url":
+                download_info[field],
+                "filename":
+                download_info[field + "_filename"],
+            })
     return download_links

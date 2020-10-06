@@ -30,9 +30,8 @@ class RetroConfig:
         """Load the configuration from file"""
         self._config = []
         if not system.path_exists(self.config_path):
-            raise OSError(
-                "Specified config file {} does not exist".format(self.config_path)
-            )
+            raise OSError("Specified config file {} does not exist".format(
+                self.config_path))
         with open(self.config_path, "r") as config_file:
             for line in config_file.readlines():
                 if not line:

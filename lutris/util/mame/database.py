@@ -26,8 +26,7 @@ def is_game(machine):
     Clones return False
     """
     return (
-        machine.attrib["isbios"] == "no"
-        and machine.attrib["isdevice"] == "no"
+        machine.attrib["isbios"] == "no" and machine.attrib["isdevice"] == "no"
         and machine.attrib["runnable"] == "yes"
         and "romof" not in machine.attrib
         # FIXME: Filter by the machines that accept coins, but not like that
@@ -39,19 +38,16 @@ def has_software_list(machine):
     """Return True if the machine has an associated software list"""
     return any(
         elem.tag == "device_ref" and elem.attrib["name"] == "software_list"
-        for elem in machine
-    )
+        for elem in machine)
 
 
 def is_system(machine):
     """Given a machine XML tag, return True if it is a computer, console or
     handheld.
     """
-    if (
-        machine.attrib.get("runnable") == "no"
-        or machine.attrib.get("isdevice") == "yes"
-        or machine.attrib.get("isbios") == "yes"
-    ):
+    if (machine.attrib.get("runnable") == "no"
+            or machine.attrib.get("isdevice") == "yes"
+            or machine.attrib.get("isbios") == "yes"):
         return False
     return has_software_list(machine)
 
@@ -72,32 +68,36 @@ def iter_machines(xml_path, filter_func=None):
 def get_machine_info(machine):
     """Return human readable information about a machine node"""
     return {
-        "description": machine.find("description").text,
-        "manufacturer": simplify_manufacturer(machine.find("manufacturer").text),
-        "year": machine.find("year").text,
+        "description":
+        machine.find("description").text,
+        "manufacturer":
+        simplify_manufacturer(machine.find("manufacturer").text),
+        "year":
+        machine.find("year").text,
         "roms": [rom.attrib for rom in machine.findall("rom")],
         "ports": [port.attrib for port in machine.findall("port")],
-        "devices": [
-            {
-                "info": device.attrib,
-                "name": "".join(
-                    [instance.attrib["name"] for instance in device.findall("instance")]
-                ),
-                "briefname": "".join(
-                    [
-                        instance.attrib["briefname"]
-                        for instance in device.findall("instance")
-                    ]
-                ),
-                "extensions": [
-                    extension.attrib["name"]
-                    for extension in device.findall("extension")
-                ],
-            }
-            for device in machine.findall("device")
-        ],
-        "input": machine.find("input").attrib,
-        "driver": machine.find("driver").attrib,
+        "devices": [{
+            "info":
+            device.attrib,
+            "name":
+            "".join([
+                instance.attrib["name"]
+                for instance in device.findall("instance")
+            ]),
+            "briefname":
+            "".join([
+                instance.attrib["briefname"]
+                for instance in device.findall("instance")
+            ]),
+            "extensions": [
+                extension.attrib["name"]
+                for extension in device.findall("extension")
+            ],
+        } for device in machine.findall("device")],
+        "input":
+        machine.find("input").attrib,
+        "driver":
+        machine.find("driver").attrib,
     }
 
 
@@ -112,7 +112,8 @@ def get_supported_systems(xml_path, force=False):
             try:
                 systems = json.load(systems_cache_file)
             except json.JSONDecodeError:
-                logger.error("Failed to read systems cache %s", systems_cache_path)
+                logger.error("Failed to read systems cache %s",
+                             systems_cache_path)
                 systems = None
         if systems:
             return systems

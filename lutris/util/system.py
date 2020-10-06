@@ -15,13 +15,13 @@ from lutris.util.log import logger
 
 
 def execute(
-    command,
-    env=None,
-    cwd=None,
-    log_errors=False,
-    quiet=False,
-    shell=False,
-    timeout=None,
+        command,
+        env=None,
+        cwd=None,
+        log_errors=False,
+        quiet=False,
+        shell=False,
+        timeout=None,
 ):
     """
     Execute a system command and return its results.
@@ -53,7 +53,8 @@ def execute(
     existing_env = os.environ.copy()
     if env:
         if not quiet:
-            logger.debug(" ".join("{}={}".format(k, v) for k, v in env.items()))
+            logger.debug(" ".join("{}={}".format(k, v)
+                                  for k, v in env.items()))
         env = {k: v for k, v in env.items() if v is not None}
         existing_env.update(env)
 
@@ -69,7 +70,8 @@ def execute(
             cwd=cwd,
         ).communicate(timeout=timeout)
     except (OSError, TypeError) as ex:
-        logger.error("Could not run command %s (env: %s): %s", command, env, ex)
+        logger.error("Could not run command %s (env: %s): %s", command, env,
+                     ex)
         return ""
     except subprocess.TimeoutExpired:
         logger.error("Command %s after %s seconds", command, timeout)
@@ -154,7 +156,8 @@ def kill_pid(pid):
 def python_identifier(unsafe_string):
     """Converts a string to something that can be used as a python variable"""
     if not isinstance(unsafe_string, str):
-        logger.error("Cannot convert %s to a python identifier", type(unsafe_string))
+        logger.error("Cannot convert %s to a python identifier",
+                     type(unsafe_string))
         return
 
     def _dashrepl(matchobj):
@@ -182,8 +185,8 @@ def substitute(string_template, variables):
     variables = {k.replace("-", "_"): v for k, v in variables.items()}
     for identifier in identifiers:
         string_template = string_template.replace(
-            "${}".format(identifier), "${}".format(identifier.replace("-", "_"))
-        )
+            "${}".format(identifier),
+            "${}".format(identifier.replace("-", "_")))
 
     template = string.Template(string_template)
     if string_template in list(variables.keys()):
@@ -196,7 +199,7 @@ def merge_folders(source, destination):
     logger.debug("Merging %s into %s", source, destination)
     source = os.path.abspath(source)
     for (dirpath, dirnames, filenames) in os.walk(source):
-        source_relpath = dirpath[len(source) :].strip("/")
+        source_relpath = dirpath[len(source):].strip("/")
         dst_abspath = os.path.join(destination, source_relpath)
         for dirname in dirnames:
             new_dir = os.path.join(dst_abspath, dirname)
@@ -209,9 +212,8 @@ def merge_folders(source, destination):
             # logger.debug("Copying %s", filename)
             if not os.path.exists(dst_abspath):
                 os.makedirs(dst_abspath)
-            shutil.copy(
-                os.path.join(dirpath, filename), os.path.join(dst_abspath, filename)
-            )
+            shutil.copy(os.path.join(dirpath, filename),
+                        os.path.join(dst_abspath, filename))
 
 
 def remove_folder(path):
@@ -329,7 +331,7 @@ def reverse_expanduser(path):
         return path
     user_path = os.path.expanduser("~")
     if path.startswith(user_path):
-        path = path[len(user_path) :].strip("/")
+        path = path[len(user_path):].strip("/")
         return "~/" + path
     return path
 
@@ -394,7 +396,5 @@ def update_desktop_icons():
     """
     if find_executable("gtk-update-icon-cache"):
         logger.debug("Updating GTK icon cache...")
-        os.system(
-            "gtk-update-icon-cache -tf %s"
-            % os.path.join(GLib.get_user_data_dir(), "icons", "hicolor")
-        )
+        os.system("gtk-update-icon-cache -tf %s" %
+                  os.path.join(GLib.get_user_data_dir(), "icons", "hicolor"))

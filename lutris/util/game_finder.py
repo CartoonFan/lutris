@@ -25,11 +25,8 @@ def find_linux_game_executable(path, make_executable=False):
             if make_executable:
                 for file_type, value in candidates.items():
                     system.make_executable(value)
-            return (
-                candidates.get("shell")
-                or candidates.get("64bit")
-                or candidates.get("32bit")
-            )
+            return (candidates.get("shell") or candidates.get("64bit")
+                    or candidates.get("32bit"))
 
 
 def is_excluded_dir(path):
@@ -78,8 +75,5 @@ def find_windows_game_executable(path):
             elif "PE32 executable (GUI) Intel 80386" in file_type:
                 candidates["32bit"] = abspath
         if candidates:
-            return (
-                candidates.get("link")
-                or candidates.get("64bit")
-                or candidates.get("32bit")
-            )
+            return (candidates.get("link") or candidates.get("64bit")
+                    or candidates.get("32bit"))

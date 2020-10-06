@@ -5,7 +5,11 @@ from lutris.installer.installer import LutrisInstaller
 from lutris.installer.interpreter import ScriptInterpreter
 
 TEST_INSTALLER = {
-    "script": {"game": {"exe": "test"}},
+    "script": {
+        "game": {
+            "exe": "test"
+        }
+    },
     "version": "test",
     "game_slug": "test",
     "name": "test",
@@ -24,7 +28,9 @@ class TestScriptInterpreter(TestCase):
     def test_script_with_correct_values_is_valid(self):
         installer = {
             "runner": "linux",
-            "script": {"exe": "doom"},
+            "script": {
+                "exe": "doom"
+            },
             "name": "Doom",
             "slug": "doom",
             "game_slug": "doom",
@@ -58,6 +64,5 @@ class TestScriptInterpreter(TestCase):
         interpreter = MockInterpreter(TEST_INSTALLER, None)
         with self.assertRaises(ScriptingError) as ex:
             interpreter._map_command({"_substitute": "foo"})
-        self.assertEqual(
-            ex.exception.message, 'The command "substitute" does not exist.'
-        )
+        self.assertEqual(ex.exception.message,
+                         'The command "substitute" does not exist.')

@@ -20,7 +20,6 @@ def make_game_config_id(game_slug):
 
 
 class LutrisConfig:
-
     """Class where all the configuration handling happens.
 
     Description
@@ -102,13 +101,15 @@ class LutrisConfig:
     def runner_config_path(self):
         if not self.runner_slug:
             return None
-        return os.path.join(settings.CONFIG_DIR, "runners/%s.yml" % self.runner_slug)
+        return os.path.join(settings.CONFIG_DIR,
+                            "runners/%s.yml" % self.runner_slug)
 
     @property
     def game_config_path(self):
         if not self.game_config_id:
             return None
-        return os.path.join(settings.CONFIG_DIR, "games/%s.yml" % self.game_config_id)
+        return os.path.join(settings.CONFIG_DIR,
+                            "games/%s.yml" % self.game_config_id)
 
     def initialize_config(self):
         """Init and load config files"""
@@ -222,11 +223,8 @@ class LutrisConfig:
     def options_as_dict(self, options_type):
         """Convert the option list to a dict with option name as keys"""
         if options_type == "system":
-            options = (
-                sysoptions.with_runner_overrides(self.runner_slug)
-                if self.runner_slug
-                else sysoptions.system_options
-            )
+            options = (sysoptions.with_runner_overrides(self.runner_slug)
+                       if self.runner_slug else sysoptions.system_options)
         else:
             if not self.runner_slug:
                 return None

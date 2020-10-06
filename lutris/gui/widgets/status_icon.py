@@ -41,7 +41,8 @@ class LutrisStatusIcon:
     def is_visible(self):
         """Whether the icon is visible"""
         if APP_INDICATOR_SUPPORTED:
-            return self.icon.get_status() != AppIndicator.IndicatorStatus.PASSIVE
+            return self.icon.get_status(
+            ) != AppIndicator.IndicatorStatus.PASSIVE
         return self.icon.is_visible()
 
     def set_visible(self, value):
@@ -63,8 +64,7 @@ class LutrisStatusIcon:
 
         present_menu = Gtk.ImageMenuItem()
         present_menu.set_image(
-            Gtk.Image.new_from_icon_name("lutris", Gtk.IconSize.MENU)
-        )
+            Gtk.Image.new_from_icon_name("lutris", Gtk.IconSize.MENU))
         present_menu.set_label(_("Show Lutris"))
         present_menu.connect("activate", self.on_activate)
         menu.append(present_menu)
@@ -99,7 +99,8 @@ class LutrisStatusIcon:
         """Adds installed games in order of last use"""
         installed_games = get_games(filters={"installed": 1})
         installed_games.sort(
-            key=lambda game: max(game["lastplayed"] or 0, game["installed_at"] or 0),
+            key=lambda game: max(game["lastplayed"] or 0, game["installed_at"]
+                                 or 0),
             reverse=True,
         )
         return installed_games
@@ -109,7 +110,6 @@ class LutrisStatusIcon:
 
 
 class LutrisTray(Gtk.StatusIcon):
-
     """Lutris tray icon"""
 
     def __init__(self, application, **_kwargs):

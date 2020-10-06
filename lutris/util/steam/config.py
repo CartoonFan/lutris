@@ -46,8 +46,7 @@ def read_config(steam_data_dir):
         config = vdf_parse(steam_config_file, {})
     try:
         return get_entry_case_insensitive(
-            config, ["InstallConfigStore", "Software", "Valve", "Steam"]
-        )
+            config, ["InstallConfigStore", "Software", "Valve", "Steam"])
     except KeyError as ex:
         logger.error("Steam config %s is empty: %s", config_filename, ex)
 

@@ -12,13 +12,15 @@ from lutris.util.downloader import Downloader
 
 
 class DownloadProgressBox(Gtk.Box):
-
     """Progress bar used to monitor a file download."""
 
     __gsignals__ = {
-        "complete": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
-        "cancel": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
-        "error": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
+        "complete":
+        (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
+        "cancel":
+        (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
+        "error":
+        (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
     }
 
     def __init__(self, params, cancelable=True, downloader=None):
@@ -66,9 +68,10 @@ class DownloadProgressBox(Gtk.Box):
         """Start downloading a file."""
         if not self.downloader:
             try:
-                self.downloader = Downloader(
-                    self.url, self.dest, referer=self.referer, overwrite=True
-                )
+                self.downloader = Downloader(self.url,
+                                             self.dest,
+                                             referer=self.referer,
+                                             overwrite=True)
             except RuntimeError as ex:
                 from lutris.gui.dialogs import ErrorDialog
 
@@ -93,7 +96,9 @@ class DownloadProgressBox(Gtk.Box):
     def _progress(self):
         """Show download progress."""
         progress = min(self.downloader.check_progress(), 1)
-        if self.downloader.state in [self.downloader.CANCELLED, self.downloader.ERROR]:
+        if self.downloader.state in [
+                self.downloader.CANCELLED, self.downloader.ERROR
+        ]:
             self.progressbar.set_fraction(0)
             if self.downloader.state == self.downloader.CANCELLED:
                 self._set_text(_("Download interrupted"))

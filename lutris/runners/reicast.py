@@ -23,14 +23,17 @@ class reicast(Runner):
 
     joypads = None
 
-    game_options = [
-        {
-            "option": "iso",
-            "type": "file",
-            "label": _("Disc image file"),
-            "help": _("The game data.\n" "Supported formats: ISO, CDI"),
-        }
-    ]
+    game_options = [{
+        "option":
+        "iso",
+        "type":
+        "file",
+        "label":
+        _("Disc image file"),
+        "help":
+        _("The game data.\n"
+          "Supported formats: ISO, CDI"),
+    }]
 
     def __init__(self, config=None):
         super(reicast, self).__init__(config)
@@ -75,14 +78,16 @@ class reicast(Runner):
     def install(self, version=None, downloader=None, callback=None):
         def on_runner_installed(*args):
             mapping_path = system.create_folder("~/.reicast/mappings")
-            mapping_source = os.path.join(settings.RUNNER_DIR, "reicast/mappings")
+            mapping_source = os.path.join(settings.RUNNER_DIR,
+                                          "reicast/mappings")
             for mapping_file in os.listdir(mapping_source):
-                shutil.copy(os.path.join(mapping_source, mapping_file), mapping_path)
+                shutil.copy(os.path.join(mapping_source, mapping_file),
+                            mapping_path)
 
             system.create_folder("~/.reicast/data")
             NoticeDialog(
-                _("You have to copy valid BIOS files to ~/.reicast/data before playing")
-            )
+                _("You have to copy valid BIOS files to ~/.reicast/data before playing"
+                  ))
 
         super(reicast, self).install(version, downloader, on_runner_installed)
 
@@ -97,9 +102,8 @@ class reicast(Runner):
         for (dev, joy_name) in joypad_devices:
             dev_id = re.findall(r"(\d+)", dev)[0]
             if name_counter[joy_name] > 1:
-                index = (
-                    1 if joy_name not in name_indexes else name_indexes[joy_name] + 1
-                )
+                index = (1 if joy_name not in name_indexes else
+                         name_indexes[joy_name] + 1)
                 name_indexes[joy_name] = index
             else:
                 index = 0
@@ -134,9 +138,13 @@ class reicast(Runner):
     def play(self):
         fullscreen = "1" if self.runner_config.get("fullscreen") else "0"
         reicast_config = {
-            "x11": {"fullscreen": fullscreen},
+            "x11": {
+                "fullscreen": fullscreen
+            },
             "input": {},
-            "players": {"nb": "1"},
+            "players": {
+                "nb": "1"
+            },
         }
         players = 1
         reicast_config["input"] = {}
@@ -151,5 +159,7 @@ class reicast(Runner):
         self.write_config(reicast_config)
 
         iso = self.game_config.get("iso")
-        command = [self.get_executable(), "-config", "config:image={}".format(iso)]
+        command = [
+            self.get_executable(), "-config", "config:image={}".format(iso)
+        ]
         return {"command": command}

@@ -63,7 +63,9 @@ class TestPersonnalGameArchive(DatabaseTester):
         games_db.add_game(name="some game", runner="linux")
         game = games_db.get_game_by_field("some-game", "slug")
         self.assertFalse(game["directory"])
-        games_db.add_or_update(name="some game", runner="linux", directory="/foo")
+        games_db.add_or_update(name="some game",
+                               runner="linux",
+                               directory="/foo")
         game = games_db.get_game_by_field("some-game", "slug")
         self.assertEqual(game["directory"], "/foo")
 
@@ -78,12 +80,21 @@ class TestDbCreator(DatabaseTester):
 
     def test_can_create_table(self):
         fields = [
-            {"name": "id", "type": "INTEGER", "indexed": True},
-            {"name": "name", "type": "TEXT"},
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "indexed": True
+            },
+            {
+                "name": "name",
+                "type": "TEXT"
+            },
         ]
         schema.create_table("testing", fields)
         sql.db_insert(TEST_PGA_PATH, "testing", {"name": "testok"})
-        results = sql.db_select(TEST_PGA_PATH, "testing", fields=["id", "name"])
+        results = sql.db_select(TEST_PGA_PATH,
+                                "testing",
+                                fields=["id", "name"])
         self.assertEqual(results[0]["name"], "testok")
 
 
@@ -93,7 +104,11 @@ class TestMigration(DatabaseTester):
         schema.syncdb()
         self.tablename = "basetable"
         self.schema = [
-            {"name": "id", "type": "INTEGER", "indexed": True},
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "indexed": True
+            },
             {
                 "name": "name",
                 "type": "TEXT",

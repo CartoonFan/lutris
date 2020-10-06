@@ -18,8 +18,8 @@ class SteamInstaller(GObject.Object):
     """Handles installation of Steam games"""
 
     __gsignals__ = {
-        "game-installed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
-        "state-changed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        "game-installed": (GObject.SIGNAL_RUN_FIRST, None, (str, )),
+        "state-changed": (GObject.SIGNAL_RUN_FIRST, None, (str, )),
     }
 
     def __init__(self, steam_uri, file_id):
@@ -90,12 +90,13 @@ class SteamInstaller(GObject.Object):
             self.runner.config = LutrisConfig(runner_slug=self.runner.name)
             # FIXME Find a way to bring back arch support
             # steam_runner.config.game_config["arch"] = self.steam_data["arch"]
-            AsyncCall(
-                self.runner.install_game, self.on_steam_game_installed, self.appid
-            )
+            AsyncCall(self.runner.install_game, self.on_steam_game_installed,
+                      self.appid)
             self.install_start_time = time.localtime()
-            self.steam_poll = GLib.timeout_add(2000, self._monitor_steam_game_install)
-            self.stop_func = lambda: self.runner.remove_game_data(appid=self.appid)
+            self.steam_poll = GLib.timeout_add(
+                2000, self._monitor_steam_game_install)
+            self.stop_func = lambda: self.runner.remove_game_data(appid=self.
+                                                                  appid)
 
     def get_steam_data_path(self):
         """Return path of Steam files"""
@@ -108,16 +109,17 @@ class SteamInstaller(GObject.Object):
     def _monitor_steam_game_install(self):
         if self.cancelled:
             return False
-        states = get_app_state_log(
-            self.runner.steam_data_dir, self.appid, self.install_start_time
-        )
+        states = get_app_state_log(self.runner.steam_data_dir, self.appid,
+                                   self.install_start_time)
         if states and states != self.prev_states:
             self.state = states[-1].split(",")[-1]
-            self.emit("state-changed", self.state)  # Broadcast new state to listeners
+            self.emit("state-changed",
+                      self.state)  # Broadcast new state to listeners
             logger.debug("Steam installation status: %s", states)
         self.prev_states = states
         if self.state == "Fully Installed":
-            logger.info("Steam game %s has been installed successfully", self.appid)
+            logger.info("Steam game %s has been installed successfully",
+                        self.appid)
             self.emit("game-installed", self.appid)
             return False
         return True
