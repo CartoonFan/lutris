@@ -4,10 +4,7 @@ import shlex
 from gettext import gettext as _
 
 # Lutris Modules
-from lutris.runners.commands.dosbox import (
-    dosexec,
-    makeconfig,
-)  # NOQA pylint: disable=unused-import
+from lutris.runners.commands.dosbox import dosexec, makeconfig  # NOQA pylint: disable=unused-import
 from lutris.runners.runner import Runner
 from lutris.util import system
 

@@ -6,11 +6,7 @@ from gettext import gettext as _
 from urllib.parse import parse_qsl, urlencode, urlparse
 
 from lutris import settings
-from lutris.exceptions import (
-    AuthenticationError,
-    MultipleInstallerError,
-    UnavailableGame,
-)
+from lutris.exceptions import AuthenticationError, MultipleInstallerError, UnavailableGame
 from lutris.gui.dialogs import WebConnectDialog
 from lutris.installer import AUTO_ELF_EXE, AUTO_WIN32_EXE
 from lutris.installer.installer_file import InstallerFile

@@ -1,9 +1,9 @@
-import unittest
 import os
+import unittest
 from sqlite3 import OperationalError
-from lutris.database import schema
+
 from lutris.database import games as games_db
-from lutris.database import sql
+from lutris.database import schema, sql
 
 TEST_PGA_PATH = os.path.join(os.path.dirname(__file__), "pga.db")
 
