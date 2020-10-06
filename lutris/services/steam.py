@@ -8,9 +8,11 @@ from lutris import settings
 from lutris.config import LutrisConfig
 from lutris.installer.installer_file import InstallerFile
 from lutris.services.base import BaseService
-from lutris.services.service_game import ServiceGame, ServiceMedia
+from lutris.services.service_game import ServiceGame
+from lutris.services.service_game import ServiceMedia
 from lutris.util.log import logger
-from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
+from lutris.util.steam.appmanifest import AppManifest
+from lutris.util.steam.appmanifest import get_appmanifests
 from lutris.util.steam.config import get_steamapps_paths
 
 

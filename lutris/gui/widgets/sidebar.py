@@ -1,9 +1,13 @@
 """Sidebar for the main window"""
 from gettext import gettext as _
 
-from gi.repository import GObject, Gtk, Pango
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
 
-from lutris import platforms, runners, services
+from lutris import platforms
+from lutris import runners
+from lutris import services
 from lutris.database import categories as categories_db
 from lutris.database import games as games_db
 from lutris.game import Game

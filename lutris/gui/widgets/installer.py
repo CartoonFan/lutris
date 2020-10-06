@@ -2,7 +2,9 @@
 import os
 from gettext import gettext as _
 
-from gi.repository import GObject, Gtk, Pango
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
 
 from lutris.cache import save_to_cache
 from lutris.gui.widgets.common import FileChooserEntry
@@ -10,7 +12,8 @@ from lutris.gui.widgets.download_progress import DownloadProgressBox
 from lutris.installer.steam_installer import SteamInstaller
 from lutris.util import system
 from lutris.util.log import logger
-from lutris.util.strings import add_url_tags, gtk_safe
+from lutris.util.strings import add_url_tags
+from lutris.util.strings import gtk_safe
 
 
 class InstallerLabel(Gtk.Label):

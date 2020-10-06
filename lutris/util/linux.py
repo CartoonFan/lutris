@@ -8,13 +8,16 @@ import resource
 import shutil
 import subprocess
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
+from collections import defaultdict
 
-# Lutris Modules
 from lutris.util import system
 from lutris.util.disks import get_drive_for_path
-from lutris.util.graphics import drivers, glxinfo, vkquery
+from lutris.util.graphics import drivers
+from lutris.util.graphics import glxinfo
+from lutris.util.graphics import vkquery
 from lutris.util.log import logger
+# Lutris Modules
 
 try:
     from distro import linux_distribution

@@ -1,18 +1,21 @@
 """Module to deal with various aspects of displays"""
 # isort:skip_file
-from lutris.util.log import logger
-from lutris.util.graphics.xrandr import (
-    LegacyDisplayManager,
-    change_resolution,
-    get_outputs,
-)
-from lutris.util.graphics.displayconfig import MutterDisplayManager
-from lutris.util import system
-from gi.repository import Gdk, GLib, GnomeDesktop, Gio
 import enum
 import os
 import subprocess
+
 import gi
+from gi.repository import Gdk
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import GnomeDesktop
+
+from lutris.util import system
+from lutris.util.graphics.displayconfig import MutterDisplayManager
+from lutris.util.graphics.xrandr import change_resolution
+from lutris.util.graphics.xrandr import get_outputs
+from lutris.util.graphics.xrandr import LegacyDisplayManager
+from lutris.util.log import logger
 
 gi.require_version("GnomeDesktop", "3.0")
 

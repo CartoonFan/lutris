@@ -2,8 +2,8 @@
 import sqlite3
 import time
 
-# Lutris Modules
 from lutris.util.log import logger
+# Lutris Modules
 
 # Number of attempts to retry failed queries
 DB_RETRIES = 5

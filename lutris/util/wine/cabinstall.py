@@ -7,8 +7,8 @@ import subprocess
 import tempfile
 import xml.etree.ElementTree
 
-# Lutris Modules
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class CabInstaller:

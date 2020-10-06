@@ -6,11 +6,12 @@ from collections import Counter
 from configparser import RawConfigParser
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris import settings
 from lutris.gui.dialogs import NoticeDialog
 from lutris.runners.runner import Runner
-from lutris.util import joypad, system
+from lutris.util import joypad
+from lutris.util import system
+# Lutris Modules
 
 
 class reicast(Runner):

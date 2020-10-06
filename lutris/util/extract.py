@@ -8,10 +8,10 @@ import tarfile
 import uuid
 import zlib
 
-# Lutris Modules
 from lutris import settings
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class ExtractFailure(Exception):

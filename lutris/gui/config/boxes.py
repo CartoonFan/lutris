@@ -4,16 +4,22 @@
 import os
 from gettext import gettext as _
 
-# Third Party Libraries
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk
+from gi.repository import Gtk
 
-# Lutris Modules
-from lutris import settings, sysoptions
-from lutris.gui.widgets.common import EditableGrid, FileChooserEntry, Label, VBox
+from lutris import settings
+from lutris import sysoptions
+from lutris.gui.widgets.common import EditableGrid
+from lutris.gui.widgets.common import FileChooserEntry
+from lutris.gui.widgets.common import Label
+from lutris.gui.widgets.common import VBox
 from lutris.gui.widgets.searchable_combobox import SearchableCombobox
-from lutris.runners import InvalidRunner, import_runner
+from lutris.runners import import_runner
+from lutris.runners import InvalidRunner
 from lutris.util.jobs import AsyncCall
 from lutris.util.log import logger
+# Third Party Libraries
+# Lutris Modules
 
 
 class ConfigBox(VBox):

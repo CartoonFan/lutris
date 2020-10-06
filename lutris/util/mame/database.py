@@ -4,9 +4,9 @@ import json
 import os
 from xml.etree import ElementTree
 
-# Lutris Modules
 from lutris import settings
 from lutris.util.log import logger
+# Lutris Modules
 
 CACHE_DIR = os.path.join(settings.CACHE_DIR, "mame")
 

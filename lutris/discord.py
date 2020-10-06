@@ -3,8 +3,8 @@
 import asyncio
 import time
 
-# Lutris Modules
 from lutris.util.log import logger
+# Lutris Modules
 
 try:
     from pypresence import Presence as PyPresence

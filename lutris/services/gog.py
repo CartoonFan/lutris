@@ -3,17 +3,24 @@ import json
 import os
 import time
 from gettext import gettext as _
-from urllib.parse import parse_qsl, urlencode, urlparse
+from urllib.parse import parse_qsl
+from urllib.parse import urlencode
+from urllib.parse import urlparse
 
 from lutris import settings
-from lutris.exceptions import AuthenticationError, MultipleInstallerError, UnavailableGame
+from lutris.exceptions import AuthenticationError
+from lutris.exceptions import MultipleInstallerError
+from lutris.exceptions import UnavailableGame
 from lutris.gui.dialogs import WebConnectDialog
-from lutris.installer import AUTO_ELF_EXE, AUTO_WIN32_EXE
+from lutris.installer import AUTO_ELF_EXE
+from lutris.installer import AUTO_WIN32_EXE
 from lutris.installer.installer_file import InstallerFile
 from lutris.services.base import OnlineService
-from lutris.services.service_game import ServiceGame, ServiceMedia
+from lutris.services.service_game import ServiceGame
+from lutris.services.service_game import ServiceMedia
 from lutris.util import system
-from lutris.util.http import HTTPError, Request
+from lutris.util.http import HTTPError
+from lutris.util.http import Request
 from lutris.util.log import logger
 from lutris.util.strings import slugify
 

@@ -1,12 +1,13 @@
 """Handle Steam configuration"""
 # Standard Library
 import os
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
+from collections import OrderedDict
 
-# Lutris Modules
 from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.steam.vdf import vdf_parse
+# Lutris Modules
 
 
 def get_default_acf(appid, name):

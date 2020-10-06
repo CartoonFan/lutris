@@ -3,11 +3,11 @@
 import os
 import shutil
 
-# Lutris Modules
 from lutris.runners.commands.wine import wineexec
 from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.wine.cabinstall import CabInstaller
+# Lutris Modules
 
 
 class NineUnavailable(RuntimeError):

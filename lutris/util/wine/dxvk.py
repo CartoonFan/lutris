@@ -7,12 +7,12 @@ import threading
 import time
 import urllib.request
 
-# Lutris Modules
 from lutris.settings import RUNTIME_DIR
 from lutris.util import system
 from lutris.util.downloader import Downloader
 from lutris.util.extract import extract_archive
 from lutris.util.log import logger
+# Lutris Modules
 
 CACHE_MAX_AGE = 86400  # Re-download DXVK versions every day
 

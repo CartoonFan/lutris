@@ -3,11 +3,11 @@ import os
 import subprocess
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris import settings
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.strings import split_arguments
+# Lutris Modules
 
 
 class scummvm(Runner):

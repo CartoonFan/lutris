@@ -4,8 +4,8 @@ import os
 import subprocess
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
+# Lutris Modules
 
 RESIDUALVM_CONFIG_FILE = os.path.join(os.path.expanduser("~"), ".residualvmrc")
 

@@ -3,16 +3,19 @@
 import os
 import time
 
-# Third Party Libraries
 from gi.repository import GLib
 
-# Lutris Modules
-from lutris.settings import RUNTIME_DIR, RUNTIME_URL
-from lutris.util import http, jobs, system
+from lutris.settings import RUNTIME_DIR
+from lutris.settings import RUNTIME_URL
+from lutris.util import http
+from lutris.util import jobs
+from lutris.util import system
 from lutris.util.downloader import Downloader
 from lutris.util.extract import extract_archive
 from lutris.util.log import logger
 from lutris.util.system import LINUX_SYSTEM
+# Third Party Libraries
+# Lutris Modules
 
 RUNTIME_DISABLED = os.environ.get("LUTRIS_RUNTIME", "").lower() in ("0", "off")
 DEFAULT_RUNTIME = "Ubuntu-18.04"

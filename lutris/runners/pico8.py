@@ -9,7 +9,8 @@ from time import sleep
 from lutris import settings
 from lutris.database.games import get_game_by_field
 from lutris.runners.runner import Runner
-from lutris.util import downloader, system
+from lutris.util import downloader
+from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.strings import split_arguments
 
