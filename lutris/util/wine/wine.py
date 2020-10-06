@@ -131,7 +131,8 @@ def is_installed_systemwide():
             # if wine64 is installed but not wine32, don't consider it
             # a system-wide installation.
             if (
-                build == "wine" and system.path_exists("/usr/lib/wine/wine64")
+                build == "wine"
+                and system.path_exists("/usr/lib/wine/wine64")
                 and not system.path_exists("/usr/lib/wine/wine")
             ):
                 logger.warning("wine32 is missing from system")
@@ -178,7 +179,7 @@ def get_pol_wine_versions():
     if not POL_PATH:
         return []
     versions = []
-    for arch in ['x86', 'amd64']:
+    for arch in ["x86", "amd64"]:
         builds_path = os.path.join(POL_PATH, "wine/linux-%s" % arch)
         if not system.path_exists(builds_path):
             continue
@@ -360,19 +361,23 @@ def display_vulkan_error(on_launch):
 
 
 def esync_display_limit_warning():
-    ErrorDialog(_(
-        "Your limits are not set correctly."
-        " Please increase them as described here:"
-        " <a href='https://github.com/lutris/lutris/wiki/How-to:-Esync'>"
-        "How-to:-Esync (https://github.com/lutris/lutris/wiki/How-to:-Esync)</a>"
-    ))
+    ErrorDialog(
+        _(
+            "Your limits are not set correctly."
+            " Please increase them as described here:"
+            " <a href='https://github.com/lutris/lutris/wiki/How-to:-Esync'>"
+            "How-to:-Esync (https://github.com/lutris/lutris/wiki/How-to:-Esync)</a>"
+        )
+    )
 
 
 def fsync_display_support_warning():
-    ErrorDialog(_(
-        "Your kernel is not patched for fsync."
-        " Please get a patched kernel to use fsync."
-    ))
+    ErrorDialog(
+        _(
+            "Your kernel is not patched for fsync."
+            " Please get a patched kernel to use fsync."
+        )
+    )
 
 
 def esync_display_version_warning(on_launch=False):
@@ -422,7 +427,9 @@ def get_overrides_env(overrides):
     """
     if not overrides:
         return ""
-    override_buckets = OrderedDict([("n,b", []), ("b,n", []), ("b", []), ("n", []), ("d", []), ("", [])])
+    override_buckets = OrderedDict(
+        [("n,b", []), ("b,n", []), ("b", []), ("n", []), ("d", []), ("", [])]
+    )
     for dll, value in overrides.items():
         if not value:
             value = ""

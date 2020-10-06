@@ -20,7 +20,7 @@ class NineManager:
     """Utility class to install and manage Gallium Nine to a Wine prefix"""
 
     nine_files = ("d3d9-nine.dll", "ninewinecfg.exe")
-    mesa_files = ("d3dadapter9.so.1", )
+    mesa_files = ("d3dadapter9.so.1",)
     nine_dll = "d3d9"
 
     def __init__(self, path, prefix, arch):
@@ -77,14 +77,13 @@ class NineManager:
 
     def is_prefix_prepared(self):
         if not all(
-            system.path_exists(os.path.join(self.get_system_path("x32"), nine_file)) for nine_file in self.nine_files
+            system.path_exists(os.path.join(self.get_system_path("x32"), nine_file))
+            for nine_file in self.nine_files
         ):
             return False
 
         return self.wine_arch != "win64" or all(
-            system.path_exists(
-                os.path.join(self.get_system_path("x64"), nine_file)
-            )
+            system.path_exists(os.path.join(self.get_system_path("x64"), nine_file))
             for nine_file in self.nine_files
         )
 
@@ -93,7 +92,10 @@ class NineManager:
             for lib in system.LINUX_SYSTEM.iter_lib_folders():
                 nine_file_path = os.path.join(lib, "wine/fakedlls", nine_file)
 
-                if (os.path.exists(nine_file_path) and CabInstaller.get_arch_from_dll(nine_file_path) == "win32"):
+                if (
+                    os.path.exists(nine_file_path)
+                    and CabInstaller.get_arch_from_dll(nine_file_path) == "win32"
+                ):
                     shutil.copy(nine_file_path, self.get_system_path("x32"))
 
                 if self.wine_arch == "win64" and (
@@ -115,19 +117,21 @@ class NineManager:
         src_suff = "" if backup else ".orig"
         dst_suff = ".orig" if backup else ""
 
-        wine_dll_path = os.path.join(self.get_system_path("x32"), NineManager.nine_dll + ".dll")
-        if (
-            os.path.exists(wine_dll_path + src_suff)
-            and not os.path.islink(wine_dll_path + src_suff)
+        wine_dll_path = os.path.join(
+            self.get_system_path("x32"), NineManager.nine_dll + ".dll"
+        )
+        if os.path.exists(wine_dll_path + src_suff) and not os.path.islink(
+            wine_dll_path + src_suff
         ):
             shutil.move(wine_dll_path + src_suff, wine_dll_path + dst_suff)
             logger.debug("Moving file %s (x32)", wine_dll_path + src_suff)
 
         if self.wine_arch == "win64":
-            wine_dll_path = os.path.join(self.get_system_path("x64"), NineManager.nine_dll + ".dll")
-            if (
-                os.path.exists(wine_dll_path + src_suff)
-                and not os.path.islink(wine_dll_path + src_suff)
+            wine_dll_path = os.path.join(
+                self.get_system_path("x64"), NineManager.nine_dll + ".dll"
+            )
+            if os.path.exists(wine_dll_path + src_suff) and not os.path.islink(
+                wine_dll_path + src_suff
             ):
                 shutil.move(wine_dll_path + src_suff, wine_dll_path + dst_suff)
                 logger.debug("Moving file %s (x64)", wine_dll_path + src_suff)

@@ -27,9 +27,9 @@ class DiscordPresence(object):
         self.presence_connected = False
         self.rpc_client = None
         self.client_id = None
-        self.custom_game_name = ''
+        self.custom_game_name = ""
         self.show_runner = True
-        self.custom_runner_name = ''
+        self.custom_runner_name = ""
         self.rpc_enabled = True
 
     def connect(self):
@@ -94,9 +94,17 @@ class DiscordPresence(object):
                 return
             try:
                 state_text = "via %s" % self.runner_name if self.show_runner else "  "
-                logger.info("Attempting to update Discord status: %s, %s", self.game_name, state_text)
-                self.rpc_client.update(details="Playing %s" % self.game_name, state=state_text,
-                                       large_image="large_image", large_text="Using Lutris")
+                logger.info(
+                    "Attempting to update Discord status: %s, %s",
+                    self.game_name,
+                    state_text,
+                )
+                self.rpc_client.update(
+                    details="Playing %s" % self.game_name,
+                    state=state_text,
+                    large_image="large_image",
+                    large_text="Using Lutris",
+                )
             except PyPresenceException as ex:
                 logger.error("Unable to update Discord: %s", ex)
 
@@ -104,7 +112,7 @@ class DiscordPresence(object):
         """Dispatch a request to Discord to clear presence"""
         if self.rpc_enabled and self.connect():
             try:
-                logger.info('Attempting to clear Discord status.')
+                logger.info("Attempting to clear Discord status.")
                 self.rpc_client.clear()
             except PyPresenceException as ex:
                 logger.error("Unable to clear Discord: %s", ex)

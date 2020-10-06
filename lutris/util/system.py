@@ -14,20 +14,28 @@ from lutris.util.linux import LINUX_SYSTEM
 from lutris.util.log import logger
 
 
-def execute(command, env=None, cwd=None, log_errors=False, quiet=False, shell=False, timeout=None):
+def execute(
+    command,
+    env=None,
+    cwd=None,
+    log_errors=False,
+    quiet=False,
+    shell=False,
+    timeout=None,
+):
     """
-        Execute a system command and return its results.
+    Execute a system command and return its results.
 
-        Params:
-            command (list): A list containing an executable and its parameters
-            env (dict): Dict of values to add to the current environment
-            cwd (str): Working directory
-            log_errors (bool): Pipe stderr to stdout (might cause slowdowns)
-            quiet (bool): Do not display log messages
-            timeout (int): Number of seconds the program is allowed to run, disabled by default
+    Params:
+        command (list): A list containing an executable and its parameters
+        env (dict): Dict of values to add to the current environment
+        cwd (str): Working directory
+        log_errors (bool): Pipe stderr to stdout (might cause slowdowns)
+        quiet (bool): Do not display log messages
+        timeout (int): Number of seconds the program is allowed to run, disabled by default
 
-        Returns:
-            str: stdout output
+    Returns:
+        str: stdout output
     """
 
     # Check if the executable exists
@@ -173,7 +181,9 @@ def substitute(string_template, variables):
     # Replace the dashes with underscores in the mapping and template
     variables = {k.replace("-", "_"): v for k, v in variables.items()}
     for identifier in identifiers:
-        string_template = string_template.replace("${}".format(identifier), "${}".format(identifier.replace("-", "_")))
+        string_template = string_template.replace(
+            "${}".format(identifier), "${}".format(identifier.replace("-", "_"))
+        )
 
     template = string.Template(string_template)
     if string_template in list(variables.keys()):
@@ -186,7 +196,7 @@ def merge_folders(source, destination):
     logger.debug("Merging %s into %s", source, destination)
     source = os.path.abspath(source)
     for (dirpath, dirnames, filenames) in os.walk(source):
-        source_relpath = dirpath[len(source):].strip("/")
+        source_relpath = dirpath[len(source) :].strip("/")
         dst_abspath = os.path.join(destination, source_relpath)
         for dirname in dirnames:
             new_dir = os.path.join(dst_abspath, dirname)
@@ -199,7 +209,9 @@ def merge_folders(source, destination):
             # logger.debug("Copying %s", filename)
             if not os.path.exists(dst_abspath):
                 os.makedirs(dst_abspath)
-            shutil.copy(os.path.join(dirpath, filename), os.path.join(dst_abspath, filename))
+            shutil.copy(
+                os.path.join(dirpath, filename), os.path.join(dst_abspath, filename)
+            )
 
 
 def remove_folder(path):
@@ -215,7 +227,12 @@ def remove_folder(path):
     try:
         shutil.rmtree(path)
     except OSError as ex:
-        logger.error("Failed to remove folder %s: %s (Error code %s)", path, ex.strerror, ex.errno)
+        logger.error(
+            "Failed to remove folder %s: %s (Error code %s)",
+            path,
+            ex.strerror,
+            ex.errno,
+        )
         return False
     return True
 
@@ -312,7 +329,7 @@ def reverse_expanduser(path):
         return path
     user_path = os.path.expanduser("~")
     if path.startswith(user_path):
-        path = path[len(user_path):].strip("/")
+        path = path[len(user_path) :].strip("/")
         return "~/" + path
     return path
 
@@ -377,4 +394,7 @@ def update_desktop_icons():
     """
     if find_executable("gtk-update-icon-cache"):
         logger.debug("Updating GTK icon cache...")
-        os.system("gtk-update-icon-cache -tf %s" % os.path.join(GLib.get_user_data_dir(), "icons", "hicolor"))
+        os.system(
+            "gtk-update-icon-cache -tf %s"
+            % os.path.join(GLib.get_user_data_dir(), "icons", "hicolor")
+        )

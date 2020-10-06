@@ -8,15 +8,15 @@ from lutris.database.games import get_games
 from lutris.game import Game
 
 try:
-    gi.require_version('AppIndicator3', '0.1')
+    gi.require_version("AppIndicator3", "0.1")
     from gi.repository import AppIndicator3 as AppIndicator
+
     APP_INDICATOR_SUPPORTED = True
 except (ImportError, ValueError):
     APP_INDICATOR_SUPPORTED = False
 
 
 class LutrisStatusIcon:
-
     def __init__(self, application):
         self.application = application
         self.icon = self.create()
@@ -32,7 +32,9 @@ class LutrisStatusIcon:
         """Create an appindicator"""
         if APP_INDICATOR_SUPPORTED:
             return AppIndicator.Indicator.new(
-                "net.lutris.Lutris", "lutris", AppIndicator.IndicatorCategory.APPLICATION_STATUS
+                "net.lutris.Lutris",
+                "lutris",
+                AppIndicator.IndicatorCategory.APPLICATION_STATUS,
             )
         return LutrisTray(self.application)
 
@@ -60,7 +62,9 @@ class LutrisStatusIcon:
         menu.append(Gtk.SeparatorMenuItem())
 
         present_menu = Gtk.ImageMenuItem()
-        present_menu.set_image(Gtk.Image.new_from_icon_name("lutris", Gtk.IconSize.MENU))
+        present_menu.set_image(
+            Gtk.Image.new_from_icon_name("lutris", Gtk.IconSize.MENU)
+        )
         present_menu.set_label(_("Show Lutris"))
         present_menu.connect("activate", self.on_activate)
         menu.append(present_menu)

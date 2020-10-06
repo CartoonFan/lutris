@@ -133,9 +133,9 @@ class WineRegistry:
                     current_key.parse(line)
                 add_next_to_value = line.endswith("\\")
             elif line.startswith(self.version_header):
-                self.version = int(line[len(self.version_header):])
+                self.version = int(line[len(self.version_header) :])
             elif line.startswith(self.relative_to_header):
-                self.relative_to = line[len(self.relative_to_header):]
+                self.relative_to = line[len(self.relative_to_header) :]
             elif line.startswith("#arch"):
                 self.arch = line.split("=")[1]
 
@@ -215,7 +215,6 @@ class WineRegistry:
 
 
 class WineRegistryKey:
-
     def __init__(self, key_def=None, path=None):
 
         self.subkeys = OrderedDict()
@@ -232,7 +231,9 @@ class WineRegistryKey:
             self.metas["time"] = windows_timestamp.to_hex()
         else:
             # Existing key loaded from file
-            self.raw_name, self.raw_timestamp = re.split(re.compile(r"(?<=[^\\]\]) "), key_def, maxsplit=1)
+            self.raw_name, self.raw_timestamp = re.split(
+                re.compile(r"(?<=[^\\]\]) "), key_def, maxsplit=1
+            )
             self.name = self.raw_name.replace("\\\\", "/").strip("[]")
 
         # Parse timestamp either as int or float
@@ -305,7 +306,11 @@ class WineRegistryKey:
             # The exception let us know if it worked or not
             for i in [0, 1, 2]:
                 try:
-                    out += ("\\u{}{}".format("0" * i, chunk).encode().decode("unicode_escape"))
+                    out += (
+                        "\\u{}{}".format("0" * i, chunk)
+                        .encode()
+                        .decode("unicode_escape")
+                    )
                     break
                 except UnicodeDecodeError:
                     pass

@@ -26,7 +26,9 @@ class pico8(Runner):
             "option": "main_file",
             "type": "string",
             "label": _("Cartridge file/url/id"),
-            "help": _("You can put a .p8.png file path, url, or BBS cartridge id here."),
+            "help": _(
+                "You can put a .p8.png file path, url, or BBS cartridge id here."
+            ),
         }
     ]
 
@@ -113,7 +115,9 @@ class pico8(Runner):
         if self.is_native and main_file.startswith("http"):
             return os.path.join(settings.RUNNER_DIR, "pico8/cartridges", "tmp.p8.png")
         if not os.path.exists(main_file) and main_file.isdigit():
-            return os.path.join(settings.RUNNER_DIR, "pico8/cartridges", main_file + ".p8.png")
+            return os.path.join(
+                settings.RUNNER_DIR, "pico8/cartridges", main_file + ".p8.png"
+            )
         return main_file
 
     @property
@@ -146,27 +150,41 @@ class pico8(Runner):
         return {"command": self.launch_args, "env": self.get_env(os_env=False)}
 
     def is_installed(self, version=None, fallback=True, min_version=None):
-        """Checks if pico8 runner is installed and if the pico8 executable available.
-        """
-        if self.is_native and system.path_exists(self.runner_config.get("runner_executable")):
+        """Checks if pico8 runner is installed and if the pico8 executable available."""
+        if self.is_native and system.path_exists(
+            self.runner_config.get("runner_executable")
+        ):
             return True
-        return system.path_exists(os.path.join(settings.RUNNER_DIR, "pico8/web/player.html"))
+        return system.path_exists(
+            os.path.join(settings.RUNNER_DIR, "pico8/web/player.html")
+        )
 
     def prelaunch(self):
         if not self.game_config.get("main_file") and self.is_installed():
             return True
-        if os.path.exists(os.path.join(settings.RUNNER_DIR, "pico8/cartridges", "tmp.p8.png")):
-            os.remove(os.path.join(settings.RUNNER_DIR, "pico8/cartridges", "tmp.p8.png"))
+        if os.path.exists(
+            os.path.join(settings.RUNNER_DIR, "pico8/cartridges", "tmp.p8.png")
+        ):
+            os.remove(
+                os.path.join(settings.RUNNER_DIR, "pico8/cartridges", "tmp.p8.png")
+            )
 
         # Don't download cartridge if using web backend and cart is url
         if self.is_native or not self.game_config.get("main_file").startswith("http"):
             if not os.path.exists(self.game_config.get("main_file")) and (
-                self.game_config.get("main_file").isdigit() or self.game_config.get("main_file").startswith("http")
+                self.game_config.get("main_file").isdigit()
+                or self.game_config.get("main_file").startswith("http")
             ):
                 if not self.game_config.get("main_file").startswith("http"):
                     pid = int(self.game_config.get("main_file"))
                     num = math.floor(pid / 10000)
-                    downloadUrl = ("https://www.lexaloffle.com/bbs/cposts/" + str(num) + "/" + str(pid) + ".p8.png")
+                    downloadUrl = (
+                        "https://www.lexaloffle.com/bbs/cposts/"
+                        + str(num)
+                        + "/"
+                        + str(pid)
+                        + ".p8.png"
+                    )
                 else:
                     downloadUrl = self.game_config.get("main_file")
                 cartPath = self.cart_path
@@ -194,7 +212,9 @@ class pico8(Runner):
                 # Wait for download to complete or continue if it exists (to work in offline mode)
                 while not os.path.exists(cartPath):
                     if downloadCompleted or dl.state == downloader.Downloader.ERROR:
-                        logger.error("Could not download cartridge from %s", downloadUrl)
+                        logger.error(
+                            "Could not download cartridge from %s", downloadUrl
+                        )
                         return False
                     sleep(0.1)
 
@@ -206,7 +226,11 @@ class pico8(Runner):
                 self.runner_config.get("engine") + ".js",
             )
             if not os.path.exists(enginePath):
-                downloadUrl = ("https://www.lexaloffle.com/bbs/" + self.runner_config.get("engine") + ".js")
+                downloadUrl = (
+                    "https://www.lexaloffle.com/bbs/"
+                    + self.runner_config.get("engine")
+                    + ".js"
+                )
                 system.create_folder(os.path.dirname(enginePath))
                 downloadCompleted = False
 
@@ -214,7 +238,9 @@ class pico8(Runner):
                     nonlocal downloadCompleted
                     downloadCompleted = True
 
-                dl = downloader.Downloader(downloadUrl, enginePath, True, callback=on_downloaded_engine)
+                dl = downloader.Downloader(
+                    downloadUrl, enginePath, True, callback=on_downloaded_engine
+                )
                 dl.start()
                 dl.thread.join()  # Doesn't actually wait until finished
 

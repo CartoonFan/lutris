@@ -4,63 +4,59 @@ from lutris.installer.installer import LutrisInstaller
 from lutris.installer.errors import ScriptingError
 
 TEST_INSTALLER = {
-    'script': {
-        'game': {
-            'exe': 'test'
-        }
-    },
-    'version': 'test',
-    'game_slug': 'test',
-    'name': 'test',
-    'slug': 'test',
-    'runner': 'linux'
+    "script": {"game": {"exe": "test"}},
+    "version": "test",
+    "game_slug": "test",
+    "name": "test",
+    "slug": "test",
+    "runner": "linux",
 }
 
 
 class MockInterpreter(ScriptInterpreter):
     """A script interpreter mock."""
-    runner = 'linux'
+
+    runner = "linux"
 
 
 class TestScriptInterpreter(TestCase):
     def test_script_with_correct_values_is_valid(self):
         installer = {
-            'runner': 'linux',
-            'script': {'exe': 'doom'},
-            'name': 'Doom',
-            'slug': 'doom',
-            'game_slug': 'doom',
-            'version': 'doom-gzdoom'
+            "runner": "linux",
+            "script": {"exe": "doom"},
+            "name": "Doom",
+            "slug": "doom",
+            "game_slug": "doom",
+            "version": "doom-gzdoom",
         }
         interpreter = ScriptInterpreter(installer, None)
-        self.assertEqual(interpreter.installer.game_name, 'Doom')
+        self.assertEqual(interpreter.installer.game_name, "Doom")
         self.assertFalse(interpreter.installer.get_errors())
 
     def test_move_requires_src_and_dst(self):
         with self.assertRaises(ScriptingError):
             script = {
-                'foo': 'bar',
-                'script': {},
-                'name': 'missing_runner',
-                'game_slug': 'missing-runner',
-                'slug': 'some-slug',
-                'runner': 'linux',
-                'version': 'bar-baz'
+                "foo": "bar",
+                "script": {},
+                "name": "missing_runner",
+                "game_slug": "missing-runner",
+                "slug": "some-slug",
+                "runner": "linux",
+                "version": "bar-baz",
             }
             interpreter = ScriptInterpreter(script, None)
             interpreter._get_move_paths({})
 
     def test_get_command_returns_a_method(self):
         interpreter = MockInterpreter(TEST_INSTALLER, None)
-        command, params = interpreter._map_command({'move': 'whatever'})
+        command, params = interpreter._map_command({"move": "whatever"})
         self.assertIn("bound method CommandsMixin.move", str(command))
         self.assertEqual(params, "whatever")
 
     def test_get_command_doesnt_return_private_methods(self):
         interpreter = MockInterpreter(TEST_INSTALLER, None)
         with self.assertRaises(ScriptingError) as ex:
-            interpreter._map_command(
-                {'_substitute': 'foo'}
-            )
-        self.assertEqual(ex.exception.message,
-                         "The command \"substitute\" does not exist.")
+            interpreter._map_command({"_substitute": "foo"})
+        self.assertEqual(
+            ex.exception.message, 'The command "substitute" does not exist.'
+        )

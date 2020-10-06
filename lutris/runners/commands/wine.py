@@ -14,8 +14,13 @@ from lutris.util.strings import split_arguments
 from lutris.util.wine.cabinstall import CabInstaller
 from lutris.util.wine.prefix import WinePrefixManager
 from lutris.util.wine.wine import (
-    WINE_DEFAULT_ARCH, WINE_DIR, detect_arch, detect_prefix_arch, get_overrides_env, get_real_executable,
-    use_lutris_runtime
+    WINE_DEFAULT_ARCH,
+    WINE_DIR,
+    detect_arch,
+    detect_prefix_arch,
+    get_overrides_env,
+    get_real_executable,
+    use_lutris_runtime,
 )
 
 
@@ -42,7 +47,9 @@ def set_regedit(
     # Make temporary reg file
     reg_path = os.path.join(settings.CACHE_DIR, "winekeys.reg")
     with open(reg_path, "w") as reg_file:
-        reg_file.write('REGEDIT4\n\n[%s]\n"%s"=%s\n' % (path, key, formatted_value[type]))
+        reg_file.write(
+            'REGEDIT4\n\n[%s]\n"%s"=%s\n' % (path, key, formatted_value[type])
+        )
     logger.debug("Setting [%s]:%s=%s", path, key, formatted_value[type])
     set_regedit_file(reg_path, wine_path=wine_path, prefix=prefix, arch=arch)
     os.remove(reg_path)
@@ -137,30 +144,39 @@ def create_prefix(  # noqa: C901
         if loop_index == 20:
             logger.warning("Wine prefix creation is taking longer than expected...")
     if not os.path.exists(os.path.join(prefix, "user.reg")):
-        logger.error("No user.reg found after prefix creation. " "Prefix might not be valid")
+        logger.error(
+            "No user.reg found after prefix creation. " "Prefix might not be valid"
+        )
         return
     logger.info("%s Prefix created in %s", arch, prefix)
     prefix_manager = WinePrefixManager(prefix)
     prefix_manager.setup_defaults()
-    if 'steamapps/common' in prefix.lower():
+    if "steamapps/common" in prefix.lower():
         from lutris.runners.winesteam import winesteam
+
         runner = winesteam()
         logger.info("Transfering Steam information from default prefix to new prefix")
-        dest_path = '/tmp/steam.reg'
+        dest_path = "/tmp/steam.reg"
         default_prefix = runner.get_default_prefix(runner.default_arch)
-        wineexec("regedit", args=r"/E '%s' 'HKEY_CURRENT_USER\Software\Valve\Steam'" % dest_path, prefix=default_prefix)
+        wineexec(
+            "regedit",
+            args=r"/E '%s' 'HKEY_CURRENT_USER\Software\Valve\Steam'" % dest_path,
+            prefix=default_prefix,
+        )
         set_regedit_file(dest_path, wine_path=wine_path, prefix=prefix, arch=arch)
         try:
             os.remove(dest_path)
         except FileNotFoundError:
             logger.error("File %s was already removed", dest_path)
-        steam_drive_path = os.path.join(prefix, 'dosdevices', 's:')
+        steam_drive_path = os.path.join(prefix, "dosdevices", "s:")
         if not system.path_exists(steam_drive_path):
             logger.info("Linking Steam default prefix to drive S:")
-            os.symlink(os.path.join(default_prefix, 'drive_c'), steam_drive_path)
+            os.symlink(os.path.join(default_prefix, "drive_c"), steam_drive_path)
 
 
-def winekill(prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_pids=None):
+def winekill(
+    prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_pids=None
+):
     """Kill processes in Wine prefix."""
 
     initial_pids = initial_pids or []
@@ -186,7 +202,9 @@ def winekill(prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_p
     num_cycles = 0
     while True:
         num_cycles += 1
-        running_processes = [pid for pid in initial_pids if system.path_exists("/proc/%s" % pid)]
+        running_processes = [
+            pid for pid in initial_pids if system.path_exists("/proc/%s" % pid)
+        ]
 
         if not running_processes:
             break
@@ -332,7 +350,9 @@ def winetricks(
     """Execute winetricks."""
     wine_config = config or LutrisConfig(runner_slug="wine")
     winetricks_path = os.path.join(settings.RUNTIME_DIR, "winetricks/winetricks")
-    if (wine_config.runner_config.get("system_winetricks") or not system.path_exists(winetricks_path)):
+    if wine_config.runner_config.get("system_winetricks") or not system.path_exists(
+        winetricks_path
+    ):
         winetricks_path = system.find_executable("winetricks")
         if not winetricks_path:
             raise RuntimeError("No installation of winetricks found")

@@ -30,9 +30,8 @@ class CommandsMixin:
 
     def _get_runner_version(self):
         """Return the version of the runner used for the installer"""
-        if (
-                self.installer.runner in ("wine", "winesteam")
-                and self.installer.script.get(self.installer.runner)
+        if self.installer.runner in ("wine", "winesteam") and self.installer.script.get(
+            self.installer.runner
         ):
             return self.installer.script[self.installer.runner].get("version")
         if self.installer.runner == "libretro":
@@ -49,13 +48,15 @@ class CommandsMixin:
                 param_present = any(key in command_data for key in param)
                 if not param_present:
                     raise ScriptingError(
-                        "One of %s parameter is mandatory for the %s command" % (" or ".join(param), command_name),
+                        "One of %s parameter is mandatory for the %s command"
+                        % (" or ".join(param), command_name),
                         command_data,
                     )
             else:
                 if param not in command_data:
                     raise ScriptingError(
-                        "The %s parameter is mandatory for the %s command" % (param, command_name),
+                        "The %s parameter is mandatory for the %s command"
+                        % (param, command_name),
                         command_data,
                     )
 
@@ -71,7 +72,9 @@ class CommandsMixin:
         """Make filename executable"""
         filename = self._substitute(filename)
         if not system.path_exists(filename):
-            raise ScriptingError("Invalid file '%s'. Can't make it executable" % filename)
+            raise ScriptingError(
+                "Invalid file '%s'. Can't make it executable" % filename
+            )
         system.make_executable(filename)
 
     def execute(self, data):
@@ -104,7 +107,9 @@ class CommandsMixin:
 
             # Environment variables can also be passed to the execute command
             local_env = data.get("env") or {}
-            env.update({key: self._substitute(value) for key, value in local_env.items()})
+            env.update(
+                {key: self._substitute(value) for key, value in local_env.items()}
+            )
             include_processes = shlex.split(data.get("include_processes", ""))
             exclude_processes = shlex.split(data.get("exclude_processes", ""))
         elif isinstance(data, str):
@@ -168,7 +173,9 @@ class CommandsMixin:
             merge_single = "nomerge" not in data
             extractor = data.get("format")
             logger.debug("extracting file %s to %s", filename, dest_path)
-            self._killable_process(extract.extract_archive, filename, dest_path, merge_single, extractor)
+            self._killable_process(
+                extract.extract_archive, filename, dest_path, merge_single, extractor
+            )
         logger.debug("Extract done")
 
     def input_menu(self, data):
@@ -204,17 +211,24 @@ class CommandsMixin:
         requires = data.get("requires")
         message = data.get(
             "message",
-            _("Insert or mount game disc and click Autodetect or\n"
-              "use Browse if the disc is mounted on a non standard location."),
+            _(
+                "Insert or mount game disc and click Autodetect or\n"
+                "use Browse if the disc is mounted on a non standard location."
+            ),
         )
         message += (
-            _("\n\nLutris is looking for a mounted disk drive or image \n"
-              "containing the following file or folder:\n"
-              "<i>%s</i>") % requires
+            _(
+                "\n\nLutris is looking for a mounted disk drive or image \n"
+                "containing the following file or folder:\n"
+                "<i>%s</i>"
+            )
+            % requires
         )
         if self.installer.runner == "wine":
             GLib.idle_add(self.parent.eject_button.show)
-        GLib.idle_add(self.parent.ask_for_disc, message, self._find_matching_disc, requires)
+        GLib.idle_add(
+            self.parent.ask_for_disc, message, self._find_matching_disc, requires
+        )
         return "STOP"
 
     def _find_matching_disc(self, _widget, requires, extra_path=None):
@@ -257,7 +271,9 @@ class CommandsMixin:
             if os.path.dirname(src) != dst:
                 self._killable_process(shutil.copy, src, dst)
             if params["src"] in self.game_files.keys():
-                self.game_files[params["src"]] = os.path.join(dst, os.path.basename(src))
+                self.game_files[params["src"]] = os.path.join(
+                    dst, os.path.basename(src)
+                )
             return
         self._killable_process(system.merge_folders, src, dst)
 
@@ -371,12 +387,16 @@ class CommandsMixin:
             wine_version = self._get_runner_version()
             if wine_version:
                 data["wine_path"] = get_wine_version_exe(wine_version)
-            data["prefix"] = data.get("prefix") \
-                or self.installer.script.get("game", {}).get("prefix") \
+            data["prefix"] = (
+                data.get("prefix")
+                or self.installer.script.get("game", {}).get("prefix")
                 or "$GAMEDIR"
-            data["arch"] = data.get("arch") \
-                or self.installer.script.get("game", {}).get("arch") \
+            )
+            data["arch"] = (
+                data.get("arch")
+                or self.installer.script.get("game", {}).get("arch")
                 or WINE_DEFAULT_ARCH
+            )
             if task_name == "wineexec" and self.script_env:
                 data["env"] = self.script_env
 
@@ -463,7 +483,9 @@ class CommandsMixin:
         if params.get("data", None):
             self._check_required_params(["file", "data"], params, "write_config")
         else:
-            self._check_required_params(["file", "section", "key", "value"], params, "write_config")
+            self._check_required_params(
+                ["file", "section", "key", "value"], params, "write_config"
+            )
         # Get file
         config_file_path = self._get_file(params["file"])
 
@@ -474,7 +496,9 @@ class CommandsMixin:
 
         merge = params.get("merge", True)
 
-        parser = EvilConfigParser(allow_no_value=True, dict_type=MultiOrderedDict, strict=False)
+        parser = EvilConfigParser(
+            allow_no_value=True, dict_type=MultiOrderedDict, strict=False
+        )
         parser.optionxform = str  # Preserve text case
         if merge:
             parser.read(config_file_path)

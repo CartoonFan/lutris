@@ -41,7 +41,7 @@ def is_excluded_dir(path):
         "windows",
         "ProgramData",
         "users",
-        "GameSpy Arcade"
+        "GameSpy Arcade",
     )
     return any(dir_name in excluded for dir_name in path.split("/"))
 

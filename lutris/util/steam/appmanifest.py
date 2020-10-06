@@ -102,7 +102,9 @@ class AppManifest:
         """Absolute path of the installation directory"""
         if not self.installdir:
             return None
-        install_path = fix_path_case(os.path.join(self.steamapps_path, "common", self.installdir))
+        install_path = fix_path_case(
+            os.path.join(self.steamapps_path, "common", self.installdir)
+        )
         if install_path:
             return install_path
 
@@ -146,4 +148,6 @@ def get_path_from_appmanifest(steamapps_path, appid):
 
 def get_appmanifests(steamapps_path):
     """Return the list for all appmanifest files in a Steam library folder"""
-    return [f for f in os.listdir(steamapps_path) if re.match(r"^appmanifest_\d+.acf$", f)]
+    return [
+        f for f in os.listdir(steamapps_path) if re.match(r"^appmanifest_\d+.acf$", f)
+    ]

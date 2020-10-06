@@ -20,7 +20,9 @@ class InstallerFile:
         if isinstance(file_meta, dict):
             for field in ("url", "filename"):
                 if field not in file_meta:
-                    raise ScriptingError("missing field `%s` for file `%s`" % (field, file_id))
+                    raise ScriptingError(
+                        "missing field `%s` for file `%s`" % (field, file_id)
+                    )
             self.url = file_meta["url"]
             self.filename = file_meta["filename"]
             self.referer = file_meta.get("referer")
@@ -144,12 +146,16 @@ class InstallerFile:
         if not self.checksum or not self.dest_file:
             return
         try:
-            hash_type, expected_hash = self.checksum.split(':', 1)
+            hash_type, expected_hash = self.checksum.split(":", 1)
         except ValueError:
-            raise ScriptingError("Invalid checksum, expected format (type:hash) ", self.checksum)
+            raise ScriptingError(
+                "Invalid checksum, expected format (type:hash) ", self.checksum
+            )
 
         if system.get_file_checksum(self.dest_file, hash_type) != expected_hash:
-            raise ScriptingError(hash_type.capitalize() + " checksum mismatch ", self.checksum)
+            raise ScriptingError(
+                hash_type.capitalize() + " checksum mismatch ", self.checksum
+            )
 
     @property
     def is_cached(self):

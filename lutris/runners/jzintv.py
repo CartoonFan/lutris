@@ -37,11 +37,7 @@ class jzintv(Runner):
                 "necessary to the emulation."
             ),
         },
-        {
-            "option": "fullscreen",
-            "type": "bool",
-            "label": _("Fullscreen")
-        },
+        {"option": "fullscreen", "type": "bool", "label": _("Fullscreen")},
         {
             "option": "resolution",
             "type": "choice",
@@ -55,7 +51,7 @@ class jzintv(Runner):
                 ("1680 x 1050", "4"),
                 ("1600 x 1200", "6"),
             ),
-            "default": "0"
+            "default": "0",
         },
     ]
 

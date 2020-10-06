@@ -82,10 +82,12 @@ class SteamService(BaseService):
         logger.debug("Loading Steam games from local install")
         games = []
         steamapps_paths = get_steamapps_paths()
-        for platform in ('linux', 'windows'):
+        for platform in ("linux", "windows"):
             for steamapps_path in steamapps_paths[platform]:
                 for appmanifest_file in get_appmanifests(steamapps_path):
-                    app_manifest = AppManifest(os.path.join(steamapps_path, appmanifest_file))
+                    app_manifest = AppManifest(
+                        os.path.join(steamapps_path, appmanifest_file)
+                    )
                     if SteamGame.is_importable(app_manifest):
                         games.append(SteamGame.new_from_steam_game(app_manifest))
         logger.debug("Saving Steam games...")
@@ -101,11 +103,14 @@ class SteamService(BaseService):
         game_config.save()
 
     def get_installer_files(self, installer, installer_file_id):
-        steam_uri = "$WINESTEAM:%s:." if installer.runner == "winesteam" else "$STEAM:%s:."
+        steam_uri = (
+            "$WINESTEAM:%s:." if installer.runner == "winesteam" else "$STEAM:%s:."
+        )
         appid = str(installer.script["game"]["appid"])
         return [
-            InstallerFile(installer.game_slug, "steam_game", {
-                "url": steam_uri % appid,
-                "filename": appid
-            })
+            InstallerFile(
+                installer.game_slug,
+                "steam_game",
+                {"url": steam_uri % appid, "filename": appid},
+            )
         ]

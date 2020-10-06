@@ -89,7 +89,9 @@ def guess_extractor(path):
     elif is_7zip_supported(path, None):
         extractor = None
     else:
-        raise RuntimeError("Could not extract `%s` - no appropriate extractor found" % path)
+        raise RuntimeError(
+            "Could not extract `%s` - no appropriate extractor found" % path
+        )
     return extractor
 
 

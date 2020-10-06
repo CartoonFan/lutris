@@ -16,8 +16,8 @@ class SteamInstaller(GObject.Object):
     """Handles installation of Steam games"""
 
     __gsignals__ = {
-        "game-installed": (GObject.SIGNAL_RUN_FIRST, None, (str, )),
-        "state-changed": (GObject.SIGNAL_RUN_FIRST, None, (str, )),
+        "game-installed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        "state-changed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     def __init__(self, steam_uri, file_id):
@@ -88,7 +88,9 @@ class SteamInstaller(GObject.Object):
             self.runner.config = LutrisConfig(runner_slug=self.runner.name)
             # FIXME Find a way to bring back arch support
             # steam_runner.config.game_config["arch"] = self.steam_data["arch"]
-            AsyncCall(self.runner.install_game, self.on_steam_game_installed, self.appid)
+            AsyncCall(
+                self.runner.install_game, self.on_steam_game_installed, self.appid
+            )
             self.install_start_time = time.localtime()
             self.steam_poll = GLib.timeout_add(2000, self._monitor_steam_game_install)
             self.stop_func = lambda: self.runner.remove_game_data(appid=self.appid)
@@ -99,9 +101,7 @@ class SteamInstaller(GObject.Object):
         if not data_path or not os.path.exists(data_path):
             logger.info("No path found for Steam game %s", self.appid)
             return ""
-        return os.path.abspath(
-            os.path.join(data_path, self.steam_rel_path)
-        )
+        return os.path.abspath(os.path.join(data_path, self.steam_rel_path))
 
     def _monitor_steam_game_install(self):
         if self.cancelled:

@@ -1,7 +1,11 @@
 """Module to deal with various aspects of displays"""
 # isort:skip_file
 from lutris.util.log import logger
-from lutris.util.graphics.xrandr import LegacyDisplayManager, change_resolution, get_outputs
+from lutris.util.graphics.xrandr import (
+    LegacyDisplayManager,
+    change_resolution,
+    get_outputs,
+)
 from lutris.util.graphics.displayconfig import MutterDisplayManager
 from lutris.util import system
 from gi.repository import Gdk, GLib, GnomeDesktop, Gio
@@ -14,6 +18,7 @@ gi.require_version("GnomeDesktop", "3.0")
 
 try:
     from dbus.exceptions import DBusException
+
     DBUS_AVAILABLE = True
 except ImportError:
     DBUS_AVAILABLE = False
@@ -47,8 +52,10 @@ def _get_graphics_adapters():
         logger.warning("lspci is not available. List of graphics cards not available")
         return []
     return [
-        (pci_id, device_desc.split(": ")[1]) for pci_id, device_desc in [
-            line.split(maxsplit=1) for line in system.execute(lspci_path, timeout=3).split("\n")
+        (pci_id, device_desc.split(": ")[1])
+        for pci_id, device_desc in [
+            line.split(maxsplit=1)
+            for line in system.execute(lspci_path, timeout=3).split("\n")
             if any(subclass in line for subclass in dev_subclasses)
         ]
     ]
@@ -68,12 +75,20 @@ class DisplayManager:
 
     def get_display_names(self):
         """Return names of connected displays"""
-        return [output_info.get_display_name() for output_info in self.rr_config.get_outputs()]
+        return [
+            output_info.get_display_name()
+            for output_info in self.rr_config.get_outputs()
+        ]
 
     def get_resolutions(self):
         """Return available resolutions"""
-        resolutions = ["%sx%s" % (mode.get_width(), mode.get_height()) for mode in self.rr_screen.list_modes()]
-        return sorted(set(resolutions), key=lambda x: int(x.split("x")[0]), reverse=True)
+        resolutions = [
+            "%sx%s" % (mode.get_width(), mode.get_height())
+            for mode in self.rr_screen.list_modes()
+        ]
+        return sorted(
+            set(resolutions), key=lambda x: int(x.split("x")[0]), reverse=True
+        )
 
     def _get_primary_output(self):
         """Return the RROutput used as a primary display"""
@@ -119,7 +134,10 @@ def get_display_manager():
         except DBusException as ex:
             logger.debug("Mutter DBus service not reachable: %s", ex)
         except Exception as ex:  # pylint: disable=broad-except
-            logger.exception("Failed to instanciate MutterDisplayConfig. Please report with exception: %s", ex)
+            logger.exception(
+                "Failed to instanciate MutterDisplayConfig. Please report with exception: %s",
+                ex,
+            )
     else:
         logger.error("DBus is not available, lutris was not properly installed.")
     try:
@@ -166,10 +184,7 @@ def _get_command_output(*command):
     """Some rogue function that gives no shit about residing in the correct module"""
     try:
         return subprocess.Popen(
-            command,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            close_fds=True
+            command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, close_fds=True
         ).communicate()[0]
     except FileNotFoundError:
         logger.error("Unable to run command, %s not found", command[0])
@@ -181,20 +196,42 @@ def is_compositing_enabled():
     """
     desktop_environment = get_desktop_environment()
     if desktop_environment is DesktopEnvironment.PLASMA:
-        return _get_command_output(
-            "qdbus", "org.kde.KWin", "/Compositor", "org.kde.kwin.Compositing.active"
-        ) == b"true\n"
+        return (
+            _get_command_output(
+                "qdbus",
+                "org.kde.KWin",
+                "/Compositor",
+                "org.kde.kwin.Compositing.active",
+            )
+            == b"true\n"
+        )
     if desktop_environment is DesktopEnvironment.MATE:
-        return _get_command_output("gsettings", "get org.mate.Marco.general", "compositing-manager") == b"true\n"
+        return (
+            _get_command_output(
+                "gsettings", "get org.mate.Marco.general", "compositing-manager"
+            )
+            == b"true\n"
+        )
     if desktop_environment is DesktopEnvironment.XFCE:
-        return _get_command_output(
-            "xfconf-query", "--channel=xfwm4", "--property=/general/use_compositing"
-        ) == b"true\n"
+        return (
+            _get_command_output(
+                "xfconf-query", "--channel=xfwm4", "--property=/general/use_compositing"
+            )
+            == b"true\n"
+        )
     if desktop_environment is DesktopEnvironment.DEEPIN:
-        return _get_command_output(
-            "dbus-send", "--session", "--dest=com.deepin.WMSwitcher", "--type=method_call",
-            "--print-reply=literal", "/com/deepin/WMSwitcher", "com.deepin.WMSwitcher.CurrentWM"
-        ) == b"deepin wm\n"
+        return (
+            _get_command_output(
+                "dbus-send",
+                "--session",
+                "--dest=com.deepin.WMSwitcher",
+                "--type=method_call",
+                "--print-reply=literal",
+                "/com/deepin/WMSwitcher",
+                "com.deepin.WMSwitcher.CurrentWM",
+            )
+            == b"deepin wm\n"
+        )
     return None
 
 
@@ -213,18 +250,52 @@ def _get_compositor_commands():
     stop_compositor = None
     desktop_environment = get_desktop_environment()
     if desktop_environment is DesktopEnvironment.PLASMA:
-        stop_compositor = ("qdbus", "org.kde.KWin", "/Compositor", "org.kde.kwin.Compositing.suspend")
-        start_compositor = ("qdbus", "org.kde.KWin", "/Compositor", "org.kde.kwin.Compositing.resume")
+        stop_compositor = (
+            "qdbus",
+            "org.kde.KWin",
+            "/Compositor",
+            "org.kde.kwin.Compositing.suspend",
+        )
+        start_compositor = (
+            "qdbus",
+            "org.kde.KWin",
+            "/Compositor",
+            "org.kde.kwin.Compositing.resume",
+        )
     elif desktop_environment is DesktopEnvironment.MATE:
-        stop_compositor = ("gsettings", "set org.mate.Marco.general", "compositing-manager", "false")
-        start_compositor = ("gsettings", "set org.mate.Marco.general", "compositing-manager", "true")
+        stop_compositor = (
+            "gsettings",
+            "set org.mate.Marco.general",
+            "compositing-manager",
+            "false",
+        )
+        start_compositor = (
+            "gsettings",
+            "set org.mate.Marco.general",
+            "compositing-manager",
+            "true",
+        )
     elif desktop_environment is DesktopEnvironment.XFCE:
-        stop_compositor = ("xfconf-query", "--channel=xfwm4", "--property=/general/use_compositing", "--set=false")
-        start_compositor = ("xfconf-query", "--channel=xfwm4", "--property=/general/use_compositing", "--set=true")
+        stop_compositor = (
+            "xfconf-query",
+            "--channel=xfwm4",
+            "--property=/general/use_compositing",
+            "--set=false",
+        )
+        start_compositor = (
+            "xfconf-query",
+            "--channel=xfwm4",
+            "--property=/general/use_compositing",
+            "--set=true",
+        )
     elif desktop_environment is DesktopEnvironment.DEEPIN:
         start_compositor = (
-            "dbus-send", "--session", "--dest=com.deepin.WMSwitcher", "--type=method_call",
-            "/com/deepin/WMSwitcher", "com.deepin.WMSwitcher.RequestSwitchWM",
+            "dbus-send",
+            "--session",
+            "--dest=com.deepin.WMSwitcher",
+            "--type=method_call",
+            "/com/deepin/WMSwitcher",
+            "com.deepin.WMSwitcher.RequestSwitchWM",
         )
         stop_compositor = start_compositor
     return start_compositor, stop_compositor
@@ -273,7 +344,8 @@ class DBusScreenSaverInhibitor:
 
     def __init__(self, name, path, interface, bus_type=Gio.BusType.SESSION):
         self.proxy = Gio.DBusProxy.new_for_bus_sync(
-            bus_type, Gio.DBusProxyFlags.NONE, None, name, path, interface, None)
+            bus_type, Gio.DBusProxyFlags.NONE, None, name, path, interface, None
+        )
 
     def inhibit(self, game_name):
         """Inhibit the screen saver.
@@ -308,7 +380,9 @@ def _get_screen_saver_inhibitor():
     try:
         return DBusScreenSaverInhibitor(interface, path, interface)
     except GLib.Error as err:
-        logger.error("Error during creation of DBusScreenSaverInhibitor: %s", err.message)  # pylint: disable=no-member
+        logger.error(
+            "Error during creation of DBusScreenSaverInhibitor: %s", err.message
+        )  # pylint: disable=no-member
         return None
 
 

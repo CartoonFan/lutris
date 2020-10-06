@@ -109,7 +109,7 @@ class InstallerScriptBox(Gtk.VBox):
 class InstallerPicker(Gtk.ListBox):
     """List box to pick between several installers"""
 
-    __gsignals__ = {"installer-selected": (GObject.SIGNAL_RUN_FIRST, None, (str, ))}
+    __gsignals__ = {"installer-selected": (GObject.SIGNAL_RUN_FIRST, None, (str,))}
 
     def __init__(self, scripts):
         super().__init__()
@@ -117,7 +117,7 @@ class InstallerPicker(Gtk.ListBox):
         for script in scripts:
             self.add(InstallerScriptBox(script, parent=self, revealed=revealed))
             revealed = False  # Only reveal the first installer.
-        self.connect('row-selected', self.on_activate)
+        self.connect("row-selected", self.on_activate)
         self.show_all()
 
     @staticmethod
@@ -164,16 +164,18 @@ class InstallerFileBox(Gtk.VBox):
 
     def get_download_progress(self):
         """Return the widget for the download progress bar"""
-        download_progress = DownloadProgressBox({
-            "url": self.installer_file.url,
-            "dest": self.installer_file.dest_file,
-            "referer": self.installer_file.referer
-        }, cancelable=True)
+        download_progress = DownloadProgressBox(
+            {
+                "url": self.installer_file.url,
+                "dest": self.installer_file.dest_file,
+                "referer": self.installer_file.referer,
+            },
+            cancelable=True,
+        )
         download_progress.connect("complete", self.on_download_complete)
         download_progress.show()
-        if (
-                not self.installer_file.uses_pga_cache()
-                and system.path_exists(self.installer_file.dest_file)
+        if not self.installer_file.uses_pga_cache() and system.path_exists(
+            self.installer_file.dest_file
         ):
             os.remove(self.installer_file.dest_file)
         self.start_func = download_progress.start
@@ -189,8 +191,7 @@ class InstallerFileBox(Gtk.VBox):
             return box
         if self.provider == "pga":
             url_label = InstallerLabel(
-                "CACHED: %s" % gtk_safe(self.installer_file.human_url),
-                wrap=False
+                "CACHED: %s" % gtk_safe(self.installer_file.human_url), wrap=False
             )
             box.pack_start(url_label, False, False, 6)
             return box
@@ -198,8 +199,9 @@ class InstallerFileBox(Gtk.VBox):
             user_label = InstallerLabel(gtk_safe(self.installer_file.human_url))
             box.pack_start(user_label, False, False, 0)
         if self.provider == "steam":
-            steam_installer = SteamInstaller(self.installer_file.url,
-                                             self.installer_file.id)
+            steam_installer = SteamInstaller(
+                self.installer_file.url, self.installer_file.id
+            )
             steam_installer.connect("game-installed", self.on_download_complete)
             steam_installer.connect("state-changed", self.on_state_changed)
             self.start_func = steam_installer.install_steam_game
@@ -207,10 +209,11 @@ class InstallerFileBox(Gtk.VBox):
 
             steam_box = Gtk.HBox(spacing=6)
             info_box = Gtk.VBox(spacing=6)
-            steam_label = InstallerLabel(_("Steam game for {platform} (appid: <b>{appid}</b>)").format(
-                platform=steam_installer.platform,
-                appid=steam_installer.appid
-            ))
+            steam_label = InstallerLabel(
+                _("Steam game for {platform} (appid: <b>{appid}</b>)").format(
+                    platform=steam_installer.platform, appid=steam_installer.appid
+                )
+            )
             info_box.add(steam_label)
             self.state_label = InstallerLabel("")
             info_box.add(self.state_label)
@@ -239,7 +242,9 @@ class InstallerFileBox(Gtk.VBox):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         last_widget = None
         if "download" in self.installer_file.providers:
-            download_button = self.get_source_radiobutton(last_widget, _("Download"), "download")
+            download_button = self.get_source_radiobutton(
+                last_widget, _("Download"), "download"
+            )
             vbox.pack_start(download_button, False, True, 10)
             last_widget = download_button
         if "pga" in self.installer_file.providers:
@@ -298,9 +303,7 @@ class InstallerFileBox(Gtk.VBox):
             return InstallerLabel(gtk_safe(self.installer_file.human_url), wrap=False)
         box = Gtk.VBox(spacing=6)
         location_entry = FileChooserEntry(
-            self.installer_file.human_url,
-            Gtk.FileChooserAction.OPEN,
-            path=None
+            self.installer_file.human_url, Gtk.FileChooserAction.OPEN, path=None
         )
         location_entry.entry.connect("changed", self.on_location_changed)
         location_entry.show()
@@ -314,11 +317,7 @@ class InstallerFileBox(Gtk.VBox):
 
     def get_widgets(self):
         """Return the widget with the source of the file and a way to change its source"""
-        box = Gtk.HBox(
-            spacing=12,
-            margin_top=6,
-            margin_bottom=6
-        )
+        box = Gtk.HBox(spacing=12, margin_top=6, margin_bottom=6)
         self.file_provider_widget = self.get_file_provider_label()
         box.pack_start(self.file_provider_widget, True, True, 0)
         source_box = Gtk.HBox()
@@ -387,8 +386,8 @@ class InstallerFilesBox(Gtk.ListBox):
     """List box presenting all files needed for an installer"""
 
     __gsignals__ = {
-        "files-ready": (GObject.SIGNAL_RUN_LAST, None, (bool, )),
-        "files-available": (GObject.SIGNAL_RUN_LAST, None, ())
+        "files-ready": (GObject.SIGNAL_RUN_LAST, None, (bool,)),
+        "files-available": (GObject.SIGNAL_RUN_LAST, None, ()),
     }
 
     def __init__(self, installer_files, parent):

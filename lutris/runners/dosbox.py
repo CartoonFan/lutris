@@ -4,7 +4,10 @@ import shlex
 from gettext import gettext as _
 
 # Lutris Modules
-from lutris.runners.commands.dosbox import dosexec, makeconfig  # NOQA pylint: disable=unused-import
+from lutris.runners.commands.dosbox import (
+    dosexec,
+    makeconfig,
+)  # NOQA pylint: disable=unused-import
 from lutris.runners.runner import Runner
 from lutris.util import system
 
@@ -15,7 +18,9 @@ class dosbox(Runner):
     platforms = [_("MS-DOS")]
     runnable_alone = True
     runner_executable = "dosbox/bin/dosbox"
-    require_libs = ["libopusfile.so.0", ]
+    require_libs = [
+        "libopusfile.so.0",
+    ]
     game_options = [
         {
             "option": "main_file",
@@ -79,19 +84,15 @@ class dosbox(Runner):
     ]
     runner_options = [
         {
-            "option":
-            "scaler",
-            "label":
-            _("Graphic scaler"),
-            "type":
-            "choice",
-            "choices":
-            scaler_modes,
-            "default":
-            "normal3x",
-            "help":
-            _("The algorithm used to scale up the game's base "
-              "resolution, resulting in different visual styles. "),
+            "option": "scaler",
+            "label": _("Graphic scaler"),
+            "type": "choice",
+            "choices": scaler_modes,
+            "default": "normal3x",
+            "help": _(
+                "The algorithm used to scale up the game's base "
+                "resolution, resulting in different visual styles. "
+            ),
         },
         {
             "option": "exit",

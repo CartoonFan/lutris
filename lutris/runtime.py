@@ -67,7 +67,9 @@ class Runtime:
     def download(self, remote_runtime_info):
         """Downloads a runtime locally"""
         remote_updated_at = remote_runtime_info["created_at"]
-        remote_updated_at = time.strptime(remote_updated_at[:remote_updated_at.find(".")], "%Y-%m-%dT%H:%M:%S")
+        remote_updated_at = time.strptime(
+            remote_updated_at[: remote_updated_at.find(".")], "%Y-%m-%dT%H:%M:%S"
+        )
         if not self.should_update(remote_updated_at):
             return None
 
@@ -106,7 +108,9 @@ class Runtime:
         system.remove_folder(initial_path)
 
         # Extract the runtime archive
-        jobs.AsyncCall(extract_archive, self.on_extracted, path, RUNTIME_DIR, merge_single=False)
+        jobs.AsyncCall(
+            extract_archive, self.on_extracted, path, RUNTIME_DIR, merge_single=False
+        )
         return False
 
     def on_extracted(self, result, error):
@@ -164,7 +168,8 @@ class RuntimeUpdater:
 
             # Skip 32bit runtimes on 64 bit systems except the main runtime
             if (
-                runtime["architecture"] == "i386" and system.LINUX_SYSTEM.is_64_bit
+                runtime["architecture"] == "i386"
+                and system.LINUX_SYSTEM.is_64_bit
                 and not runtime["name"].startswith(("Ubuntu", "lib32"))
             ):
                 logger.debug(
@@ -175,7 +180,10 @@ class RuntimeUpdater:
                 continue
 
             # Skip 64bit runtimes on 32 bit systems
-            if runtime["architecture"] == "x86_64" and not system.LINUX_SYSTEM.is_64_bit:
+            if (
+                runtime["architecture"] == "x86_64"
+                and not system.LINUX_SYSTEM.is_64_bit
+            ):
                 logger.debug(
                     "Skipping runtime %s for %s",
                     runtime["name"],
@@ -209,11 +217,18 @@ def get_env(version=None, prefer_system_libs=False, wine_path=None):
     return {
         key: value
         for key, value in {
-            "STEAM_RUNTIME":
-            os.path.join(RUNTIME_DIR, "steam") if not RUNTIME_DISABLED else None,
-            "LD_LIBRARY_PATH":
-            ":".join(get_paths(version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path)),
-        }.items() if value
+            "STEAM_RUNTIME": os.path.join(RUNTIME_DIR, "steam")
+            if not RUNTIME_DISABLED
+            else None,
+            "LD_LIBRARY_PATH": ":".join(
+                get_paths(
+                    version=version,
+                    prefer_system_libs=prefer_system_libs,
+                    wine_path=wine_path,
+                )
+            ),
+        }.items()
+        if value
     }
 
 
@@ -269,7 +284,9 @@ def get_runtime_paths(version=None, prefer_system_libs=True, wine_path=None):
 def get_paths(version=None, prefer_system_libs=True, wine_path=None):
     """Return a list of paths containing the runtime libraries."""
     if not RUNTIME_DISABLED:
-        paths = get_runtime_paths(version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path)
+        paths = get_runtime_paths(
+            version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path
+        )
     else:
         paths = []
     if os.environ.get("LD_LIBRARY_PATH"):
