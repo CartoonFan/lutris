@@ -29,10 +29,10 @@ class ServicesBox(BaseConfigBox):
             margin_left=12,
             margin_top=12,
             margin_bottom=12,
-            visible=True
+            visible=True,
         )
         service = SERVICES[service_key]
-        pixbuf = get_icon(service.icon, icon_format='pixbuf', size=ICON_SIZE)
+        pixbuf = get_icon(service.icon, icon_format="pixbuf", size=ICON_SIZE)
         if pixbuf:
             icon = Gtk.Image(visible=True)
             icon.set_from_pixbuf(pixbuf)
