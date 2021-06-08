@@ -11,7 +11,7 @@ from lutris.services import SERVICES
 class ServicesBox(BaseConfigBox):
     def __init__(self):
         super().__init__()
-        self.add(self.get_section_label(_("Enabled intagrations")))
+        self.add(self.get_section_label(_("Enabled integrations")))
         listbox = Gtk.ListBox(visible=True)
         self.pack_start(listbox, False, False, 12)
 
