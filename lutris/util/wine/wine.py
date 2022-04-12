@@ -38,7 +38,9 @@ def get_playonlinux():
 
 def _iter_proton_locations():
     """Iterate through all existing Proton locations"""
-    for path in [os.path.join(p, "common") for p in steam().get_steamapps_dirs()]:
+    for path in [
+            os.path.join(p, "common") for p in steam().get_steamapps_dirs()
+    ]:
         if os.path.isdir(path):
             yield path
     for path in [os.path.join(p, "") for p in steam().get_steamapps_dirs()]:
@@ -52,7 +54,8 @@ def get_proton_paths():
     for path in _iter_proton_locations():
         proton_versions = [p for p in os.listdir(path) if "Proton" in p]
         for version in proton_versions:
-            if system.path_exists(os.path.join(path, version, "dist/bin/wine")):
+            if system.path_exists(os.path.join(path, version,
+                                               "dist/bin/wine")):
                 paths.add(path)
     return list(paths)
 
@@ -90,7 +93,8 @@ def detect_prefix_arch(prefix_path=None):
                 return "win64"
             if "win32" in line:
                 return "win32"
-    logger.debug("Failed to detect Wine prefix architecture in %s", prefix_path)
+    logger.debug("Failed to detect Wine prefix architecture in %s",
+                 prefix_path)
     return None
 
 
@@ -145,11 +149,8 @@ def is_installed_systemwide():
         if system.find_executable(build):
             # if wine64 is installed but not wine32, don't consider it
             # a system-wide installation.
-            if (
-                build == "wine"
-                and system.path_exists("/usr/lib/wine/wine64")
-                and not system.path_exists("/usr/lib/wine/wine")
-            ):
+            if (build == "wine" and system.path_exists("/usr/lib/wine/wine64")
+                    and not system.path_exists("/usr/lib/wine/wine")):
                 logger.warning("wine32 is missing from system")
                 return False
             return True
@@ -199,7 +200,8 @@ def get_pol_wine_versions():
         if not system.path_exists(builds_path):
             continue
         for version in os.listdir(builds_path):
-            if system.path_exists(os.path.join(builds_path, version, "bin/wine")):
+            if system.path_exists(
+                    os.path.join(builds_path, version, "bin/wine")):
                 versions.append("PlayOnLinux %s-%s" % (version, arch))
     return versions
 
@@ -247,7 +249,9 @@ def is_fsync_supported():
 def get_default_version():
     """Return the default version of wine. Prioritize 64bit builds"""
     installed_versions = get_wine_versions()
-    wine64_versions = [version for version in installed_versions if "64" in version]
+    wine64_versions = [
+        version for version in installed_versions if "64" in version
+    ]
     if wine64_versions:
         return wine64_versions[0]
     if installed_versions:
@@ -289,7 +293,9 @@ def is_version_esync(path):
     except IndexError:
         logger.error("Invalid path '%s'", path)
         return False
-    esync_compatible_versions = ["esync", "lutris", "tkg", "ge", "proton", "staging"]
+    esync_compatible_versions = [
+        "esync", "lutris", "tkg", "ge", "proton", "staging"
+    ]
     for esync_version in esync_compatible_versions:
         if esync_version in version:
             return True
@@ -334,7 +340,8 @@ def get_real_executable(windows_executable, working_dir=None):
         return ("msiexec", ["/i", windows_executable], working_dir)
 
     if exec_name.endswith(".bat"):
-        if not working_dir or os.path.dirname(windows_executable) == working_dir:
+        if not working_dir or os.path.dirname(
+                windows_executable) == working_dir:
             working_dir = os.path.dirname(windows_executable) or None
             windows_executable = os.path.basename(windows_executable)
         return ("cmd", ["/C", windows_executable], working_dir)
@@ -347,20 +354,22 @@ def get_real_executable(windows_executable, working_dir=None):
 
 def display_vulkan_error(on_launch):
     if on_launch:
-        checkbox_message = _("Launch anyway and do not show this message again.")
+        checkbox_message = _(
+            "Launch anyway and do not show this message again.")
     else:
-        checkbox_message = _("Enable anyway and do not show this message again.")
+        checkbox_message = _(
+            "Enable anyway and do not show this message again.")
 
     setting = "hide-no-vulkan-warning"
     DontShowAgainDialog(
         setting,
         _("Vulkan is not installed or is not supported by your system"),
-        secondary_message=_(
-            "If you have compatible hardware, please follow "
-            "the installation procedures as described in\n"
-            "<a href='https://github.com/lutris/docs/blob/master/HowToDXVK.md'>"
-            "How-to:-DXVK (https://github.com/lutris/docs/blob/master/HowToDXVK.md)</a>"
-        ),
+        secondary_message=
+        _("If you have compatible hardware, please follow "
+          "the installation procedures as described in\n"
+          "<a href='https://github.com/lutris/docs/blob/master/HowToDXVK.md'>"
+          "How-to:-DXVK (https://github.com/lutris/docs/blob/master/HowToDXVK.md)</a>"
+          ),
         checkbox_message=checkbox_message,
     )
     return settings.read_setting(setting) == "True"
@@ -368,39 +377,34 @@ def display_vulkan_error(on_launch):
 
 def esync_display_limit_warning():
     ErrorDialog(
-        _(
-            "Your limits are not set correctly."
-            " Please increase them as described here:"
-            " <a href='https://github.com/lutris/docs/blob/master/HowToEsync.md'>"
-            "How-to:-Esync (https://github.com/lutris/docs/blob/master/HowToEsync.md)</a>"
-        )
-    )
+        _("Your limits are not set correctly."
+          " Please increase them as described here:"
+          " <a href='https://github.com/lutris/docs/blob/master/HowToEsync.md'>"
+          "How-to:-Esync (https://github.com/lutris/docs/blob/master/HowToEsync.md)</a>"
+          ))
 
 
 def fsync_display_support_warning():
     ErrorDialog(
-        _(
-            "Your kernel is not patched for fsync."
-            " Please get a patched kernel to use fsync."
-        )
-    )
+        _("Your kernel is not patched for fsync."
+          " Please get a patched kernel to use fsync."))
 
 
 def esync_display_version_warning(on_launch=False):
     setting = "hide-wine-non-esync-version-warning"
     if on_launch:
-        checkbox_message = _("Launch anyway and do not show this message again.")
+        checkbox_message = _(
+            "Launch anyway and do not show this message again.")
     else:
-        checkbox_message = _("Enable anyway and do not show this message again.")
+        checkbox_message = _(
+            "Enable anyway and do not show this message again.")
 
     DontShowAgainDialog(
         setting,
         _("Incompatible Wine version detected"),
-        secondary_message=_(
-            "The Wine build you have selected "
-            "does not support Esync.\n"
-            "Please switch to an Esync-capable version."
-        ),
+        secondary_message=_("The Wine build you have selected "
+                            "does not support Esync.\n"
+                            "Please switch to an Esync-capable version."),
         checkbox_message=checkbox_message,
     )
     return settings.read_setting(setting) == "True"
@@ -409,18 +413,18 @@ def esync_display_version_warning(on_launch=False):
 def fsync_display_version_warning(on_launch=False):
     setting = "hide-wine-non-fsync-version-warning"
     if on_launch:
-        checkbox_message = _("Launch anyway and do not show this message again.")
+        checkbox_message = _(
+            "Launch anyway and do not show this message again.")
     else:
-        checkbox_message = _("Enable anyway and do not show this message again.")
+        checkbox_message = _(
+            "Enable anyway and do not show this message again.")
 
     DontShowAgainDialog(
         setting,
         _("Incompatible Wine version detected"),
-        secondary_message=_(
-            "The Wine build you have selected "
-            "does not support Fsync.\n"
-            "Please switch to an Fsync-capable version."
-        ),
+        secondary_message=_("The Wine build you have selected "
+                            "does not support Fsync.\n"
+                            "Please switch to an Fsync-capable version."),
         checkbox_message=checkbox_message,
     )
     return settings.read_setting(setting) == "True"
@@ -433,9 +437,8 @@ def get_overrides_env(overrides):
     """
     default_overrides = {"winemenubuilder": ""}
     overrides.update(default_overrides)
-    override_buckets = OrderedDict(
-        [("n,b", []), ("b,n", []), ("b", []), ("n", []), ("d", []), ("", [])]
-    )
+    override_buckets = OrderedDict([("n,b", []), ("b,n", []), ("b", []),
+                                    ("n", []), ("d", []), ("", [])])
     for dll, value in overrides.items():
         if not value:
             value = ""

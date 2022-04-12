@@ -10,6 +10,7 @@ else:
 
 
 class LutrisWrapperTestCase(unittest.TestCase):
+
     def test_excluded_initial_process(self):
         "Test that an excluded process that starts a monitored process works"
         env = os.environ.copy()

@@ -106,10 +106,8 @@ class SteamService(BaseService):
         steam_games = get_steam_library(steamid)
         if not steam_games:
             raise RuntimeError(
-                _(
-                    "Failed to load games. Check that your profile is set to public during the sync."
-                )
-            )
+                _("Failed to load games. Check that your profile is set to public during the sync."
+                  ))
         for steam_game in steam_games:
             if steam_game["appid"] in self.excluded_appids:
                 continue
@@ -126,7 +124,10 @@ class SteamService(BaseService):
             InstallerFile(
                 installer.game_slug,
                 "steam_game",
-                {"url": steam_uri % appid, "filename": appid},
+                {
+                    "url": steam_uri % appid,
+                    "filename": appid
+                },
             )
         ]
 
@@ -169,7 +170,8 @@ class SteamService(BaseService):
         installed_appids = []
         for steamapps_path in self.steamapps_paths:
             for appmanifest_file in get_appmanifests(steamapps_path):
-                app_manifest_path = os.path.join(steamapps_path, appmanifest_file)
+                app_manifest_path = os.path.join(steamapps_path,
+                                                 appmanifest_file)
                 app_manifest = AppManifest(app_manifest_path)
                 installed_appids.append(app_manifest.steamid)
                 self.install_from_steam(app_manifest)
@@ -209,14 +211,20 @@ class SteamService(BaseService):
             "game_slug": slugify(db_game["name"]),
             "runner": self.runner,
             "appid": db_game["appid"],
-            "script": {"game": {"appid": db_game["appid"]}},
+            "script": {
+                "game": {
+                    "appid": db_game["appid"]
+                }
+            },
         }
 
     def install(self, db_game):
         appid = db_game["appid"]
-        db_games = get_games(
-            filters={"service_id": appid, "installed": "1", "service": self.id}
-        )
+        db_games = get_games(filters={
+            "service_id": appid,
+            "installed": "1",
+            "service": self.id
+        })
         existing_game = self.match_existing_game(db_games, appid)
         if existing_game:
             logger.debug("Found steam game: %s", existing_game)
@@ -227,4 +235,6 @@ class SteamService(BaseService):
         if not service_installers:
             service_installers = [self.generate_installer(db_game)]
         application = Gio.Application.get_default()
-        application.show_installer_window(service_installers, service=self, appid=appid)
+        application.show_installer_window(service_installers,
+                                          service=self,
+                                          appid=appid)

@@ -16,14 +16,12 @@ class yuzu(Runner):
     description = _("Nintendo Switch emulator")
     runnable_alone = True
     runner_executable = "yuzu/yuzu"
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "file",
-            "label": _("ROM file"),
-            "help": _("The game data, commonly called a ROM image."),
-        }
-    ]
+    game_options = [{
+        "option": "main_file",
+        "type": "file",
+        "label": _("ROM file"),
+        "help": _("The game data, commonly called a ROM image."),
+    }]
     runner_options = [
         {
             "option": "prod_keys",
@@ -42,13 +40,12 @@ class yuzu(Runner):
     @property
     def yuzu_data_dir(self):
         """Return dir where Yuzu files lie."""
-        candidates = ("~/.local/share/yuzu",)
+        candidates = ("~/.local/share/yuzu", )
         for candidate in candidates:
             path = system.fix_path_case(
-                os.path.join(os.path.expanduser(candidate), "nand")
-            )
+                os.path.join(os.path.expanduser(candidate), "nand"))
             if path and system.path_exists(path):
-                return path[: -len("nand")]
+                return path[:-len("nand")]
 
     def play(self):
         """Run the game."""

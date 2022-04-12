@@ -58,9 +58,8 @@ def check_driver():
     if drivers.is_nvidia():
         driver_info = drivers.get_nvidia_driver_info()
         # pylint: disable=logging-format-interpolation
-        logger.info(
-            "Using {vendor} drivers {version} for {arch}".format(**driver_info["nvrm"])
-        )
+        logger.info("Using {vendor} drivers {version} for {arch}".format(
+            **driver_info["nvrm"]))
         gpus = drivers.get_nvidia_gpu_ids()
         for gpu_id in gpus:
             gpu_info = drivers.get_nvidia_gpu_info(gpu_id)
@@ -84,9 +83,7 @@ def check_driver():
         try:
             logger.info(
                 "GPU: {PCI_ID} {PCI_SUBSYS_ID} ({DRIVER} drivers)".format(
-                    **drivers.get_gpu_info(card)
-                )
-            )
+                    **drivers.get_gpu_info(card)))
         except KeyError:
             logger.error("Unable to get GPU information from '%s'", card)
 
@@ -100,12 +97,10 @@ def check_driver():
                     "You are currently running driver %s which does not "
                     "fully support all features for Vulkan and DXVK games.\n"
                     "Please upgrade your driver as described in our "
-                    "<a href='%s'>installation guide</a>"
-                )
-                % (
-                    driver_info["nvrm"]["version"],
-                    settings.DRIVER_HOWTO_URL,
-                ),
+                    "<a href='%s'>installation guide</a>") % (
+                        driver_info["nvrm"]["version"],
+                        settings.DRIVER_HOWTO_URL,
+                    ),
             )
 
 
@@ -122,7 +117,8 @@ def check_libs(all_components=False):
             for lib in missing_libs[req][index]:
                 if req == "VULKAN":
                     missing_vulkan_libs.append(arch)
-                logger.error("%s %s missing (needed by %s)", arch, lib, req.lower())
+                logger.error("%s %s missing (needed by %s)", arch, lib,
+                             req.lower())
 
     if missing_vulkan_libs:
         setting = "dismiss-missing-vulkan-library-warning"
@@ -135,19 +131,18 @@ def check_libs(all_components=False):
                     "the %s architecture.\n"
                     "This will prevent many games and programs from working.\n"
                     "To install it, please use the following guide: "
-                    "<a href='%s'>Installing Graphics Drivers</a>"
-                )
-                % (
-                    _(" and ").join(missing_vulkan_libs),
-                    settings.DRIVER_HOWTO_URL,
-                ),
+                    "<a href='%s'>Installing Graphics Drivers</a>") % (
+                        _(" and ").join(missing_vulkan_libs),
+                        settings.DRIVER_HOWTO_URL,
+                    ),
             )
 
 
 def check_vulkan():
     """Reports if Vulkan is enabled on the system"""
     if not vkquery.is_vulkan_supported():
-        logger.warning("Vulkan is not available or your system isn't Vulkan capable")
+        logger.warning(
+            "Vulkan is not available or your system isn't Vulkan capable")
 
 
 def fill_missing_platforms():
@@ -195,8 +190,7 @@ def init_lutris():
     except sqlite3.DatabaseError as err:
         raise RuntimeError(
             "Failed to open database file in %s. Try renaming this file and relaunch Lutris"
-            % settings.PGA_DB
-        ) from err
+            % settings.PGA_DB) from err
     for service in DEFAULT_SERVICES:
         if not settings.read_setting(service, section="services"):
             settings.write_setting(service, True, section="services")
@@ -214,11 +208,11 @@ def update_runtime(force=False):
                 time.sleep(0.3)
         update_cache.write_date_to_cache("runtime")
     for dll_manager_class in (
-        DXVKManager,
-        DXVKNVAPIManager,
-        VKD3DManager,
-        D3DExtrasManager,
-        dgvoodoo2Manager,
+            DXVKManager,
+            DXVKNVAPIManager,
+            VKD3DManager,
+            D3DExtrasManager,
+            dgvoodoo2Manager,
     ):
         key = dll_manager_class.__name__
         key_call = update_cache.get_last_call(key)

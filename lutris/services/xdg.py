@@ -46,7 +46,7 @@ class XDGService(BaseService):
     local = True
     medias = {"icon": XDGMedia}
 
-    ignored_games = ("lutris",)
+    ignored_games = ("lutris", )
     ignored_executables = ("lutris", "steam")
     ignored_categories = ("Emulator", "Development", "Utility")
 
@@ -60,9 +60,9 @@ class XDGService(BaseService):
     @property
     def lutris_games(self):
         """Iterates through Lutris games imported from XDG"""
-        for game in get_games_where(
-            runner=XDGGame.runner, installer_slug=XDGGame.installer_slug, installed=1
-        ):
+        for game in get_games_where(runner=XDGGame.runner,
+                                    installer_slug=XDGGame.installer_slug,
+                                    installed=1):
             yield game
 
     @classmethod
@@ -70,15 +70,16 @@ class XDGService(BaseService):
         """Returns whether a XDG game is importable to Lutris"""
         appid = get_appid(app)
         executable = app.get_executable() or ""
-        if any(
-            [
+        if any([
                 app.get_nodisplay() or app.get_is_hidden(),  # App is hidden
                 not executable,  # Check app has an executable
-                appid.startswith("net.lutris"),  # Skip lutris created shortcuts
-                appid.lower() in map(str.lower, cls.ignored_games),  # game blacklisted
-                executable.lower() in cls.ignored_executables,  # exe blacklisted
-            ]
-        ):
+                appid.startswith(
+                    "net.lutris"),  # Skip lutris created shortcuts
+                appid.lower() in map(str.lower,
+                                     cls.ignored_games),  # game blacklisted
+                executable.lower()
+                in cls.ignored_executables,  # exe blacklisted
+        ]):
             return False
 
         # must be in Game category
@@ -88,13 +89,10 @@ class XDGService(BaseService):
             return False
 
         # contains a blacklisted category
-        if bool(
-            [
-                category
-                for category in categories
+        if bool([
+                category for category in categories
                 if category in map(str.lower, cls.ignored_categories)
-            ]
-        ):
+        ]):
             return False
         return True
 
@@ -104,7 +102,9 @@ class XDGService(BaseService):
 
     def load(self):
         """Return the list of games stored in the XDG menu."""
-        xdg_games = [XDGGame.new_from_xdg_app(app) for app in self.iter_xdg_games()]
+        xdg_games = [
+            XDGGame.new_from_xdg_app(app) for app in self.iter_xdg_games()
+        ]
         for game in xdg_games:
             game.save()
         return xdg_games
@@ -122,7 +122,9 @@ class XDGService(BaseService):
                     "exe": details["exe"],
                     "args": details["args"],
                 },
-                "system": {"disable_runtime": True},
+                "system": {
+                    "disable_runtime": True
+                },
             },
         }
 
@@ -155,12 +157,10 @@ class XDGGame(ServiceGame):
         service_game.appid = get_appid(xdg_app)
         service_game.slug = cls.get_slug(xdg_app)
         exe, args = cls.get_command_args(xdg_app)
-        service_game.details = json.dumps(
-            {
-                "exe": exe,
-                "args": args,
-            }
-        )
+        service_game.details = json.dumps({
+            "exe": exe,
+            "args": args,
+        })
         return service_game
 
     @staticmethod
@@ -169,8 +169,8 @@ class XDGGame(ServiceGame):
         command = shlex.split(app.get_commandline())
         # remove %U etc. and change %% to % in arguments
         args = list(
-            map(lambda arg: re.sub("%[^%]", "", arg).replace("%%", "%"), command[1:])
-        )
+            map(lambda arg: re.sub("%[^%]", "", arg).replace("%%", "%"),
+                command[1:]))
         exe = command[0]
         if not exe.startswith("/"):
             exe = system.find_executable(exe)
@@ -179,4 +179,5 @@ class XDGGame(ServiceGame):
     @staticmethod
     def get_slug(xdg_app):
         """Get the slug from the game name"""
-        return slugify(xdg_app.get_display_name()) or slugify(get_appid(xdg_app))
+        return slugify(xdg_app.get_display_name()) or slugify(
+            get_appid(xdg_app))

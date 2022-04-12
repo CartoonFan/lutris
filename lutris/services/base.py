@@ -69,7 +69,8 @@ class BaseService(GObject.Object):
     client_installer = (
         None  # ID of a script needed to install the client used by the service
     )
-    scripts = {}  # Mapping of Javascript snippets to handle redirections during auth
+    scripts = {
+    }  # Mapping of Javascript snippets to handle redirections during auth
     medias = {}
     extra_medias = {}
     default_format = "icon"
@@ -142,7 +143,10 @@ class BaseService(GObject.Object):
             PGA_DB,
             "service_games",
             {"lutris_slug": api_game["slug"]},
-            conditions={"appid": service_game["appid"], "service": self.id},
+            conditions={
+                "appid": service_game["appid"],
+                "service": self.id
+            },
         )
         unmatched_lutris_games = get_games(
             searches={"installer_slug": self.matcher},
@@ -154,7 +158,10 @@ class BaseService(GObject.Object):
             sql.db_update(
                 PGA_DB,
                 "games",
-                {"service": self.id, "service_id": service_game["appid"]},
+                {
+                    "service": self.id,
+                    "service_id": service_game["appid"]
+                },
                 conditions={"id": game["id"]},
             )
 
@@ -164,22 +171,24 @@ class BaseService(GObject.Object):
             str(game["appid"]): game
             for game in ServiceGameCollection.get_for_service(self.id)
         }
-        lutris_games = api.get_api_games(list(service_games.keys()), service=self.id)
+        lutris_games = api.get_api_games(list(service_games.keys()),
+                                         service=self.id)
         for lutris_game in lutris_games:
             for provider_game in lutris_game["provider_games"]:
                 if provider_game["service"] != self.id:
                     continue
-                self.match_game(service_games.get(provider_game["slug"]), lutris_game)
+                self.match_game(service_games.get(provider_game["slug"]),
+                                lutris_game)
         unmatched_service_games = get_games(
-            searches={"installer_slug": self.matcher}, excludes={"service": self.id}
-        )
+            searches={"installer_slug": self.matcher},
+            excludes={"service": self.id})
         for lutris_game in api.get_api_games(
-            game_slugs=[g["slug"] for g in unmatched_service_games]
-        ):
+                game_slugs=[g["slug"] for g in unmatched_service_games]):
             for provider_game in lutris_game["provider_games"]:
                 if provider_game["service"] != self.id:
                     continue
-                self.match_game(service_games.get(provider_game["slug"]), lutris_game)
+                self.match_game(service_games.get(provider_game["slug"]),
+                                lutris_game)
 
     def match_existing_game(self, db_games, appid):
         """Checks if a game is already installed and populates the service info"""
@@ -240,8 +249,7 @@ class BaseService(GObject.Object):
                     filters={
                         "installer_slug": service_installer["slug"],
                         "installed": "1",
-                    }
-                ),
+                    }),
                 appid,
             )
             if existing_game:
@@ -253,14 +261,17 @@ class BaseService(GObject.Object):
             installer = self.generate_installer(db_game)
         if installer:
             if service_installers:
-                installer["version"] = installer["version"] + " (auto-generated)"
+                installer[
+                    "version"] = installer["version"] + " (auto-generated)"
             service_installers.append(installer)
         if not service_installers:
             logger.error("No installer found for %s", db_game)
             return
 
         application = Gio.Application.get_default()
-        application.show_installer_window(service_installers, service=self, appid=appid)
+        application.show_installer_window(service_installers,
+                                          service=self,
+                                          appid=appid)
 
     def simple_install(self, db_game):
         """A simplified version of the install method, used when a game doesn't need any setup"""
@@ -336,9 +347,8 @@ class OnlineService(BaseService):
     def load_cookies(self):
         """Load cookies from disk"""
         if not system.path_exists(self.cookies_path):
-            logger.warning(
-                "No cookies found in %s, please authenticate first", self.cookies_path
-            )
+            logger.warning("No cookies found in %s, please authenticate first",
+                           self.cookies_path)
             return
         cookiejar = WebkitCookieJar(self.cookies_path)
         cookiejar.load()

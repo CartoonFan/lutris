@@ -61,12 +61,8 @@ def get_nvidia_glx_path():
 
     # Run dlinfo(3) on the handle to libGLX_nvidia.so.0, storing results at the
     # address represented by glx_nvidia_info_ptr
-    if (
-        dlinfo_func(
-            libglx_nvidia._handle, RTLD_DI_LINKMAP, addressof(glx_nvidia_info_ptr)
-        )
-        != 0
-    ):
+    if (dlinfo_func(libglx_nvidia._handle, RTLD_DI_LINKMAP,
+                    addressof(glx_nvidia_info_ptr)) != 0):
         logger.error("Unable to read Nvidia information")
         return None
 

@@ -9,7 +9,9 @@ from lutris.util.wine.registry import WineRegistry
 from lutris.util.xdgshortcuts import get_xdg_entry
 
 DESKTOP_KEYS = ["Desktop", "Personal", "My Music", "My Videos", "My Pictures"]
-DEFAULT_DESKTOP_FOLDERS = ["Desktop", "Documents", "Music", "Videos", "Pictures"]
+DEFAULT_DESKTOP_FOLDERS = [
+    "Desktop", "Documents", "Music", "Videos", "Pictures"
+]
 DESKTOP_XDG = ["DESKTOP", "DOCUMENTS", "MUSIC", "VIDEOS", "PICTURES"]
 DEFAULT_DLL_OVERRIDES = {
     "winemenubuilder": "",
@@ -19,8 +21,7 @@ DEFAULT_DLL_OVERRIDES = {
 def is_prefix(path):
     """Return True if the path is prefix"""
     return os.path.isdir(os.path.join(path, "drive_c")) and os.path.exists(
-        os.path.join(path, "user.reg")
-    )
+        os.path.join(path, "user.reg"))
 
 
 def find_prefix(path):
@@ -61,8 +62,8 @@ class WinePrefixManager:
         """Returns the app-data directory for the user; this depends on a registry key."""
         user_dir = self.user_dir
         folder = self.get_registry_key(
-            self.hkcu_prefix
-            + "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
+            self.hkcu_prefix +
+            "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
             "AppData",
         )
         if folder is None:
@@ -103,10 +104,10 @@ class WinePrefixManager:
     def get_key_path(self, key):
         for prefix in (self.hkcu_prefix, self.hklm_prefix):
             if key.startswith(prefix):
-                return key[len(prefix) + 1 :]
+                return key[len(prefix) + 1:]
         raise ValueError(
-            "The key {} is currently not supported by WinePrefixManager".format(key)
-        )
+            "The key {} is currently not supported by WinePrefixManager".
+            format(key))
 
     def get_registry_key(self, key, subkey):
         registry = WineRegistry(self.get_registry_path(key))
@@ -131,7 +132,8 @@ class WinePrefixManager:
         key = self.hkcu_prefix + "/Software/Wine/DllOverrides"
         if mode.startswith("dis"):
             mode = ""
-        if mode not in ("builtin", "native", "builtin,native", "native,builtin", ""):
+        if mode not in ("builtin", "native", "builtin,native",
+                        "native,builtin", ""):
             logger.error("DLL override '%s' mode is not valid", mode)
             return
         self.set_registry_key(key, dll, mode)
@@ -141,23 +143,26 @@ class WinePrefixManager:
         desktop_folders = []
         for key in DESKTOP_KEYS:
             folder = self.get_registry_key(
-                self.hkcu_prefix
-                + "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
+                self.hkcu_prefix +
+                "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
                 key,
             )
             if not folder:
                 logger.warning("Couldn't load shell folder name for %s", key)
                 continue
-            desktop_folders.append(folder[folder.rfind("\\") + 1 :])
+            desktop_folders.append(folder[folder.rfind("\\") + 1:])
         return desktop_folders or DEFAULT_DESKTOP_FOLDERS
 
-    def desktop_integration(self, desktop_dir=None, restore=False):  # noqa: C901
+    def desktop_integration(self,
+                            desktop_dir=None,
+                            restore=False):  # noqa: C901
         """Overwrite desktop integration"""
         # pylint: disable=too-many-branches
         # TODO: reduce complexity (18)
         user_dir = self.user_dir
         desktop_folders = self.get_desktop_folders()
-        desktop_dir = os.path.expanduser(desktop_dir) if desktop_dir else user_dir
+        desktop_dir = os.path.expanduser(
+            desktop_dir) if desktop_dir else user_dir
 
         if system.path_exists(user_dir):
             # Replace or restore desktop integration symlinks
@@ -200,9 +205,8 @@ class WinePrefixManager:
                         # The current code shouldn't allow that
                         # Just raise a exception with the values
                         raise RuntimeError(
-                            "Missing value desktop_dir=%s or item=%s"
-                            % (desktop_dir, item)
-                        ) from ex
+                            "Missing value desktop_dir=%s or item=%s" %
+                            (desktop_dir, item)) from ex
 
                     os.makedirs(src_path, exist_ok=True)
                     os.symlink(src_path, path)
@@ -229,7 +233,8 @@ class WinePrefixManager:
         path = self.hkcu_prefix + "/Software/Wine/Explorer"
         if enabled:
             self.set_registry_key(path, "Desktop", "WineDesktop")
-            default_resolution = "x".join(DISPLAY_MANAGER.get_current_resolution())
+            default_resolution = "x".join(
+                DISPLAY_MANAGER.get_current_resolution())
             logger.debug(
                 "Enabling wine virtual desktop with default resolution of %s",
                 default_resolution,
@@ -252,12 +257,10 @@ class WinePrefixManager:
 
     def set_dpi(self, dpi):
         """Sets the DPI for WINE to use. 96 DPI is effectively unscaled."""
-        self.set_registry_key(
-            self.hkcu_prefix + "/Software/Wine/Fonts", "LogPixels", dpi
-        )
-        self.set_registry_key(
-            self.hkcu_prefix + "/Control Panel/Desktop", "LogPixels", dpi
-        )
+        self.set_registry_key(self.hkcu_prefix + "/Software/Wine/Fonts",
+                              "LogPixels", dpi)
+        self.set_registry_key(self.hkcu_prefix + "/Control Panel/Desktop",
+                              "LogPixels", dpi)
 
     def configure_joypads(self):
         """Disables some joypad devices"""
@@ -268,8 +271,10 @@ class WinePrefixManager:
             # Although, those devices aren't returned by `get_joypads`
             # A better way would be to read /dev/input files directly.
             if "HARPOON RGB" in joypad_name:
-                self.set_registry_key(key, "{} (js)".format(joypad_name), "disabled")
-                self.set_registry_key(key, "{} (event)".format(joypad_name), "disabled")
+                self.set_registry_key(key, "{} (js)".format(joypad_name),
+                                      "disabled")
+                self.set_registry_key(key, "{} (event)".format(joypad_name),
+                                      "disabled")
 
         # This part of the code below avoids having 2 joystick interfaces
         # showing up simulatenously. It is not sure if it's still needed

@@ -4,6 +4,7 @@ from lutris.gui.widgets.common import VBox
 
 
 class BaseConfigBox(VBox):
+
     def get_section_label(self, text):
         label = Gtk.Label(visible=True)
         label.set_markup("<b>%s</b>" % text)

@@ -32,9 +32,9 @@ class JsonRunner(Runner):
         self.platforms = self._json_data["platforms"]
         self.runner_executable = self._json_data["runner_executable"]
         self.system_options_override = self._json_data.get(
-            "system_options_override", []
-        )
-        self.entry_point_option = self._json_data.get("entry_point_option", "main_file")
+            "system_options_override", [])
+        self.entry_point_option = self._json_data.get("entry_point_option",
+                                                      "main_file")
         self.download_url = self._json_data.get("download_url")
 
     def play(self):
@@ -70,7 +70,7 @@ def load_json_runners():
             runner_name = json_path[:-5]
             runner_class = type(
                 runner_name,
-                (JsonRunner,),
+                (JsonRunner, ),
                 {"json_path": os.path.join(json_dir, json_path)},
             )
             json_runners[runner_name] = runner_class

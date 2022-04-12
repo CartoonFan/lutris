@@ -6,6 +6,7 @@ from lutris.runners.pcsx2 import pcsx2
 
 
 class TestPCSX2Runner(unittest.TestCase):
+
     def setUp(self):
         self.runner = pcsx2()
 
@@ -29,7 +30,8 @@ class TestPCSX2Runner(unittest.TestCase):
         mock_config.runner_config = {"fullscreen": True}
         self.runner.config = mock_config
         expected = {
-            "command": [self.runner.get_executable(), "--fullscreen", main_file]
+            "command":
+            [self.runner.get_executable(), "--fullscreen", main_file]
         }
         self.assertEqual(self.runner.play(), expected)
 
@@ -41,7 +43,9 @@ class TestPCSX2Runner(unittest.TestCase):
         mock_config.game_config = {"main_file": main_file}
         mock_config.runner_config = {"full_boot": True}
         self.runner.config = mock_config
-        expected = {"command": [self.runner.get_executable(), "--fullboot", main_file]}
+        expected = {
+            "command": [self.runner.get_executable(), "--fullboot", main_file]
+        }
         self.assertEqual(self.runner.play(), expected)
 
     @patch("lutris.util.system.path_exists")
@@ -52,7 +56,9 @@ class TestPCSX2Runner(unittest.TestCase):
         mock_config.game_config = {"main_file": main_file}
         mock_config.runner_config = {"nogui": True}
         self.runner.config = mock_config
-        expected = {"command": [self.runner.get_executable(), "--nogui", main_file]}
+        expected = {
+            "command": [self.runner.get_executable(), "--nogui", main_file]
+        }
         self.assertEqual(self.runner.play(), expected)
 
     @patch("lutris.util.system.path_exists")
@@ -65,7 +71,9 @@ class TestPCSX2Runner(unittest.TestCase):
         mock_config.game_config = {"main_file": main_file}
         mock_config.runner_config = {"config_file": config_file}
         self.runner.config = mock_config
-        expected = {"command": [self.runner.get_executable(), cfg_arg, main_file]}
+        expected = {
+            "command": [self.runner.get_executable(), cfg_arg, main_file]
+        }
         self.assertEqual(self.runner.play(), expected)
 
     @patch("lutris.util.system.path_exists")
@@ -78,7 +86,9 @@ class TestPCSX2Runner(unittest.TestCase):
         mock_config.game_config = {"main_file": main_file}
         mock_config.runner_config = {"config_path": config_path}
         self.runner.config = mock_config
-        expected = {"command": [self.runner.get_executable(), cfgpath_arg, main_file]}
+        expected = {
+            "command": [self.runner.get_executable(), cfgpath_arg, main_file]
+        }
         self.assertEqual(self.runner.play(), expected)
 
     @patch("lutris.util.system.path_exists")

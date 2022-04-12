@@ -28,18 +28,18 @@ class vice(Runner):
         ("Plus/4", "plus4"),
         ("CBM-II", "cbmii"),
     ]
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "file",
-            "label": _("ROM file"),
-            "help": _(
-                "The game data, commonly called a ROM image.\n"
-                "Supported formats: X64, D64, G64, P64, D67, D71, D81, "
-                "D80, D82, D1M, D2M, D4M, T46, P00 and CRT."
-            ),
-        }
-    ]
+    game_options = [{
+        "option":
+        "main_file",
+        "type":
+        "file",
+        "label":
+        _("ROM file"),
+        "help":
+        _("The game data, commonly called a ROM image.\n"
+          "Supported formats: X64, D64, G64, P64, D67, D71, D81, "
+          "D80, D82, D1M, D2M, D4M, T46, P00 and CRT."),
+    }]
 
     runner_options = [
         {
@@ -114,6 +114,7 @@ class vice(Runner):
         return os.path.join(settings.RUNNER_DIR, "vice/bin/%s" % executable)
 
     def install(self, version=None, downloader=None, callback=None):
+
         def on_runner_installed(*args):
             config_path = system.create_folder("~/.vice")
             lib_dir = os.path.join(settings.RUNNER_DIR, "vice/lib/vice")
@@ -156,7 +157,14 @@ class vice(Runner):
 
     @staticmethod
     def get_joydevs(machine):
-        joydevs = {"c64": 2, "c128": 2, "vic20": 1, "pet": 0, "plus4": 2, "cmbii": 0}
+        joydevs = {
+            "c64": 2,
+            "c128": 2,
+            "vic20": 1,
+            "pet": 0,
+            "plus4": 2,
+            "cmbii": 0
+        }
         return joydevs[machine]
 
     @staticmethod

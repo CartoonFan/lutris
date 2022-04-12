@@ -15,7 +15,6 @@ get_time = time.monotonic
 
 
 class Downloader:
-
     """Non-blocking downloader.
 
     Do start() then check_progress() at regular intervals.
@@ -25,7 +24,12 @@ class Downloader:
 
     (INIT, DOWNLOADING, CANCELLED, ERROR, COMPLETED) = list(range(5))
 
-    def __init__(self, url, dest, overwrite=False, referer=None, callback=None):
+    def __init__(self,
+                 url,
+                 dest,
+                 overwrite=False,
+                 referer=None,
+                 callback=None):
         self.url = url
         self.dest = dest
         self.overwrite = overwrite
@@ -136,9 +140,11 @@ class Downloader:
             headers["Referer"] = self.referer
         response = requests.get(self.url, headers=headers, stream=True)
         if response.status_code != 200:
-            logger.info("%s returned a %s error", self.url, response.status_code)
+            logger.info("%s returned a %s error", self.url,
+                        response.status_code)
         response.raise_for_status()
-        self.full_size = int(response.headers.get("Content-Length", "").strip() or 0)
+        self.full_size = int(
+            response.headers.get("Content-Length", "").strip() or 0)
         for chunk in response.iter_content(chunk_size=1024):
             if not self.file_pointer:
                 break
@@ -154,7 +160,8 @@ class Downloader:
         self.last_size = self.downloaded_size
 
         if self.full_size:
-            self.progress_fraction = float(self.downloaded_size) / float(self.full_size)
+            self.progress_fraction = float(self.downloaded_size) / float(
+                self.full_size)
             self.progress_percentage = self.progress_fraction * 100
 
     def get_speed(self):
@@ -191,7 +198,8 @@ class Downloader:
         if elapsed_time < 1:  # Minimum delay
             return self.time_left
 
-        average_time_left = (self.full_size - self.downloaded_size) / self.average_speed
+        average_time_left = (self.full_size -
+                             self.downloaded_size) / self.average_speed
         minutes, seconds = divmod(average_time_left, 60)
         hours, minutes = divmod(minutes, 60)
         self.time_left_check_time = get_time()

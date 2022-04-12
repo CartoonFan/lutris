@@ -56,11 +56,13 @@ class ControllerMapping:
 
 
 class GameControllerDB:
-    db_path = os.path.join(RUNTIME_DIR, "gamecontrollerdb/gamecontrollerdb.txt")
+    db_path = os.path.join(RUNTIME_DIR,
+                           "gamecontrollerdb/gamecontrollerdb.txt")
 
     def __init__(self):
         if not system.path_exists(self.db_path):
-            raise OSError("Path to gamecontrollerdb.txt not provided or invalid")
+            raise OSError(
+                "Path to gamecontrollerdb.txt not provided or invalid")
         self.controllers = {}
         self.parsedb()
 

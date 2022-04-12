@@ -30,7 +30,8 @@ def vdf_file_exists():
 
 def shortcut_exists(game, shortcut_path):
     with open(shortcut_path, "rb") as shortcut_file:
-        shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
+        shortcuts = vdf.binary_loads(
+            shortcut_file.read())["shortcuts"].values()
     shortcut_found = [s for s in shortcuts if matches_appname(s, game)]
     if not shortcut_found:
         return False
@@ -46,7 +47,8 @@ def all_shortcuts_set(game):
         shortcuts_found = 0
         for shortcut_path in paths_shortcut:
             with open(shortcut_path, "rb") as shortcut_file:
-                shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
+                shortcuts = vdf.binary_loads(
+                    shortcut_file.read())["shortcuts"].values()
             shortcut_found = [s for s in shortcuts if matches_appname(s, game)]
             shortcuts_found += len(shortcut_found)
 
@@ -81,7 +83,8 @@ def remove_all_shortcuts(game):
 
 def create_shortcut(game, shortcut_path):
     with open(shortcut_path, "rb") as shortcut_file:
-        shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
+        shortcuts = vdf.binary_loads(
+            shortcut_file.read())["shortcuts"].values()
     existing_shortcuts = list(shortcuts)
     add_shortcut = [generate_shortcut(game)]
     updated_shortcuts = {
@@ -97,7 +100,8 @@ def create_shortcut(game, shortcut_path):
 
 def remove_shortcut(game, shortcut_path):
     with open(shortcut_path, "rb") as shortcut_file:
-        shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
+        shortcuts = vdf.binary_loads(
+            shortcut_file.read())["shortcuts"].values()
     shortcut_found = [s for s in shortcuts if matches_appname(s, game)]
 
     if not shortcut_found:
@@ -105,7 +109,9 @@ def remove_shortcut(game, shortcut_path):
 
     other_shortcuts = [s for s in shortcuts if not matches_appname(s, game)]
     updated_shortcuts = {
-        "shortcuts": {str(index): elem for index, elem in enumerate(other_shortcuts)}
+        "shortcuts":
+        {str(index): elem
+         for index, elem in enumerate(other_shortcuts)}
     }
     with open(shortcut_path, "wb") as shortcut_file:
         shortcut_file.write(vdf.binary_dumps(updated_shortcuts))
@@ -138,7 +144,8 @@ def generate_shortcut(game):
         "ShortcutPath": "",
         "StartDir": f'"{start_dir}"',
         "icon": icon,
-        "tags": {  # has been replaced by "collections" in steam. Tags are not visible in the UI anymore.
+        "tags":
+        {  # has been replaced by "collections" in steam. Tags are not visible in the UI anymore.
             "0": "Lutris"  # to identify generated shortcuts
         },
     }

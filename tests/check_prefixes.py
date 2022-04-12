@@ -36,7 +36,8 @@ def check_registry(registry_path):
         with open(wrong_path, "w") as wrong_reg:
             wrong_reg.write(content)
 
-        print("Content of parsed registry doesn't match: {}".format(registry_path))
+        print("Content of parsed registry doesn't match: {}".format(
+            registry_path))
         subprocess.call(["meld", registry_path, wrong_path])
         sys.exit(2)
 

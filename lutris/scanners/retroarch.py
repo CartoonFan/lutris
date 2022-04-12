@@ -17,7 +17,6 @@ SCANNERS = {
     "opera": "3DO",
 }
 
-
 ROM_FLAGS = [
     "USA",
     "Europe",
@@ -32,7 +31,8 @@ ROM_FLAGS = [
     "F",
     "U",
     "E",
-    "UE" "W",
+    "UE"
+    "W",
     "M3",
 ]
 

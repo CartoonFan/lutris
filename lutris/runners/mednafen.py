@@ -52,13 +52,15 @@ class mednafen(Runner):
     runner_executable = "mednafen/bin/mednafen"
     game_options = [
         {
-            "option": "main_file",
-            "type": "file",
-            "label": _("ROM file"),
-            "help": _(
-                "The game data, commonly called a ROM image. \n"
-                "Mednafen supports GZIP and ZIP compressed ROMs."
-            ),
+            "option":
+            "main_file",
+            "type":
+            "file",
+            "label":
+            _("ROM file"),
+            "help":
+            _("The game data, commonly called a ROM image. \n"
+              "Mednafen supports GZIP and ZIP compressed ROMs."),
         },
         {
             "option": "machine",
@@ -69,11 +71,19 @@ class mednafen(Runner):
         },
     ]
     runner_options = [
-        {"option": "fs", "type": "bool", "label": _("Fullscreen"), "default": False},
         {
-            "option": "stretch",
-            "type": "choice",
-            "label": _("Aspect ratio"),
+            "option": "fs",
+            "type": "bool",
+            "label": _("Fullscreen"),
+            "default": False
+        },
+        {
+            "option":
+            "stretch",
+            "type":
+            "choice",
+            "label":
+            _("Aspect ratio"),
             "choices": (
                 (_("Disabled"), "0"),
                 (_("Stretched"), "full"),
@@ -81,12 +91,16 @@ class mednafen(Runner):
                 (_("Integer scale"), "aspect_int"),
                 (_("Multiple of 2 scale"), "aspect_mult2"),
             ),
-            "default": "aspect_int",
+            "default":
+            "aspect_int",
         },
         {
-            "option": "scaler",
-            "type": "choice",
-            "label": _("Video scaler"),
+            "option":
+            "scaler",
+            "type":
+            "choice",
+            "label":
+            _("Video scaler"),
             "choices": (
                 ("none", "none"),
                 ("hq2x", "hq2x"),
@@ -105,12 +119,16 @@ class mednafen(Runner):
                 ("nny3x", "nny3x"),
                 ("nny4x", "nny4x"),
             ),
-            "default": DEFAULT_MEDNAFEN_SCALER,
+            "default":
+            DEFAULT_MEDNAFEN_SCALER,
         },
         {
-            "option": "sound_device",
-            "type": "choice",
-            "label": _("Sound device"),
+            "option":
+            "sound_device",
+            "type":
+            "choice",
+            "label":
+            _("Sound device"),
             "choices": (
                 (_("Mednafen default"), "default"),
                 (_("ALSA default"), "sexyal-literal-default"),
@@ -118,7 +136,8 @@ class mednafen(Runner):
                 ("hw:1", "hw:1,0"),
                 ("hw:2", "hw:2,0"),
             ),
-            "default": "sexyal-literal-default",
+            "default":
+            "sexyal-literal-default",
         },
         {
             "option": "dont_map_controllers",
@@ -143,8 +162,8 @@ class mednafen(Runner):
             return []
         with subprocess.Popen(
             [self.get_executable(), "dummy"],
-            stdout=subprocess.PIPE,
-            universal_newlines=True,
+                stdout=subprocess.PIPE,
+                universal_newlines=True,
         ) as mednafen_process:
             output = mednafen_process.communicate()[0].split("\n")
         found = False
@@ -159,7 +178,7 @@ class mednafen(Runner):
 
         for joy in joy_list:
             index = joy.find("Unique ID:")
-            joy_id = joy[index + 11 :]
+            joy_id = joy[index + 11:]
             logger.debug("Joystick found id %s ", joy_id)
             joy_ids.append(joy_id)
         return joy_ids
@@ -311,7 +330,8 @@ class mednafen(Runner):
 
         # Define which buttons to use for each machine
         layout = {
-            "nes": ["a", "b", "start", "select", "up", "down", "left", "right"],
+            "nes":
+            ["a", "b", "start", "select", "up", "down", "left", "right"],
             "gb": ["a", "b", "start", "select", "up", "down", "left", "right"],
             "gba": [
                 "a",
@@ -354,7 +374,8 @@ class mednafen(Runner):
                 "left",
                 "right",
             ],
-            "gg": ["button1", "button2", "start", "up", "down", "left", "right"],
+            "gg":
+            ["button1", "button2", "start", "up", "down", "left", "right"],
             "md": [
                 "a",
                 "b",
@@ -369,7 +390,8 @@ class mednafen(Runner):
                 "right",
             ],
             "sms": ["fire1", "fire2", "up", "down", "left", "right"],
-            "lynx": ["a", "b", "option_1", "option_2", "up", "down", "left", "right"],
+            "lynx":
+            ["a", "b", "option_1", "option_2", "up", "down", "left", "right"],
             "psx": [
                 "cross",
                 "circle",
@@ -469,7 +491,8 @@ class mednafen(Runner):
         # Construct the controlls options
         for button in layout[machine]:
             controls.append("-{}.input.{}.{}".format(machine, gamepad, button))
-            controls.append("joystick {} {}".format(joy_ids[0], map_code[button]))
+            controls.append("joystick {} {}".format(joy_ids[0],
+                                                    map_code[button]))
         return controls
 
     def play(self):

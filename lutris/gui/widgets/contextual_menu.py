@@ -4,6 +4,7 @@ from lutris import runners
 
 
 class ContextualMenu(Gtk.Menu):
+
     def __init__(self, main_entries):
         super().__init__()
         self.main_entries = main_entries

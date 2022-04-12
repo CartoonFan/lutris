@@ -19,7 +19,6 @@ DEFAULT_RUNTIME = "Ubuntu-18.04"
 
 
 class Runtime:
-
     """Class for manipulating runtime folders"""
 
     def __init__(self, name, updater):
@@ -42,7 +41,8 @@ class Runtime:
     def set_updated_at(self):
         """Set the creation and modification time to now"""
         if not system.path_exists(self.local_runtime_path):
-            logger.error("No local runtime path in %s", self.local_runtime_path)
+            logger.error("No local runtime path in %s",
+                         self.local_runtime_path)
             return
         os.utime(self.local_runtime_path)
 
@@ -81,12 +81,13 @@ class Runtime:
             return self.download_components()
         remote_updated_at = remote_runtime_info["created_at"]
         remote_updated_at = time.strptime(
-            remote_updated_at[: remote_updated_at.find(".")], "%Y-%m-%dT%H:%M:%S"
-        )
+            remote_updated_at[:remote_updated_at.find(".")],
+            "%Y-%m-%dT%H:%M:%S")
         if not self.should_update(remote_updated_at):
             return None
 
-        archive_path = os.path.join(settings.RUNTIME_DIR, os.path.basename(url))
+        archive_path = os.path.join(settings.RUNTIME_DIR,
+                                    os.path.basename(url))
         downloader = Downloader(url, archive_path, overwrite=True)
         downloader.start()
         GLib.timeout_add(100, self.check_download_progress, downloader)
@@ -94,11 +95,13 @@ class Runtime:
 
     def download_component(self, component):
         """Download an individual file from a runtime item"""
-        file_path = os.path.join(settings.RUNTIME_DIR, self.name, component["filename"])
+        file_path = os.path.join(settings.RUNTIME_DIR, self.name,
+                                 component["filename"])
         try:
             http.download_file(component["url"], file_path)
         except http.HTTPError as ex:
-            logger.error("Failed to download runtime component %s: %s", component, ex)
+            logger.error("Failed to download runtime component %s: %s",
+                         component, ex)
             return
         return file_path
 
@@ -120,18 +123,18 @@ class Runtime:
         downloads = []
         for component in components:
             modified_at = time.strptime(
-                component["modified_at"][: component["modified_at"].find(".")],
+                component["modified_at"][:component["modified_at"].find(".")],
                 "%Y-%m-%dT%H:%M:%S",
             )
-            if not self.should_update_component(component["filename"], modified_at):
+            if not self.should_update_component(component["filename"],
+                                                modified_at):
                 continue
             downloads.append(component)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             future_downloads = {
-                executor.submit(self.download_component, component): component[
-                    "filename"
-                ]
+                executor.submit(self.download_component, component):
+                component["filename"]
                 for component in downloads
             }
             for future in concurrent.futures.as_completed(future_downloads):
@@ -142,8 +145,8 @@ class Runtime:
     def check_download_progress(self, downloader):
         """Call download.check_progress(), return True if download finished."""
         if not downloader or downloader.state in [
-            downloader.CANCELLED,
-            downloader.ERROR,
+                downloader.CANCELLED,
+                downloader.ERROR,
         ]:
             logger.debug("Runtime update interrupted")
             return False
@@ -162,7 +165,8 @@ class Runtime:
         """
         stats = os.stat(path)
         if not stats.st_size:
-            logger.error("Download failed: file %s is empty, Deleting file.", path)
+            logger.error("Download failed: file %s is empty, Deleting file.",
+                         path)
             os.unlink(path)
             self.updater.notify_finish(self)
             return False
@@ -232,11 +236,8 @@ class RuntimeUpdater:
         for runtime in runtimes:
 
             # Skip 32bit runtimes on 64 bit systems except the main runtime
-            if (
-                runtime["architecture"] == "i386"
-                and LINUX_SYSTEM.is_64_bit
-                and not runtime["name"].startswith(("Ubuntu", "lib32"))
-            ):
+            if (runtime["architecture"] == "i386" and LINUX_SYSTEM.is_64_bit
+                    and not runtime["name"].startswith(("Ubuntu", "lib32"))):
                 logger.debug(
                     "Skipping runtime %s for %s",
                     runtime["name"],
@@ -245,7 +246,8 @@ class RuntimeUpdater:
                 continue
 
             # Skip 64bit runtimes on 32 bit systems
-            if runtime["architecture"] == "x86_64" and not LINUX_SYSTEM.is_64_bit:
+            if runtime[
+                    "architecture"] == "x86_64" and not LINUX_SYSTEM.is_64_bit:
                 logger.debug(
                     "Skipping runtime %s for %s",
                     runtime["name"],
@@ -276,14 +278,14 @@ def get_env(version=None, prefer_system_libs=False, wine_path=None):
         dict
     """
     library_path = ":".join(
-        get_paths(
-            version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path
-        )
-    )
+        get_paths(version=version,
+                  prefer_system_libs=prefer_system_libs,
+                  wine_path=wine_path))
     env = {}
     if library_path:
         env["LD_LIBRARY_PATH"] = library_path
-        network_tools_path = os.path.join(settings.RUNTIME_DIR, "network-tools")
+        network_tools_path = os.path.join(settings.RUNTIME_DIR,
+                                          "network-tools")
         env["PATH"] = "%s:%s" % (network_tools_path, os.environ["PATH"])
     return env
 
@@ -327,16 +329,18 @@ def get_runtime_paths(version=None, prefer_system_libs=True, wine_path=None):
             paths += get_winelib_paths(wine_path)
         paths += list(LINUX_SYSTEM.iter_lib_folders())
     # Then resolve absolute paths for the runtime
-    paths += [os.path.join(settings.RUNTIME_DIR, path) for path in runtime_paths]
+    paths += [
+        os.path.join(settings.RUNTIME_DIR, path) for path in runtime_paths
+    ]
     return paths
 
 
 def get_paths(version=None, prefer_system_libs=True, wine_path=None):
     """Return a list of paths containing the runtime libraries."""
     if not RUNTIME_DISABLED:
-        paths = get_runtime_paths(
-            version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path
-        )
+        paths = get_runtime_paths(version=version,
+                                  prefer_system_libs=prefer_system_libs,
+                                  wine_path=wine_path)
     else:
         paths = []
     # Put existing LD_LIBRARY_PATH at the end

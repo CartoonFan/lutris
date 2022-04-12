@@ -14,7 +14,6 @@ from lutris.util.linux import gather_system_info
 
 
 class IssueReportWindow(BaseApplicationWindow):
-
     """Window for collecting and sending issue reports"""
 
     def __init__(self, application):
@@ -29,11 +28,9 @@ class IssueReportWindow(BaseApplicationWindow):
         self.vbox.add(Gtk.HSeparator())
 
         issue_entry_label = Gtk.Label(
-            _(
-                "Describe the problem you're having in the text box below. "
-                "This information will be sent the Lutris team along with your system information. "
-                "You can also save this information locally if you are offline."
-            )
+            _("Describe the problem you're having in the text box below. "
+              "This information will be sent the Lutris team along with your system information. "
+              "You can also save this information locally if you are offline.")
         )
         issue_entry_label.set_max_width_chars(80)
         issue_entry_label.set_property("wrap", True)
@@ -51,7 +48,8 @@ class IssueReportWindow(BaseApplicationWindow):
         action_buttons_alignment.add(self.action_buttons)
         self.vbox.pack_start(action_buttons_alignment, False, True, 0)
 
-        cancel_button = self.get_action_button(_("C_ancel"), handler=self.on_destroy)
+        cancel_button = self.get_action_button(_("C_ancel"),
+                                               handler=self.on_destroy)
         self.action_buttons.add(cancel_button)
 
         save_button = self.get_action_button(_("_Save"), handler=self.on_save)
@@ -62,10 +60,11 @@ class IssueReportWindow(BaseApplicationWindow):
     def get_issue_info(self):
         buffer = self.textview.get_buffer()
         return {
-            "comment": buffer.get_text(
-                buffer.get_start_iter(), buffer.get_end_iter(), True
-            ),
-            "system": gather_system_info(),
+            "comment":
+            buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter(),
+                            True),
+            "system":
+            gather_system_info(),
         }
 
     def on_save(self, _button):

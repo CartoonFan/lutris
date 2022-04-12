@@ -16,15 +16,18 @@ from lutris.util.log import logger
 
 
 class SlugEntry(Gtk.Entry, Gtk.Editable):
+
     def do_insert_text(self, new_text, length, position):
         """Filter inserted characters to only accept alphanumeric and dashes"""
-        new_text = "".join([c for c in new_text if c.isalnum() or c == "-"]).lower()
+        new_text = "".join([c for c in new_text
+                            if c.isalnum() or c == "-"]).lower()
         length = len(new_text)
         self.get_buffer().insert_text(position, new_text, length)
         return position + length
 
 
 class NumberEntry(Gtk.Entry, Gtk.Editable):
+
     def do_insert_text(self, new_text, length, position):
         """Filter inserted characters to only accept numbers"""
         new_text = "".join([c for c in new_text if c.isnumeric()])
@@ -35,7 +38,6 @@ class NumberEntry(Gtk.Entry, Gtk.Editable):
 
 
 class FileChooserEntry(Gtk.Box):
-
     """Editable entry with a file picker button"""
 
     max_completion_items = (
@@ -51,11 +53,14 @@ class FileChooserEntry(Gtk.Box):
         warn_if_non_empty=False,
         warn_if_ntfs=False,
     ):
-        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=0, visible=True)
+        super().__init__(orientation=Gtk.Orientation.VERTICAL,
+                         spacing=0,
+                         visible=True)
         self.title = title
         self.action = action
         self.path = os.path.expanduser(path) if path else None
-        self.default_path = os.path.expanduser(default_path) if default_path else path
+        self.default_path = os.path.expanduser(
+            default_path) if default_path else path
         self.warn_if_non_empty = warn_if_non_empty
         self.warn_if_ntfs = warn_if_ntfs
 
@@ -93,9 +98,8 @@ class FileChooserEntry(Gtk.Box):
 
     def get_filechooser_dialog(self):
         """Return an instance of a FileChooserNative configured for this widget"""
-        dialog = Gtk.FileChooserNative.new(
-            self.title, None, self.action, _("_OK"), _("_Cancel")
-        )
+        dialog = Gtk.FileChooserNative.new(self.title, None, self.action,
+                                           _("_OK"), _("_Cancel"))
         dialog.set_create_folders(True)
         dialog.set_current_folder(self.get_default_folder())
         dialog.connect("response", self.on_select_file, dialog)
@@ -126,38 +130,32 @@ class FileChooserEntry(Gtk.Box):
         path = os.path.expanduser(path)
         self.update_completion(path)
         self.path = path
-        if self.warn_if_ntfs and LINUX_SYSTEM.get_fs_type_for_path(path) == "ntfs":
+        if self.warn_if_ntfs and LINUX_SYSTEM.get_fs_type_for_path(
+                path) == "ntfs":
             ntfs_box = Gtk.Box(spacing=6, visible=True)
             warning_image = Gtk.Image(visible=True)
             warning_image.set_from_pixbuf(get_stock_icon("dialog-warning", 32))
             ntfs_box.add(warning_image)
             ntfs_label = Gtk.Label(visible=True)
             ntfs_label.set_markup(
-                _(
-                    "<b>Warning!</b> The selected path is located on a drive formatted by Windows.\n"
-                    "Games and programs installed on Windows drives usually <b>don't work</b>."
-                )
-            )
+                _("<b>Warning!</b> The selected path is located on a drive formatted by Windows.\n"
+                  "Games and programs installed on Windows drives usually <b>don't work</b>."
+                  ))
             ntfs_box.add(ntfs_label)
             self.pack_end(ntfs_box, False, False, 10)
-        if self.warn_if_non_empty and os.path.exists(path) and os.listdir(path):
+        if self.warn_if_non_empty and os.path.exists(path) and os.listdir(
+                path):
             non_empty_label = Gtk.Label(visible=True)
             non_empty_label.set_markup(
-                _(
-                    "<b>Warning!</b> The selected path "
-                    "contains files. Installation might not work properly."
-                )
-            )
+                _("<b>Warning!</b> The selected path "
+                  "contains files. Installation might not work properly."))
             self.pack_end(non_empty_label, False, False, 10)
         parent = system.get_existing_parent(path)
         if parent is not None and not os.access(parent, os.W_OK):
             non_writable_destination_label = Gtk.Label(visible=True)
             non_writable_destination_label.set_markup(
-                _(
-                    "<b>Warning</b> The destination folder "
-                    "is not writable by the current user."
-                )
-            )
+                _("<b>Warning</b> The destination folder "
+                  "is not writable by the current user."))
             self.pack_end(non_writable_destination_label, False, False, 10)
 
     def on_select_file(self, dialog, response, _dialog):
@@ -183,9 +181,11 @@ class FileChooserEntry(Gtk.Box):
             for filename in sorted(os.listdir(current_path)):
                 if filename.startswith("."):
                     continue
-                if filefilter is not None and not filename.startswith(filefilter):
+                if filefilter is not None and not filename.startswith(
+                        filefilter):
                     continue
-                self.path_completion.append([os.path.join(current_path, filename)])
+                self.path_completion.append(
+                    [os.path.join(current_path, filename)])
                 index += 1
                 if index > self.max_completion_items:
                     break
@@ -224,8 +224,11 @@ class InstallerLabel(Gtk.Label):
 
 
 class VBox(Gtk.Box):
+
     def __init__(self, **kwargs):
-        super().__init__(orientation=Gtk.Orientation.VERTICAL, margin_top=18, **kwargs)
+        super().__init__(orientation=Gtk.Orientation.VERTICAL,
+                         margin_top=18,
+                         **kwargs)
 
 
 class EditableGrid(Gtk.Grid):
@@ -272,7 +275,8 @@ class EditableGrid(Gtk.Grid):
         self.attach(self.scrollable_treelist, 0, 0, 5, 5)
         self.attach(self.add_button, 5 - len(self.buttons), 6, 1, 1)
         for i, button in enumerate(self.buttons[1:]):
-            self.attach_next_to(button, self.buttons[i], Gtk.PositionType.RIGHT, 1, 1)
+            self.attach_next_to(button, self.buttons[i],
+                                Gtk.PositionType.RIGHT, 1, 1)
         self.show_all()
 
     def on_add(self, widget):  # pylint: disable=unused-argument
@@ -288,12 +292,8 @@ class EditableGrid(Gtk.Grid):
         self.liststore.remove(iteration)
         self.emit("changed")
 
-    def on_text_edited(
-        self, widget, path, text, field
-    ):  # pylint: disable=unused-argument
-        self.liststore[path][
-            field
-        ] = text.strip()  # pylint: disable=unsubscriptable-object
+    def on_text_edited(self, widget, path, text, field):  # pylint: disable=unused-argument
+        self.liststore[path][field] = text.strip()  # pylint: disable=unsubscriptable-object
         self.emit("changed")
 
     def get_data(self):  # pylint: disable=arguments-differ

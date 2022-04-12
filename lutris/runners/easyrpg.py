@@ -25,20 +25,26 @@ class easyrpg(Runner):
             "help": _("Select the directory of the game. (required)"),
         },
         {
-            "option": "encoding",
-            "type": "string",
-            "label": _("Encoding"),
-            "help": _(
-                "Instead of auto detecting the encoding or using the "
-                "one in RPG_RT.ini, the specified encoding is used. "
-                "Use 'auto' for automatic detection."
-            ),
+            "option":
+            "encoding",
+            "type":
+            "string",
+            "label":
+            _("Encoding"),
+            "help":
+            _("Instead of auto detecting the encoding or using the "
+              "one in RPG_RT.ini, the specified encoding is used. "
+              "Use 'auto' for automatic detection."),
         },
         {
-            "option": "engine",
-            "type": "choice",
-            "label": _("Engine"),
-            "help": _("Disable auto detection of the simulated engine."),
+            "option":
+            "engine",
+            "type":
+            "choice",
+            "label":
+            _("Engine"),
+            "help":
+            _("Disable auto detection of the simulated engine."),
             "choices": [
                 (_("Auto"), ""),
                 (_("RPG Maker 2000 engine (v1.00 - v1.10)"), "rpg2k"),
@@ -48,16 +54,19 @@ class easyrpg(Runner):
                 (_("RPG Maker 2003 engine (v1.05 - v1.09a)"), "rpg2k3v105"),
                 (_("RPG Maker 2003 (English release) engine"), "rpg2k3e"),
             ],
-            "default": "",
+            "default":
+            "",
         },
         {
-            "option": "save_path",
-            "type": "directory_chooser",
-            "label": _("Save path"),
-            "help": _(
-                "Instead of storing save files in the game directory they "
-                "are stored in the specified path. The directory must exist."
-            ),
+            "option":
+            "save_path",
+            "type":
+            "directory_chooser",
+            "label":
+            _("Save path"),
+            "help":
+            _("Instead of storing save files in the game directory they "
+              "are stored in the specified path. The directory must exist."),
         },
         {
             "option": "new_game",
@@ -67,50 +76,65 @@ class easyrpg(Runner):
             "default": False,
         },
         {
-            "option": "load_game_id",
-            "type": "range",
-            "label": _("Load game ID"),
-            "help": _(
-                "Skip the title scene and load SaveXX.lsd. " "Set to '0' to disable."
-            ),
-            "min": 0,
-            "max": 99,
-            "default": 0,
+            "option":
+            "load_game_id",
+            "type":
+            "range",
+            "label":
+            _("Load game ID"),
+            "help":
+            _("Skip the title scene and load SaveXX.lsd. "
+              "Set to '0' to disable."),
+            "min":
+            0,
+            "max":
+            99,
+            "default":
+            0,
         },
         {
-            "option": "start_map_id",
-            "type": "range",
-            "label": _("Start map ID"),
-            "help": _(
-                "Overwrite the map used for new games and use "
-                "MapXXXX.lmu instead. Set to '0' to disable. "
-                "\n\nIncompatible with 'Load game ID'."
-            ),
-            "min": 0,
-            "max": 9999,
-            "default": 0,
+            "option":
+            "start_map_id",
+            "type":
+            "range",
+            "label":
+            _("Start map ID"),
+            "help":
+            _("Overwrite the map used for new games and use "
+              "MapXXXX.lmu instead. Set to '0' to disable. "
+              "\n\nIncompatible with 'Load game ID'."),
+            "min":
+            0,
+            "max":
+            9999,
+            "default":
+            0,
         },
         {
-            "option": "start_position",
-            "type": "string",
-            "label": _("Start position"),
-            "help": _(
-                "Overwrite the party start position and "
-                "move the party to the specified position. "
-                "Provide two numbers separated by a space. "
-                "\n\nIncompatible with 'Load game ID'."
-            ),
+            "option":
+            "start_position",
+            "type":
+            "string",
+            "label":
+            _("Start position"),
+            "help":
+            _("Overwrite the party start position and "
+              "move the party to the specified position. "
+              "Provide two numbers separated by a space. "
+              "\n\nIncompatible with 'Load game ID'."),
         },
         {
-            "option": "start_party",
-            "type": "string",
-            "label": _("Start party"),
-            "help": _(
-                "Overwrite the starting party members with "
-                "the actors with the specified IDs. Provide "
-                "one to four numbers separated by spaces. "
-                "\n\nIncompatible with 'Load game ID'."
-            ),
+            "option":
+            "start_party",
+            "type":
+            "string",
+            "label":
+            _("Start party"),
+            "help":
+            _("Overwrite the starting party members with "
+              "the actors with the specified IDs. Provide "
+              "one to four numbers separated by spaces. "
+              "\n\nIncompatible with 'Load game ID'."),
         },
         {
             "option": "battle_test",
@@ -125,16 +149,18 @@ class easyrpg(Runner):
             "help": _("Records all button input to the specified log file."),
         },
         {
-            "option": "replay_input",
-            "type": "file",
-            "label": _("Replay input"),
-            "help": _(
-                "Replays button input from the specified log file, "
-                "as generated by 'Record input'. If the RNG seed "
-                "and the state of the save file directory is also "
-                "the same as it was when the log was recorded, this "
-                "should reproduce an identical run to the one recorded."
-            ),
+            "option":
+            "replay_input",
+            "type":
+            "file",
+            "label":
+            _("Replay input"),
+            "help":
+            _("Replays button input from the specified log file, "
+              "as generated by 'Record input'. If the RNG seed "
+              "and the state of the save file directory is also "
+              "the same as it was when the log was recorded, this "
+              "should reproduce an identical run to the one recorded."),
         },
     ]
 
@@ -147,19 +173,24 @@ class easyrpg(Runner):
             "default": False,
         },
         {
-            "option": "audio",
-            "type": "bool",
-            "label": _("Enable audio"),
-            "help": _(
-                "Switch off to disable audio " "(in case you prefer your own music)."
-            ),
-            "default": True,
+            "option":
+            "audio",
+            "type":
+            "bool",
+            "label":
+            _("Enable audio"),
+            "help":
+            _("Switch off to disable audio "
+              "(in case you prefer your own music)."),
+            "default":
+            True,
         },
         {
             "option": "mouse",
             "type": "bool",
             "label": _("Enable mouse"),
-            "help": _("Use mouse click for decision and scroll wheel for lists."),
+            "help":
+            _("Use mouse click for decision and scroll wheel for lists."),
             "default": False,
         },
         {
@@ -170,43 +201,58 @@ class easyrpg(Runner):
             "default": False,
         },
         {
-            "option": "hide_title",
-            "type": "bool",
-            "label": _("Hide title"),
-            "help": _("Hide the title background image and center the command menu."),
-            "default": False,
+            "option":
+            "hide_title",
+            "type":
+            "bool",
+            "label":
+            _("Hide title"),
+            "help":
+            _("Hide the title background image and center the command menu."),
+            "default":
+            False,
         },
         {
-            "option": "vsync",
-            "type": "bool",
-            "label": _("Enable VSync"),
-            "help": _(
-                "Switch off to disable VSync and use the FPS limit. "
-                "VSync may or may not be supported on all platforms."
-            ),
-            "default": True,
+            "option":
+            "vsync",
+            "type":
+            "bool",
+            "label":
+            _("Enable VSync"),
+            "help":
+            _("Switch off to disable VSync and use the FPS limit. "
+              "VSync may or may not be supported on all platforms."),
+            "default":
+            True,
         },
         {
-            "option": "fps_limit",
-            "type": "string",
-            "label": _("FPS limit"),
-            "help": _(
-                "Set a custom frames per second limit. If unspecified, "
-                "the default is 60 FPS. Set to '0' to disable the frame "
-                "limiter. This option may not be supported on all platforms."
-            ),
+            "option":
+            "fps_limit",
+            "type":
+            "string",
+            "label":
+            _("FPS limit"),
+            "help":
+            _("Set a custom frames per second limit. If unspecified, "
+              "the default is 60 FPS. Set to '0' to disable the frame "
+              "limiter. This option may not be supported on all platforms."),
         },
         {
-            "option": "show_fps",
-            "type": "choice",
-            "label": _("Show FPS"),
-            "help": _("Enable frames per second counter."),
+            "option":
+            "show_fps",
+            "type":
+            "choice",
+            "label":
+            _("Show FPS"),
+            "help":
+            _("Enable frames per second counter."),
             "choices": [
                 (_("Disabled"), "off"),
                 (_("Fullscreen & title bar"), "on"),
                 (_("Fullscreen, title bar & window"), "full"),
             ],
-            "default": "off",
+            "default":
+            "off",
         },
         {
             "option": "seed",
@@ -222,29 +268,38 @@ class easyrpg(Runner):
             "default": False,
         },
         {
-            "option": "rtp",
-            "type": "bool",
-            "label": _("Enable RTP"),
-            "help": _("Switch off to disable support for the Runtime Package (RTP)."),
-            "default": True,
+            "option":
+            "rtp",
+            "type":
+            "bool",
+            "label":
+            _("Enable RTP"),
+            "help":
+            _("Switch off to disable support for the Runtime Package (RTP)."),
+            "default":
+            True,
         },
         {
-            "option": "rpg2k_rtp_path",
-            "type": "directory_chooser",
-            "label": _("RPG2000 RTP location"),
-            "help": _(
-                "Full path to a directory containing an "
-                "extracted RPG Maker 2000 Run-Time-Package (RTP)."
-            ),
+            "option":
+            "rpg2k_rtp_path",
+            "type":
+            "directory_chooser",
+            "label":
+            _("RPG2000 RTP location"),
+            "help":
+            _("Full path to a directory containing an "
+              "extracted RPG Maker 2000 Run-Time-Package (RTP)."),
         },
         {
-            "option": "rpg2k3_rtp_path",
-            "type": "directory_chooser",
-            "label": _("RPG2003 RTP location"),
-            "help": _(
-                "Full path to a directory containing an "
-                "extracted RPG Maker 2003 Run-Time-Package (RTP)."
-            ),
+            "option":
+            "rpg2k3_rtp_path",
+            "type":
+            "directory_chooser",
+            "label":
+            _("RPG2003 RTP location"),
+            "help":
+            _("Full path to a directory containing an "
+              "extracted RPG Maker 2003 Run-Time-Package (RTP)."),
         },
         {
             "option": "rpg_rtp_path",
@@ -400,6 +455,5 @@ class easyrpg(Runner):
     @staticmethod
     def directory_not_found(directory):
         error = _("The directory {} could not be found").format(
-            directory.replace("&", "&amp;")
-        )
+            directory.replace("&", "&amp;"))
         return {"error": "CUSTOM", "text": error}

@@ -34,7 +34,8 @@ class DolphinService(BaseService):
             return
         cache_reader = DolphinCacheReader()
         dolphin_games = [
-            DolphinGame.new_from_cache(game) for game in cache_reader.get_games()
+            DolphinGame.new_from_cache(game)
+            for game in cache_reader.get_games()
         ]
         for game in dolphin_games:
             game.save()
@@ -49,7 +50,10 @@ class DolphinService(BaseService):
             "game_slug": slugify(db_game["name"]),
             "runner": "dolphin",
             "script": {
-                "game": {"main_file": details["path"], "platform": details["platform"]},
+                "game": {
+                    "main_file": details["path"],
+                    "platform": details["platform"]
+                },
             },
         }
 
@@ -74,9 +78,12 @@ class DolphinGame(ServiceGame):
         service_game.slug = slugify(cache_entry["internal_name"])
         service_game.icon = service_game.get_banner(cache_entry)
 
-        service_game.details = json.dumps(
-            {"path": cache_entry["file_path"], "platform": cache_entry["platform"][:-1]}
-        )
+        service_game.details = json.dumps({
+            "path":
+            cache_entry["file_path"],
+            "platform":
+            cache_entry["platform"][:-1]
+        })
         return service_game
 
     @staticmethod
@@ -94,7 +101,8 @@ class DolphinGame(ServiceGame):
 
         (width, height), data = cache_entry["volume_banner"]
         if data:
-            img = Image.frombytes("RGB", (width, height), data, "raw", ("BGRX"))
+            img = Image.frombytes("RGB", (width, height), data, "raw",
+                                  ("BGRX"))
             # 96x32 is a bit small, maybe 2x scale?
             # img.resize((width * 2, height * 2))
             img.save(banner_path)

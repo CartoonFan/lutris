@@ -4,7 +4,6 @@ from lutris.util.system import path_exists
 
 
 class MameIni:
-
     """Looks like an ini file and yet it is not one!"""
 
     def __init__(self, ini_path):
@@ -40,7 +39,8 @@ class MameIni:
             for line in self.lines:
                 config_key, _value = self.parse(line)
                 if config_key and self.config[config_key]:
-                    ini_file.write("%-26s%s\n" % (config_key, self.config[config_key]))
+                    ini_file.write("%-26s%s\n" %
+                                   (config_key, self.config[config_key]))
                 elif config_key:
                     ini_file.write("%s\n" % config_key)
                 else:

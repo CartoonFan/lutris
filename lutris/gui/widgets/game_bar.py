@@ -15,6 +15,7 @@ from lutris.util.strings import gtk_safe
 
 
 class GameBar(Gtk.Box):
+
     def __init__(self, db_game, game_actions, application):
         """Create the game bar with a database row"""
         super().__init__(
@@ -27,23 +28,17 @@ class GameBar(Gtk.Box):
             spacing=6,
         )
         self.game_start_hook_id = GObject.add_emission_hook(
-            Game, "game-start", self.on_game_state_changed
-        )
+            Game, "game-start", self.on_game_state_changed)
         self.game_started_hook_id = GObject.add_emission_hook(
-            Game, "game-started", self.on_game_state_changed
-        )
+            Game, "game-started", self.on_game_state_changed)
         self.game_stopped_hook_id = GObject.add_emission_hook(
-            Game, "game-stopped", self.on_game_state_changed
-        )
+            Game, "game-stopped", self.on_game_state_changed)
         self.game_updated_hook_id = GObject.add_emission_hook(
-            Game, "game-updated", self.on_game_state_changed
-        )
+            Game, "game-updated", self.on_game_state_changed)
         self.game_removed_hook_id = GObject.add_emission_hook(
-            Game, "game-removed", self.on_game_state_changed
-        )
+            Game, "game-removed", self.on_game_state_changed)
         self.game_installed_hook_id = GObject.add_emission_hook(
-            Game, "game-installed", self.on_game_state_changed
-        )
+            Game, "game-installed", self.on_game_state_changed)
         self.connect("destroy", self.on_destroy)
 
         self.set_margin_bottom(12)
@@ -80,14 +75,18 @@ class GameBar(Gtk.Box):
         self.update_view()
 
     def on_destroy(self, widget):
-        GObject.remove_emission_hook(Game, "game-start", self.game_start_hook_id)
-        GObject.remove_emission_hook(Game, "game-started", self.game_started_hook_id)
-        GObject.remove_emission_hook(Game, "game-stopped", self.game_stopped_hook_id)
-        GObject.remove_emission_hook(Game, "game-updated", self.game_updated_hook_id)
-        GObject.remove_emission_hook(Game, "game-removed", self.game_removed_hook_id)
-        GObject.remove_emission_hook(
-            Game, "game-installed", self.game_installed_hook_id
-        )
+        GObject.remove_emission_hook(Game, "game-start",
+                                     self.game_start_hook_id)
+        GObject.remove_emission_hook(Game, "game-started",
+                                     self.game_started_hook_id)
+        GObject.remove_emission_hook(Game, "game-stopped",
+                                     self.game_stopped_hook_id)
+        GObject.remove_emission_hook(Game, "game-updated",
+                                     self.game_updated_hook_id)
+        GObject.remove_emission_hook(Game, "game-removed",
+                                     self.game_removed_hook_id)
+        GObject.remove_emission_hook(Game, "game-installed",
+                                     self.game_installed_hook_id)
         return True
 
     def clear_view(self):
@@ -135,14 +134,14 @@ class GameBar(Gtk.Box):
         """Return the label with the game's title"""
         title_label = Gtk.Label(visible=True)
         title_label.set_ellipsize(Pango.EllipsizeMode.END)
-        title_label.set_markup(
-            "<span font_desc='16'><b>%s</b></span>" % gtk_safe(self.game.name)
-        )
+        title_label.set_markup("<span font_desc='16'><b>%s</b></span>" %
+                               gtk_safe(self.game.name))
         return title_label
 
     def get_runner_button(self):
         icon_name = self.game.runner.name + "-symbolic"
-        runner_icon = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU)
+        runner_icon = Gtk.Image.new_from_icon_name(icon_name,
+                                                   Gtk.IconSize.MENU)
         runner_icon.show()
         box = Gtk.HBox(visible=True)
         runner_button = Gtk.Button(visible=True)
@@ -153,7 +152,8 @@ class GameBar(Gtk.Box):
             popover_button.set_size_request(32, 32)
             popover_button.props.direction = Gtk.ArrowType.UP
             popover_button.set_popover(popover)
-            runner_button.connect("clicked", lambda _x: popover_button.emit("clicked"))
+            runner_button.connect("clicked",
+                                  lambda _x: popover_button.emit("clicked"))
             box.add(runner_button)
             box.add(popover_button)
             style_context = box.get_style_context()
@@ -180,8 +180,7 @@ class GameBar(Gtk.Box):
         playtime_label.set_size_request(120, -1)
         playtime_label.set_alignment(0, 0.5)
         playtime_label.set_markup(
-            _("Time played:\n<b>%s</b>") % self.game.formatted_playtime
-        )
+            _("Time played:\n<b>%s</b>") % self.game.formatted_playtime)
         return playtime_label
 
     def get_last_played_label(self):
@@ -191,8 +190,7 @@ class GameBar(Gtk.Box):
         last_played_label.set_alignment(0, 0.5)
         lastplayed = datetime.fromtimestamp(self.game.lastplayed)
         last_played_label.set_markup(
-            _("Last played:\n<b>%s</b>") % lastplayed.strftime("%b %-d %Y")
-        )
+            _("Last played:\n<b>%s</b>") % lastplayed.strftime("%b %-d %Y"))
         return last_played_label
 
     def get_popover_button(self):
@@ -214,7 +212,8 @@ class GameBar(Gtk.Box):
         """Return a button to locate an existing install"""
         button = get_link_button("Locate installed game")
         button.show()
-        button.connect("clicked", self.game_actions.on_locate_installed_game, self.game)
+        button.connect("clicked", self.game_actions.on_locate_installed_game,
+                       self.game)
         return {"locate": button}
 
     def get_play_button(self):
@@ -244,8 +243,8 @@ class GameBar(Gtk.Box):
                     button.set_size_request(84, 32)
                     box.add(button)
                     popover = self.get_popover(
-                        self.get_locate_installed_game_button(), popover_button
-                    )
+                        self.get_locate_installed_game_button(),
+                        popover_button)
                     popover_button.set_popover(popover)
                     box.add(popover_button)
                     return box
@@ -277,12 +276,14 @@ class GameBar(Gtk.Box):
     def get_runner_buttons(self):
         buttons = {}
         if self.game.runner_name and self.game.is_installed:
-            runner = runners.import_runner(self.game.runner_name)(self.game.config)
+            runner = runners.import_runner(self.game.runner_name)(
+                self.game.config)
             for entry in runner.context_menu_entries:
                 name, label, callback = entry
                 button = get_link_button(label)
                 button.show()
-                button.connect("clicked", self.on_link_button_clicked, callback)
+                button.connect("clicked", self.on_link_button_clicked,
+                               callback)
                 buttons[name] = button
         return buttons
 
@@ -298,7 +299,8 @@ class GameBar(Gtk.Box):
 
     def on_game_state_changed(self, game):
         """Handler called when the game has changed state"""
-        if game.id == self.game.id or (self.appid and game.appid == self.appid):
+        if game.id == self.game.id or (self.appid
+                                       and game.appid == self.appid):
             self.game = game
         else:
             return True

@@ -8,6 +8,7 @@ DB_LOCK = threading.RLock()
 
 
 class db_cursor(object):
+
     def __init__(self, db_path):
         self.db_path = db_path
         self.db_conn = None
@@ -41,7 +42,8 @@ def db_insert(db_path, table, fields):
     with db_cursor(db_path) as cursor:
         cursor_execute(
             cursor,
-            "insert into {0}({1}) values ({2})".format(table, columns, placeholders),
+            "insert into {0}({1}) values ({2})".format(table, columns,
+                                                       placeholders),
             field_values,
         )
         inserted_id = cursor.lastrowid
@@ -59,16 +61,17 @@ def db_update(db_path, table, updated_fields, conditions):
     condition_value = tuple(conditions.values())
 
     with db_cursor(db_path) as cursor:
-        query = "UPDATE {0} SET {1} WHERE {2}".format(table, columns, condition_field)
+        query = "UPDATE {0} SET {1} WHERE {2}".format(table, columns,
+                                                      condition_field)
         result = cursor_execute(cursor, query, field_values + condition_value)
     return result
 
 
 def db_delete(db_path, table, field, value):
     with db_cursor(db_path) as cursor:
-        cursor_execute(
-            cursor, "delete from {0} where {1}=?".format(table, field), (value,)
-        )
+        cursor_execute(cursor,
+                       "delete from {0} where {1}=?".format(table,
+                                                            field), (value, ))
 
 
 def db_select(db_path, table, fields=None, condition=None):
@@ -85,7 +88,7 @@ def db_select(db_path, table, fields=None, condition=None):
                 placeholders = ", ".join("?" * len(condition_value))
                 where_condition = " where {} in (" + placeholders + ")"
             else:
-                condition_value = (condition_value,)
+                condition_value = (condition_value, )
                 where_condition = " where {}=?"
             query = query + where_condition
             query = query.format(columns, table, condition_field)
@@ -129,9 +132,12 @@ def add_field(db_path, tablename, field):
         cursor.execute(query)
 
 
-def filtered_query(
-    db_path, table, searches=None, filters=None, excludes=None, sorts=None
-):
+def filtered_query(db_path,
+                   table,
+                   searches=None,
+                   filters=None,
+                   excludes=None,
+                   sorts=None):
     query = "select * from %s" % table
     params = []
     sql_filters = []
@@ -150,8 +156,7 @@ def filtered_query(
         query += " WHERE " + " AND ".join(sql_filters)
     if sorts:
         query += " ORDER BY %s" % ", ".join(
-            ["%s %s" % (sort[0], sort[1]) for sort in sorts]
-        )
+            ["%s %s" % (sort[0], sort[1]) for sort in sorts])
     else:
         query += " ORDER BY slug ASC"
     return db_query(db_path, query, tuple(params))

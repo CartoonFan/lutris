@@ -44,7 +44,8 @@ class DieselGameMedia(ServiceMedia):
 
     def _render_filename(self, filename):
         game_box_path = os.path.join(self.dest_path, filename)
-        logo_path = os.path.join(EGS_LOGO_PATH, filename.replace(".jpg", ".png"))
+        logo_path = os.path.join(EGS_LOGO_PATH,
+                                 filename.replace(".jpg", ".png"))
         has_logo = os.path.exists(logo_path)
         thumb_image = Image.open(game_box_path)
         thumb_image = thumb_image.convert("RGBA")
@@ -176,13 +177,11 @@ class EpicGamesStoreService(OnlineService):
     library_url = "https://library-service.live.use1a.on.epicgames.com"
     is_loading = False
 
-    user_agent = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "EpicGamesLauncher/11.0.1-14907503+++Portal+Release-Live "
-        "UnrealEngine/4.23.0-14907503+++Portal+Release-Live "
-        "Chrome/84.0.4147.38 Safari/537.36"
-    )
+    user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "EpicGamesLauncher/11.0.1-14907503+++Portal+Release-Live "
+                  "UnrealEngine/4.23.0-14907503+++Portal+Release-Live "
+                  "Chrome/84.0.4147.38 Safari/537.36")
 
     def __init__(self):
         super().__init__()
@@ -196,9 +195,8 @@ class EpicGamesStoreService(OnlineService):
 
     @property
     def http_basic_auth(self):
-        return requests.auth.HTTPBasicAuth(
-            "34a02cf8f4414e29b15921876da36f9a", "daafbccc737745039dffe53d94fc76cf"
-        )
+        return requests.auth.HTTPBasicAuth("34a02cf8f4414e29b15921876da36f9a",
+                                           "daafbccc737745039dffe53d94fc76cf")
 
     def run(self):
         egs = get_game_by_field(self.client_installer, "slug")
@@ -220,19 +218,16 @@ class EpicGamesStoreService(OnlineService):
         content_json = json.loads(content.decode())
         session_id = content_json["sid"]
         _session = requests.session()
-        _session.headers.update(
-            {
-                "X-Epic-Event-Action": "login",
-                "X-Epic-Event-Category": "login",
-                "X-Epic-Strategy-Flags": "",
-                "X-Requested-With": "XMLHttpRequest",
-                "User-Agent": self.user_agent,
-            }
-        )
+        _session.headers.update({
+            "X-Epic-Event-Action": "login",
+            "X-Epic-Event-Category": "login",
+            "X-Epic-Strategy-Flags": "",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": self.user_agent,
+        })
 
-        _session.get(
-            "https://www.epicgames.com/id/api/set-sid", params={"sid": session_id}
-        )
+        _session.get("https://www.epicgames.com/id/api/set-sid",
+                     params={"sid": session_id})
         _session.get("https://www.epicgames.com/id/api/csrf")
         response = _session.post(
             "https://www.epicgames.com/id/api/exchange/generate",
@@ -252,9 +247,9 @@ class EpicGamesStoreService(OnlineService):
 
     def resume_session(self):
         self.session.headers["Authorization"] = (
-            "bearer %s" % self.session_data["access_token"]
-        )
-        response = self.session.get("%s/account/api/oauth/verify" % self.oauth_url)
+            "bearer %s" % self.session_data["access_token"])
+        response = self.session.get("%s/account/api/oauth/verify" %
+                                    self.oauth_url)
         if response.status_code >= 500:
             response.raise_for_status()
 
@@ -273,7 +268,11 @@ class EpicGamesStoreService(OnlineService):
 
         response = self.session.post(
             "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token",
-            data={"grant_type": grant_type, grant_type: token, "token_type": "eg1"},
+            data={
+                "grant_type": grant_type,
+                grant_type: token,
+                "token_type": "eg1"
+            },
             auth=self.http_basic_auth,
         )
         if response.status_code >= 500:
@@ -290,8 +289,8 @@ class EpicGamesStoreService(OnlineService):
         namespace = asset["namespace"]
         catalog_item_id = asset["catalogItemId"]
         response = self.session.get(
-            "%s/catalog/api/shared/namespace/%s/bulk/items"
-            % (self.catalog_url, namespace),
+            "%s/catalog/api/shared/namespace/%s/bulk/items" %
+            (self.catalog_url, namespace),
             params={
                 "id": catalog_item_id,
                 "includeDLCDetails": True,
@@ -318,7 +317,10 @@ class EpicGamesStoreService(OnlineService):
         while cursor:
             response = self.session.get(
                 "%s/library/api/public/items" % self.library_url,
-                params={"includeMetadata": "true", "cursor": cursor},
+                params={
+                    "includeMetadata": "true",
+                    "cursor": cursor
+                },
             )
             response.raise_for_status()
             resData = response.json()
@@ -360,14 +362,15 @@ class EpicGamesStoreService(OnlineService):
         service_game = ServiceGameCollection.get_game("egs", app_name)
         if not service_game:
             logger.error(
-                "Aborting install, %s is not present in the game library.", app_name
-            )
+                "Aborting install, %s is not present in the game library.",
+                app_name)
             return
         lutris_game_id = slugify(service_game["name"]) + "-" + self.id
         existing_game = get_game_by_field(lutris_game_id, "installer_slug")
         if existing_game:
             return
-        game_config = LutrisConfig(game_config_id=egs_game["configpath"]).game_level
+        game_config = LutrisConfig(
+            game_config_id=egs_game["configpath"]).game_level
         game_config["game"]["args"] = get_launch_arguments(app_name)
         configpath = write_game_config(lutris_game_id, game_config)
         game_id = add_game(
@@ -404,7 +407,8 @@ class EpicGamesStoreService(OnlineService):
         egs_game = Game(egs_db_game["id"])
         egs_exe = egs_game.config.game_config["exe"]
         if not os.path.isabs(egs_exe):
-            egs_exe = os.path.join(egs_game.config.game_config["prefix"], egs_exe)
+            egs_exe = os.path.join(egs_game.config.game_config["prefix"],
+                                   egs_exe)
         return {
             "name": db_game["name"],
             "version": self.name,
@@ -413,25 +417,28 @@ class EpicGamesStoreService(OnlineService):
             "runner": self.runner,
             "appid": db_game["appid"],
             "script": {
-                "requires": self.client_installer,
+                "requires":
+                self.client_installer,
                 "game": {
                     "args": get_launch_arguments(db_game["appid"]),
                 },
-                "installer": [
-                    {
-                        "task": {
-                            "name": "wineexec",
-                            "executable": egs_exe,
-                            "args": get_launch_arguments(db_game["appid"], "install"),
-                            "prefix": egs_game.config.game_config["prefix"],
-                            "description": (
-                                "The Epic Game Store will now open. Please launch "
-                                "the installation of %s then close the EGS client "
-                                "once the game has been downloaded." % db_game["name"]
-                            ),
-                        }
+                "installer": [{
+                    "task": {
+                        "name":
+                        "wineexec",
+                        "executable":
+                        egs_exe,
+                        "args":
+                        get_launch_arguments(db_game["appid"], "install"),
+                        "prefix":
+                        egs_game.config.game_config["prefix"],
+                        "description":
+                        ("The Epic Game Store will now open. Please launch "
+                         "the installation of %s then close the EGS client "
+                         "once the game has been downloaded." %
+                         db_game["name"]),
                     }
-                ],
+                }],
             },
         }
 
@@ -440,9 +447,7 @@ class EpicGamesStoreService(OnlineService):
         application = Gio.Application.get_default()
         if not egs_game or not egs_game["installed"]:
             logger.warning("EGS (%s) not installed", self.client_installer)
-            installers = get_installers(
-                game_slug=self.client_installer,
-            )
+            installers = get_installers(game_slug=self.client_installer, )
             application.show_installer_window(installers)
         else:
             application.show_installer_window(
@@ -453,8 +458,7 @@ class EpicGamesStoreService(OnlineService):
 
 
 def get_launch_arguments(app_name, action="launch"):
-    return (
-        "-opengl"
-        " -SkipBuildPatchPrereq"
-        " -com.epicgames.launcher://apps/%s?action=%s"
-    ) % (app_name, action)
+    return ("-opengl"
+            " -SkipBuildPatchPrereq"
+            " -com.epicgames.launcher://apps/%s?action=%s") % (app_name,
+                                                               action)

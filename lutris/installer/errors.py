@@ -7,7 +7,6 @@ from lutris.util.strings import gtk_safe
 
 
 class ScriptingError(Exception):
-
     """Custom exception for scripting errors, can be caught by modifying
     excepthook."""
 
@@ -26,12 +25,10 @@ class ScriptingError(Exception):
 
 
 class FileNotAvailable(Exception):
-
     """Raised when a file has to be provided by the user"""
 
 
 class MissingGameDependency(Exception):
-
     """Raise when a game requires another game that isn't installed"""
 
     def __init__(self, slug=None):

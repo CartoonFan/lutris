@@ -73,7 +73,8 @@ class LutrisService(OnlineService):
             for game in ServiceGameCollection.get_for_service(self.id)
         }
         for lutris_game in get_games():
-            self.match_game(service_games.get(lutris_game["slug"]), lutris_game)
+            self.match_game(service_games.get(lutris_game["slug"]),
+                            lutris_game)
 
     def is_connected(self):
         """Is the service connected?"""
@@ -94,11 +95,9 @@ class LutrisService(OnlineService):
         if not credentials:
             return []
         url = settings.SITE_URL + "/api/games/library/%s" % urllib.parse.quote(
-            credentials["username"]
-        )
+            credentials["username"])
         request = http.Request(
-            url, headers={"Authorization": "Token " + credentials["token"]}
-        )
+            url, headers={"Authorization": "Token " + credentials["token"]})
         try:
             response = request.get()
         except http.HTTPError as ex:
@@ -163,16 +162,20 @@ def download_lutris_media(slug):
 
 def sync_media():
     """Downlad all missing media"""
-    banners_available = {fn.split(".")[0] for fn in os.listdir(settings.BANNER_PATH)}
+    banners_available = {
+        fn.split(".")[0]
+        for fn in os.listdir(settings.BANNER_PATH)
+    }
     icons_available = {
         fn.split(".")[0].replace("lutris_", "")
-        for fn in os.listdir(settings.ICON_PATH)
-        if fn.startswith("lutris_")
+        for fn in os.listdir(settings.ICON_PATH) if fn.startswith("lutris_")
     }
-    covers_available = {fn.split(".")[0] for fn in os.listdir(settings.COVERART_PATH)}
-    complete_games = banners_available.intersection(icons_available).intersection(
-        covers_available
-    )
+    covers_available = {
+        fn.split(".")[0]
+        for fn in os.listdir(settings.COVERART_PATH)
+    }
+    complete_games = banners_available.intersection(
+        icons_available).intersection(covers_available)
     all_slugs = {game["slug"] for game in get_games()}
     slugs = all_slugs - complete_games
     if not slugs:

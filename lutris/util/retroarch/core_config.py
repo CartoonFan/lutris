@@ -42,7 +42,8 @@ RECOMMENDED_CORES = {
         ],
     },
     "picodrive": {
-        "platforms": ["master_system", "game_gear", "genesis", "mega_cd", "32x"],
+        "platforms":
+        ["master_system", "game_gear", "genesis", "mega_cd", "32x"],
         "extensions": [
             ".mdx",
             ".md",
@@ -119,5 +120,8 @@ RECOMMENDED_CORES = {
             },
         ],
     },
-    "mupen64plus_next": {"platforms": ["n64"], "extensions": [".z64", ".n64", ".v64"]},
+    "mupen64plus_next": {
+        "platforms": ["n64"],
+        "extensions": [".z64", ".n64", ".v64"]
+    },
 }

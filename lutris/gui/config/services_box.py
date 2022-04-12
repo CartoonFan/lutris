@@ -18,15 +18,12 @@ class ServicesBox(BaseConfigBox):
 
     def __init__(self):
         super().__init__()
-        self.add(self.get_section_label(_("Enable integrations with game sources")))
+        self.add(
+            self.get_section_label(_("Enable integrations with game sources")))
         self.add(
             self.get_description_label(
-                _(
-                    "Access your game libraries from various sources. "
-                    "Changes require a restart to take effect."
-                )
-            )
-        )
+                _("Access your game libraries from various sources. "
+                  "Changes require a restart to take effect.")))
         self.listbox = Gtk.ListBox(visible=True)
         self.pack_start(self.listbox, False, False, 12)
         GLib.idle_add(self.populate_services)
@@ -62,7 +59,8 @@ class ServicesBox(BaseConfigBox):
         box.pack_start(label, True, True, 0)
 
         checkbox = Gtk.Switch(visible=True)
-        if settings.read_setting(service_key, section="services").lower() == "true":
+        if settings.read_setting(service_key,
+                                 section="services").lower() == "true":
             checkbox.set_active(True)
         checkbox.connect("state-set", self._on_service_change, service_key)
         alignment = Gtk.Alignment.new(0.5, 0.5, 0, 0)

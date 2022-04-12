@@ -45,7 +45,6 @@ def get_services():
 
 SERVICES = get_services()
 
-
 # Those services are not yet ready to be used
 WIP_SERVICES = {
     "battlenet": BattleNetService,

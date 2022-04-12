@@ -15,10 +15,12 @@ from lutris.util.ubisoft.consts import UBISOFT_APPID
 
 def parse_date(date_str):
     date_example = "2022-01-25T05:44:59.192453"
-    return datetime.strptime(date_str[: len(date_example)], "%Y-%m-%dT%H:%M:%S.%f")
+    return datetime.strptime(date_str[:len(date_example)],
+                             "%Y-%m-%dT%H:%M:%S.%f")
 
 
 class UbisoftConnectClient:
+
     def __init__(self, service):
         self._service = service
         self._auth_lost_callback = None
@@ -30,14 +32,12 @@ class UbisoftConnectClient:
         self.user_name = None
         self.__refresh_in_progress = False
         self._session = requests.session()
-        self._session.headers.update(
-            {
-                "Authorization": None,
-                "Ubi-AppId": CLUB_APPID,
-                "User-Agent": CHROME_USERAGENT,
-                "Ubi-SessionId": None,
-            }
-        )
+        self._session.headers.update({
+            "Authorization": None,
+            "Ubi-AppId": CLUB_APPID,
+            "User-Agent": CHROME_USERAGENT,
+            "Ubi-SessionId": None,
+        })
 
     def close(self):
         # If closing is attempted while plugin is inside refresh workflow then give it a chance to finish it.
@@ -78,11 +78,11 @@ class UbisoftConnectClient:
         try:
             refresh_needed = False
             if self.refresh_token:
-                logger.debug("rememberMeTicket expiration time: %s", self.refresh_time)
-                refresh_needed = (
-                    self.refresh_time is None
-                    or datetime.now() > datetime.fromtimestamp(int(self.refresh_time))
-                )
+                logger.debug("rememberMeTicket expiration time: %s",
+                             self.refresh_time)
+                refresh_needed = (self.refresh_time is None
+                                  or datetime.now() > datetime.fromtimestamp(
+                                      int(self.refresh_time)))
             if refresh_needed:
                 self._refresh_auth()
                 result = self._do_request(method, *args, **kwargs)
@@ -99,12 +99,12 @@ class UbisoftConnectClient:
                     self._refresh_auth()
                     result = self._do_request(method, *args, **kwargs)
         except Exception as ex:
-            logger.error("Unable to refresh authentication calling auth lost: %s", ex)
+            logger.error(
+                "Unable to refresh authentication calling auth lost: %s", ex)
             if self._auth_lost_callback:
                 self._auth_lost_callback()
             raise RuntimeError(
-                _("Ubisoft authentication has been lost: %s") % ex
-            ) from ex
+                _("Ubisoft authentication has been lost: %s") % ex) from ex
         return result
 
     def _do_options_request(self):
@@ -113,7 +113,8 @@ class UbisoftConnectClient:
             "https://public-ubiservices.ubi.com/v3/profiles/sessions",
             headers={
                 "Origin": "https://connect.ubisoft.com",
-                "Referer": f"https://connect.ubisoft.com/login?appId={UBISOFT_APPID}",
+                "Referer":
+                f"https://connect.ubisoft.com/login?appId={UBISOFT_APPID}",
                 "User-Agent": CHROME_USERAGENT,
             },
         )
@@ -180,9 +181,8 @@ class UbisoftConnectClient:
 
     def _handle_authorization_response(self, j):
         if "expiration" in j and "serverTime" in j:
-            refresh_time = datetime.now() + (
-                parse_date(j["expiration"]) - parse_date(j["serverTime"])
-            )
+            refresh_time = datetime.now() + (parse_date(j["expiration"]) -
+                                             parse_date(j["serverTime"]))
             j["refreshTime"] = round(refresh_time.timestamp())
             self.restore_credentials(j)
 
@@ -196,12 +196,10 @@ class UbisoftConnectClient:
         if data.get("rememberMeTicket"):
             self.refresh_token = data["rememberMeTicket"]
 
-        self._session.headers.update(
-            {
-                "Authorization": f"Ubi_v1 t={self.token}",
-                "Ubi-SessionId": self.session_id,
-            }
-        )
+        self._session.headers.update({
+            "Authorization": f"Ubi_v1 t={self.token}",
+            "Ubi-SessionId": self.session_id,
+        })
 
     def get_credentials(self):
         creds = {
@@ -252,19 +250,22 @@ class UbisoftConnectClient:
     # Deprecated 0.39
     def get_user_data(self):
         return self._do_request_safe(
-            "get", f"https://public-ubiservices.ubi.com/v3/users/{self.user_id}"
-        )
+            "get",
+            f"https://public-ubiservices.ubi.com/v3/users/{self.user_id}")
 
     def get_friends(self):
         return self._do_request_safe(
-            "get", "https://api-ubiservices.ubi.com/v2/profiles/me/friends"
-        )
+            "get", "https://api-ubiservices.ubi.com/v2/profiles/me/friends")
 
     def get_club_titles(self):
         payload = {
-            "operationName": "AllGames",
-            "variables": {"owned": True},
-            "query": "query AllGames {"
+            "operationName":
+            "AllGames",
+            "variables": {
+                "owned": True
+            },
+            "query":
+            "query AllGames {"
             "viewer {"
             "    id"
             "    ...ownedGamesList"
@@ -308,7 +309,10 @@ class UbisoftConnectClient:
 
     def get_game_stats(self, space_id):
         url = f"https://public-ubiservices.ubi.com/v1/profiles/{self.user_id}/statscard?spaceId={space_id}"
-        headers = {"Ubi-RequestedPlatformType": "uplay", "Ubi-LocaleCode": "en-GB"}
+        headers = {
+            "Ubi-RequestedPlatformType": "uplay",
+            "Ubi-LocaleCode": "en-GB"
+        }
         try:
             return self._do_request("get", url, add_to_headers=headers)
         except Exception as ex:  # 412: no stats available for this user
@@ -324,8 +328,7 @@ class UbisoftConnectClient:
 
     def get_configuration(self):
         response = self._do_request_safe(
-            "get", "https://uplaywebcenter.ubi.com/v1/configuration"
-        )
+            "get", "https://uplaywebcenter.ubi.com/v1/configuration")
         return response.json()
 
     def post_sessions(self):
@@ -339,8 +342,7 @@ class UbisoftConnectClient:
     def get_subscription(self):
         try:
             sub_games = self._do_request(
-                "get", "https://api-uplayplusvault.ubi.com/v1/games"
-            )
+                "get", "https://api-uplayplusvault.ubi.com/v1/games")
         except Exception:
             logger.info("Uplay plus Subscription not active")
             return None

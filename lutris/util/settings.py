@@ -7,7 +7,6 @@ from lutris.util.log import logger
 
 
 class SettingsIO:
-
     """ConfigParser abstraction."""
 
     def __init__(self, config_file):
@@ -17,7 +16,8 @@ class SettingsIO:
             try:
                 self.config.read([self.config_file])
             except configparser.ParsingError as ex:
-                logger.error("Failed to readconfig file %s: %s", self.config_file, ex)
+                logger.error("Failed to readconfig file %s: %s",
+                             self.config_file, ex)
             except UnicodeDecodeError as ex:
                 logger.error(
                     "Some invalid characters are preventing "

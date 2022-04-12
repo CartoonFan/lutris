@@ -193,7 +193,8 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
         if self.search_timer_id:
             GLib.source_remove(self.search_timer_id)
         self.text_query = entry.get_text().strip()
-        self.search_timer_id = GLib.timeout_add(750, self.update_search_results)
+        self.search_timer_id = GLib.timeout_add(750,
+                                                self.update_search_results)
 
     def _on_game_selected(self, listbox, row):
         game_slug = row.api_info["slug"]
@@ -205,7 +206,8 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
     def update_search_results(self):
         # Don't start a search while another is going; defer it instead.
         if self.search_spinner.get_visible():
-            self.search_timer_id = GLib.timeout_add(750, self.update_search_results)
+            self.search_timer_id = GLib.timeout_add(750,
+                                                    self.update_search_results)
             return
 
         self.search_timer_id = None
@@ -213,7 +215,8 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
         if self.text_query:
             self.search_spinner.show()
             self.search_spinner.start()
-            AsyncCall(api.search_games, self.update_search_results_cb, self.text_query)
+            AsyncCall(api.search_games, self.update_search_results_cb,
+                      self.text_query)
 
     def update_search_results_cb(self, api_games, error):
         if error:
@@ -231,19 +234,19 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
             self.result_label.set_markup(_(f"Showing <b>{count}</b> results"))
         else:
             self.result_label.set_markup(
-                _(f"<b>{total_count}</b> results, only displaying first {count}")
-            )
+                _(f"<b>{total_count}</b> results, only displaying first {count}"
+                  ))
         for row in self.listbox.get_children():
             row.destroy()
         for game in api_games.get("results", []):
             platforms = ",".join(
-                gtk_safe(platform["name"]) for platform in game["platforms"]
-            )
+                gtk_safe(platform["name"]) for platform in game["platforms"])
             year = game["year"] or ""
             if platforms and year:
                 platforms = ", " + platforms
 
-            row = self.build_row("", gtk_safe(game["name"]), f"{year}{platforms}")
+            row = self.build_row("", gtk_safe(game["name"]),
+                                 f"{year}{platforms}")
             row.api_info = game
             self.listbox.add(row)
         self.listbox.show()
@@ -269,11 +272,19 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
             "game_slug": slugify(name),
             "runner": "wine",
             "script": {
-                "game": {"exe": AUTO_WIN32_EXE, "prefix": "$GAMEDIR"},
-                "files": [{"setupfile": "N/A:Select the setup file"}],
-                "installer": [
-                    {"task": {"name": "wineexec", "executable": "setupfile"}}
-                ],
+                "game": {
+                    "exe": AUTO_WIN32_EXE,
+                    "prefix": "$GAMEDIR"
+                },
+                "files": [{
+                    "setupfile": "N/A:Select the setup file"
+                }],
+                "installer": [{
+                    "task": {
+                        "name": "wineexec",
+                        "executable": "setupfile"
+                    }
+                }],
             },
         }
         application = Gio.Application.get_default()

@@ -127,7 +127,8 @@ def extract_archive(path, to_directory=".", merge_single=True, extractor=None):
 
     opener, mode = get_archive_opener(extractor)
 
-    temp_path = temp_dir = os.path.join(to_directory, ".extract-%s" % random_id())
+    temp_path = temp_dir = os.path.join(to_directory,
+                                        ".extract-%s" % random_id())
     try:
         _do_extract(path, temp_path, opener, mode, extractor)
     except (OSError, zlib.error, tarfile.ReadError, EOFError) as ex:
@@ -202,13 +203,15 @@ def extract_exe(path, dest):
         if not system.path_exists(_7zip_path):
             _7zip_path = system.find_executable("7za")
         if not system.path_exists(_7zip_path):
-            raise OSError("7zip is not found in the lutris runtime or on the system")
+            raise OSError(
+                "7zip is not found in the lutris runtime or on the system")
         command = [_7zip_path, "t", path]
         return_code = subprocess.call(command)
         if return_code == 0:
             extract_7zip(path, dest)
         else:
-            raise RuntimeError("specified exe is not an archive or GOG setup file")
+            raise RuntimeError(
+                "specified exe is not an archive or GOG setup file")
 
 
 def extract_deb(archive, dest):
@@ -219,7 +222,8 @@ def extract_deb(archive, dest):
 
     control_file_exts = [".gz", ".xz", ".zst", ""]
     for extension in control_file_exts:
-        control_tar_path = os.path.join(dest, "control.tar{}".format(extension))
+        control_tar_path = os.path.join(dest,
+                                        "control.tar{}".format(extension))
         if os.path.exists(control_tar_path):
             shutil.move(control_tar_path, debian_folder)
             break
@@ -243,12 +247,12 @@ def extract_gog(path, dest):
 def get_innoextract_path():
     """Return the path where innoextract is installed"""
     inno_dirs = [
-        path
-        for path in os.listdir(settings.RUNTIME_DIR)
+        path for path in os.listdir(settings.RUNTIME_DIR)
         if path.startswith("innoextract")
     ]
     if inno_dirs:
-        inno_path = os.path.join(settings.RUNTIME_DIR, inno_dirs[0], "innoextract")
+        inno_path = os.path.join(settings.RUNTIME_DIR, inno_dirs[0],
+                                 "innoextract")
     else:
         inno_path = system.find_executable("innoextract")
         if inno_path:
@@ -264,8 +268,7 @@ def check_inno_exe(path):
     _innoextract_path = get_innoextract_path()
     if not _innoextract_path:
         logger.warning(
-            "Innoextract not found, can't determine type of archive %s", path
-        )
+            "Innoextract not found, can't determine type of archive %s", path)
         return False
     command = [_innoextract_path, "-i", path]
     return_code = subprocess.call(command)
@@ -274,18 +277,20 @@ def check_inno_exe(path):
 
 def get_innoextract_list(file_path):
     """Return the list of files contained in a GOG archive"""
-    output = system.read_process_output([get_innoextract_path(), "-lmq", file_path])
+    output = system.read_process_output(
+        [get_innoextract_path(), "-lmq", file_path])
     return [line[3:] for line in output.split("\n") if line]
 
 
 def decompress_gog(file_path, destination_path):
     innoextract_path = get_innoextract_path()
     if not innoextract_path:
-        raise OSError("innoextract is not found in the lutris runtime or on the system")
+        raise OSError(
+            "innoextract is not found in the lutris runtime or on the system")
     system.create_folder(destination_path)  # innoextract cannot do mkdir -p
-    return_code = subprocess.call(
-        [innoextract_path, "-m", "-g", "-d", destination_path, "-e", file_path]
-    )
+    return_code = subprocess.call([
+        innoextract_path, "-m", "-g", "-d", destination_path, "-e", file_path
+    ])
     if return_code != 0:
         raise RuntimeError("innoextract failed to extract GOG setup file")
 
@@ -293,7 +298,8 @@ def decompress_gog(file_path, destination_path):
 def decompress_gz(file_path, dest_path):
     """Decompress a gzip file."""
     if dest_path:
-        dest_filename = os.path.join(dest_path, os.path.basename(file_path[:-3]))
+        dest_filename = os.path.join(dest_path,
+                                     os.path.basename(file_path[:-3]))
     else:
         dest_filename = file_path[:-3]
     os.makedirs(os.path.dirname(dest_filename), exist_ok=True)
@@ -310,7 +316,8 @@ def extract_7zip(path, dest, archive_type=None):
     if not system.path_exists(_7zip_path):
         _7zip_path = system.find_executable("7z")
     if not system.path_exists(_7zip_path):
-        raise OSError("7zip is not found in the lutris runtime or on the system")
+        raise OSError(
+            "7zip is not found in the lutris runtime or on the system")
     command = [_7zip_path, "x", path, "-o{}".format(dest), "-aoa"]
     if archive_type and archive_type != "auto":
         command.append("-t{}".format(archive_type))

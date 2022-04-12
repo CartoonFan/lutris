@@ -37,74 +37,91 @@ class steam(Runner):
     runner_executable = "steam"
     game_options = [
         {
-            "option": "appid",
-            "label": _("Application ID"),
-            "type": "string",
-            "help": _(
-                "The application ID can be retrieved from the game's "
-                "page at steampowered.com. Example: 235320 is the "
-                "app ID for <i>Original War</i> in: \n"
-                "http://store.steampowered.com/app/<b>235320</b>/"
-            ),
+            "option":
+            "appid",
+            "label":
+            _("Application ID"),
+            "type":
+            "string",
+            "help":
+            _("The application ID can be retrieved from the game's "
+              "page at steampowered.com. Example: 235320 is the "
+              "app ID for <i>Original War</i> in: \n"
+              "http://store.steampowered.com/app/<b>235320</b>/"),
         },
         {
-            "option": "args",
-            "type": "string",
-            "label": _("Arguments"),
-            "help": _(
-                "Command line arguments used when launching the game.\n"
-                "Ignored when Steam Big Picture mode is enabled."
-            ),
+            "option":
+            "args",
+            "type":
+            "string",
+            "label":
+            _("Arguments"),
+            "help":
+            _("Command line arguments used when launching the game.\n"
+              "Ignored when Steam Big Picture mode is enabled."),
         },
         {
-            "option": "run_without_steam",
-            "label": _("DRM free mode (Do not launch Steam)"),
-            "type": "bool",
-            "default": False,
-            "advanced": True,
-            "help": _(
-                "Run the game directly without Steam, requires the game binary path to be set"
-            ),
+            "option":
+            "run_without_steam",
+            "label":
+            _("DRM free mode (Do not launch Steam)"),
+            "type":
+            "bool",
+            "default":
+            False,
+            "advanced":
+            True,
+            "help":
+            _("Run the game directly without Steam, requires the game binary path to be set"
+              ),
         },
         {
             "option": "steamless_binary",
             "type": "file",
             "label": _("Game binary path"),
             "advanced": True,
-            "help": _("Path to the game executable (Required by DRM free mode)"),
+            "help":
+            _("Path to the game executable (Required by DRM free mode)"),
         },
     ]
     runner_options = [
         {
-            "option": "start_in_big_picture",
-            "label": _("Start Steam in Big Picture mode"),
-            "type": "bool",
-            "default": False,
-            "help": _(
-                "Launches Steam in Big Picture mode.\n"
-                "Only works if Steam is not running or "
-                "already running in Big Picture mode.\n"
-                "Useful when playing with a Steam Controller."
-            ),
+            "option":
+            "start_in_big_picture",
+            "label":
+            _("Start Steam in Big Picture mode"),
+            "type":
+            "bool",
+            "default":
+            False,
+            "help":
+            _("Launches Steam in Big Picture mode.\n"
+              "Only works if Steam is not running or "
+              "already running in Big Picture mode.\n"
+              "Useful when playing with a Steam Controller."),
         },
         {
-            "option": "lsi_steam",
-            "label": _("Start Steam with LSI"),
-            "type": "bool",
-            "default": False,
-            "help": _(
-                "Launches steam with LSI patches enabled. "
-                "Make sure Lutris Runtime is disabled and "
-                "you have LSI installed. "
-                "https://github.com/solus-project/linux-steam-integration"
-            ),
+            "option":
+            "lsi_steam",
+            "label":
+            _("Start Steam with LSI"),
+            "type":
+            "bool",
+            "default":
+            False,
+            "help":
+            _("Launches steam with LSI patches enabled. "
+              "Make sure Lutris Runtime is disabled and "
+              "you have LSI installed. "
+              "https://github.com/solus-project/linux-steam-integration"),
         },
         {
             "option": "args",
             "type": "string",
             "label": _("Arguments"),
             "advanced": True,
-            "help": _("Extra command line arguments used when launching Steam"),
+            "help":
+            _("Extra command line arguments used when launching Steam"),
         },
     ]
     system_options_override = [{"option": "disable_runtime", "default": True}]
@@ -155,8 +172,8 @@ class steam(Runner):
                 appmanifests.append(appmanifest)
         if len(appmanifests) > 1:
             logger.warning(
-                "More than one AppManifest for %s returning only 1st", self.appid
-            )
+                "More than one AppManifest for %s returning only 1st",
+                self.appid)
         if appmanifests:
             return appmanifests[0]
 
@@ -170,7 +187,8 @@ class steam(Runner):
 
             # Fallback to xgd-open for Steam URIs in Flatpak
             return system.find_executable("xdg-open")
-        if self.runner_config.get("lsi_steam") and system.find_executable("lsi-steam"):
+        if self.runner_config.get("lsi_steam") and system.find_executable(
+                "lsi-steam"):
             return system.find_executable("lsi-steam")
         runner_executable = self.runner_config.get("runner_executable")
         if runner_executable and os.path.isfile(runner_executable):
@@ -236,10 +254,12 @@ class steam(Runner):
             for entry in library_config.values():
                 if "mounted" in entry:
                     if entry.get("path") and entry.get("mounted") == "1":
-                        path = system.fix_path_case(entry.get("path") + "/steamapps")
+                        path = system.fix_path_case(
+                            entry.get("path") + "/steamapps")
                         paths.append(path)
                 else:
-                    path = system.fix_path_case(entry.get("path") + "/steamapps")
+                    path = system.fix_path_case(
+                        entry.get("path") + "/steamapps")
                     paths.append(path)
             for path in paths:
                 if path and os.path.isdir(path):
@@ -266,13 +286,13 @@ class steam(Runner):
             acf_content = to_vdf(acf_data)
             steamapps_path = self.get_default_steamapps_path()
             if not steamapps_path:
-                raise RuntimeError("Could not find Steam path, is Steam installed?")
-            acf_path = os.path.join(steamapps_path, "appmanifest_%s.acf" % appid)
+                raise RuntimeError(
+                    "Could not find Steam path, is Steam installed?")
+            acf_path = os.path.join(steamapps_path,
+                                    "appmanifest_%s.acf" % appid)
             with open(acf_path, "w", encoding="utf-8") as acf_file:
                 acf_file.write(acf_content)
-        subprocess.Popen(
-            [self.get_executable(), "steam://install/%s" % appid]
-        )  # pylint: disable=consider-using-with
+        subprocess.Popen([self.get_executable(), "steam://install/%s" % appid])  # pylint: disable=consider-using-with
 
     def get_run_data(self):
         return {"command": self.launch_args, "env": self.get_env()}
@@ -317,7 +337,10 @@ class steam(Runner):
         if not self.is_installed():
             return False
         command = MonitoredCommand(
-            [self.get_executable(), "steam://uninstall/%s" % (appid or self.appid)],
+            [
+                self.get_executable(),
+                "steam://uninstall/%s" % (appid or self.appid)
+            ],
             runner=self,
             env=self.get_env(),
         )

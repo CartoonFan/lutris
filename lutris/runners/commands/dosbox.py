@@ -9,9 +9,11 @@ from lutris.util.log import logger
 # Lutris Modules
 
 
-def dosexec(
-    config_file=None, executable=None, args=None, close_on_exit=True, working_dir=None
-):
+def dosexec(config_file=None,
+            executable=None,
+            args=None,
+            close_on_exit=True,
+            working_dir=None):
     """Execute Dosbox with given config_file."""
     if config_file:
         run_with = "config {}".format(config_file)
@@ -22,7 +24,8 @@ def dosexec(
         if not working_dir:
             working_dir = os.path.dirname(executable)
     else:
-        raise ValueError("Neither a config file or an executable were provided")
+        raise ValueError(
+            "Neither a config file or an executable were provided")
     logger.debug("Running dosbox with %s", run_with)
     working_dir = system.create_folder(working_dir)
     dosbox = import_runner("dosbox")

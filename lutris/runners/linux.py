@@ -31,33 +31,39 @@ class linux(Runner):
             "help": _("Command line arguments used when launching the game"),
         },
         {
-            "option": "working_dir",
-            "type": "directory_chooser",
-            "label": _("Working directory"),
-            "help": _(
-                "The location where the game is run from.\n"
-                "By default, Lutris uses the directory of the "
-                "executable."
-            ),
+            "option":
+            "working_dir",
+            "type":
+            "directory_chooser",
+            "label":
+            _("Working directory"),
+            "help":
+            _("The location where the game is run from.\n"
+              "By default, Lutris uses the directory of the "
+              "executable."),
         },
         {
             "option": "ld_preload",
             "type": "file",
             "label": _("Preload library"),
             "advanced": True,
-            "help": _("A library to load before running the game's executable."),
+            "help":
+            _("A library to load before running the game's executable."),
         },
         {
-            "option": "ld_library_path",
-            "type": "directory_chooser",
-            "label": _("Add directory to LD_LIBRARY_PATH"),
-            "advanced": True,
-            "help": _(
-                "A directory where libraries should be searched for "
-                "first, before the standard set of directories; this is "
-                "useful when debugging a new library or using a "
-                "nonstandard library for special purposes."
-            ),
+            "option":
+            "ld_library_path",
+            "type":
+            "directory_chooser",
+            "label":
+            _("Add directory to LD_LIBRARY_PATH"),
+            "advanced":
+            True,
+            "help":
+            _("A directory where libraries should be searched for "
+              "first, before the standard set of directories; this is "
+              "useful when debugging a new library or using a "
+              "nonstandard library for special purposes."),
         },
     ]
 
@@ -130,7 +136,8 @@ class linux(Runner):
 
         ld_library_path = self.game_config.get("ld_library_path")
         if ld_library_path:
-            launch_info["ld_library_path"] = os.path.expanduser(ld_library_path)
+            launch_info["ld_library_path"] = os.path.expanduser(
+                ld_library_path)
 
         command = [self.get_relative_exe()]
 

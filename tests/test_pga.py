@@ -12,6 +12,7 @@ setup_test_environment()
 
 
 class DatabaseTester(unittest.TestCase):
+
     def setUp(self):
         if os.path.exists(settings.PGA_DB):
             os.remove(settings.PGA_DB)
@@ -19,6 +20,7 @@ class DatabaseTester(unittest.TestCase):
 
 
 class TestPersonnalGameArchive(DatabaseTester):
+
     def test_add_game(self):
         games_db.add_game(name="LutrisTest", runner="Linux")
         game_list = games_db.get_games()
@@ -57,12 +59,15 @@ class TestPersonnalGameArchive(DatabaseTester):
         games_db.add_game(name="some game", runner="linux")
         game = games_db.get_game_by_field("some-game", "slug")
         self.assertFalse(game["directory"])
-        games_db.add_or_update(name="some game", runner="linux", directory="/foo")
+        games_db.add_or_update(name="some game",
+                               runner="linux",
+                               directory="/foo")
         game = games_db.get_game_by_field("some-game", "slug")
         self.assertEqual(game["directory"], "/foo")
 
 
 class TestDbCreator(DatabaseTester):
+
     def test_can_generate_fields(self):
         text_field = schema.field_to_string("name", "TEXT")
         self.assertEqual(text_field, "name TEXT")
@@ -72,21 +77,35 @@ class TestDbCreator(DatabaseTester):
 
     def test_can_create_table(self):
         fields = [
-            {"name": "id", "type": "INTEGER", "indexed": True},
-            {"name": "name", "type": "TEXT"},
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "indexed": True
+            },
+            {
+                "name": "name",
+                "type": "TEXT"
+            },
         ]
         schema.create_table("testing", fields)
         sql.db_insert(settings.PGA_DB, "testing", {"name": "testok"})
-        results = sql.db_select(settings.PGA_DB, "testing", fields=["id", "name"])
+        results = sql.db_select(settings.PGA_DB,
+                                "testing",
+                                fields=["id", "name"])
         self.assertEqual(results[0]["name"], "testok")
 
 
 class TestMigration(DatabaseTester):
+
     def setUp(self):
         super().setUp()
         self.tablename = "basetable"
         self.schema = [
-            {"name": "id", "type": "INTEGER", "indexed": True},
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "indexed": True
+            },
             {
                 "name": "name",
                 "type": "TEXT",

@@ -89,7 +89,8 @@ class GameDialogCommon(Dialog):
     def build_scrolled_window(widget):
         """Return a scrolled window containing config widgets"""
         scrolled_window = Gtk.ScrolledWindow(visible=True)
-        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
         scrolled_window.add(widget)
         return scrolled_window
 
@@ -111,7 +112,8 @@ class GameDialogCommon(Dialog):
         info_box = VBox()
 
         if self.game:
-            info_box.pack_start(self._get_banner_box(), False, False, 6)  # Banner
+            info_box.pack_start(self._get_banner_box(), False, False,
+                                6)  # Banner
 
         info_box.pack_start(self._get_name_box(), False, False, 6)  # Game name
 
@@ -157,7 +159,10 @@ class GameDialogCommon(Dialog):
 
     def _get_directory_box(self):
         """Return widget displaying the location of the game and allowing to move it"""
-        box = Gtk.Box(spacing=12, margin_right=12, margin_left=12, visible=True)
+        box = Gtk.Box(spacing=12,
+                      margin_right=12,
+                      margin_left=12,
+                      visible=True)
         label = Label(_("Directory"))
         box.pack_start(label, False, False, 0)
         self.directory_entry = Gtk.Entry(visible=True)
@@ -188,30 +193,31 @@ class GameDialogCommon(Dialog):
 
         self.banner_button = Gtk.Button()
         self._set_image("banner")
-        self.banner_button.connect("clicked", self.on_custom_image_select, "banner")
+        self.banner_button.connect("clicked", self.on_custom_image_select,
+                                   "banner")
         banner_box.pack_start(self.banner_button, False, False, 0)
 
         reset_banner_button = Gtk.Button.new_from_icon_name(
-            "edit-clear", Gtk.IconSize.MENU
-        )
+            "edit-clear", Gtk.IconSize.MENU)
         reset_banner_button.set_relief(Gtk.ReliefStyle.NONE)
         reset_banner_button.set_tooltip_text(_("Remove custom banner"))
-        reset_banner_button.connect(
-            "clicked", self.on_custom_image_reset_clicked, "banner"
-        )
+        reset_banner_button.connect("clicked",
+                                    self.on_custom_image_reset_clicked,
+                                    "banner")
         banner_box.pack_start(reset_banner_button, False, False, 0)
 
         self.icon_button = Gtk.Button()
         self._set_image("icon")
-        self.icon_button.connect("clicked", self.on_custom_image_select, "icon")
+        self.icon_button.connect("clicked", self.on_custom_image_select,
+                                 "icon")
         banner_box.pack_start(self.icon_button, False, False, 0)
 
         reset_icon_button = Gtk.Button.new_from_icon_name(
-            "edit-clear", Gtk.IconSize.MENU
-        )
+            "edit-clear", Gtk.IconSize.MENU)
         reset_icon_button.set_relief(Gtk.ReliefStyle.NONE)
         reset_icon_button.set_tooltip_text(_("Remove custom icon"))
-        reset_icon_button.connect("clicked", self.on_custom_image_reset_clicked, "icon")
+        reset_icon_button.connect("clicked",
+                                  self.on_custom_image_reset_clicked, "icon")
         banner_box.pack_start(reset_icon_button, False, False, 0)
 
         return banner_box
@@ -231,7 +237,8 @@ class GameDialogCommon(Dialog):
 
     def _set_image(self, image_format):
         image = Gtk.Image()
-        service_media = LutrisBanner() if image_format == "banner" else LutrisIcon()
+        service_media = LutrisBanner(
+        ) if image_format == "banner" else LutrisIcon()
         game_slug = self.game.slug if self.game else ""
         image.set_from_pixbuf(service_media.get_pixbuf_for_game(game_slug))
         if image_format == "banner":
@@ -266,8 +273,7 @@ class GameDialogCommon(Dialog):
         for runner in runners.get_installed():
             description = runner.description
             runner_liststore.append(
-                ("%s (%s)" % (runner.human_name, description), runner.name)
-            )
+                ("%s (%s)" % (runner.human_name, description), runner.name))
         return runner_liststore
 
     def on_slug_change_clicked(self, widget):
@@ -302,20 +308,19 @@ class GameDialogCommon(Dialog):
         new_directory = dialog.new_directory
         if new_directory:
             self.directory_entry.set_text(new_directory)
-            send_notification(
-                "Finished moving game", "%s moved to %s" % (dialog.game, new_directory)
-            )
+            send_notification("Finished moving game",
+                              "%s moved to %s" % (dialog.game, new_directory))
         else:
-            send_notification(
-                "Failed to move game", "Lutris could not move %s" % dialog.game
-            )
+            send_notification("Failed to move game",
+                              "Lutris could not move %s" % dialog.game)
 
     def _build_game_tab(self):
         if self.game and self.runner_name:
             self.game.runner_name = self.runner_name
             if not self.game.runner or self.game.runner.name != self.runner_name:
                 try:
-                    self.game.runner = runners.import_runner(self.runner_name)()
+                    self.game.runner = runners.import_runner(
+                        self.runner_name)()
                 except runners.InvalidRunner:
                     pass
             self.game_box = GameBox(self.lutris_config, self.game)
@@ -341,9 +346,8 @@ class GameDialogCommon(Dialog):
         if not self.lutris_config:
             raise RuntimeError("Lutris config not loaded yet")
         self.system_box = SystemBox(self.lutris_config)
-        self._add_notebook_tab(
-            self.build_scrolled_window(self.system_box), _("System options")
-        )
+        self._add_notebook_tab(self.build_scrolled_window(self.system_box),
+                               _("System options"))
 
     def _add_notebook_tab(self, widget, label):
         self.notebook.append_page(widget, Gtk.Label(label=label))
@@ -394,17 +398,16 @@ class GameDialogCommon(Dialog):
         """Action called when runner drop down is changed."""
         new_runner_index = widget.get_active()
         if self.runner_index and new_runner_index != self.runner_index:
-            dlg = QuestionDialog(
-                {
-                    "parent": self,
-                    "question": _(
-                        "Are you sure you want to change the runner for this game ? "
-                        "This will reset the full configuration for this game and "
-                        "is not reversible."
-                    ),
-                    "title": _("Confirm runner change"),
-                }
-            )
+            dlg = QuestionDialog({
+                "parent":
+                self,
+                "question":
+                _("Are you sure you want to change the runner for this game ? "
+                  "This will reset the full configuration for this game and "
+                  "is not reversible."),
+                "title":
+                _("Confirm runner change"),
+            })
 
             if dlg.result == Gtk.ResponseType.YES:
                 self.runner_index = new_runner_index
@@ -428,11 +431,11 @@ class GameDialogCommon(Dialog):
             if runner_name == self.runner_name:
                 logger.debug("Runner unchanged, not creating a new config")
                 return
-            logger.info("Creating new configuration with runner %s", runner_name)
+            logger.info("Creating new configuration with runner %s",
+                        runner_name)
             self.runner_name = runner_name
-            self.lutris_config = LutrisConfig(
-                runner_slug=self.runner_name, level="game"
-            )
+            self.lutris_config = LutrisConfig(runner_slug=self.runner_name,
+                                              level="game")
         self._rebuild_tabs()
         self.notebook.set_current_page(current_page)
 
@@ -458,15 +461,15 @@ class GameDialogCommon(Dialog):
             ErrorDialog(_("Please fill in the name"), parent=self)
             return False
         if self.runner_name == "steam" and not self.lutris_config.game_config.get(
-            "appid"
-        ):
+                "appid"):
             ErrorDialog(_("Steam AppID not provided"), parent=self)
             return False
         invalid_fields = []
         runner_class = import_runner(self.runner_name)
         runner_instance = runner_class()
         for config in ["game", "runner"]:
-            for k, v in getattr(self.lutris_config, config + "_config").items():
+            for k, v in getattr(self.lutris_config,
+                                config + "_config").items():
                 option = runner_instance.find_option(config + "_options", k)
                 if option is None:
                     continue
@@ -479,8 +482,8 @@ class GameDialogCommon(Dialog):
                         invalid_fields.append(option.get("label"))
         if invalid_fields:
             ErrorDialog(
-                _("The following fields have invalid values: ")
-                + ", ".join(invalid_fields),
+                _("The following fields have invalid values: ") +
+                ", ".join(invalid_fields),
                 parent=self,
             )
             return False
@@ -490,8 +493,7 @@ class GameDialogCommon(Dialog):
         """Save game info and destroy widget. Return True if success."""
         if not self.is_valid():
             logger.warning(
-                _("Current configuration is not valid, ignoring save request")
-            )
+                _("Current configuration is not valid, ignoring save request"))
             return False
         name = self.name_entry.get_text()
 
@@ -543,9 +545,8 @@ class GameDialogCommon(Dialog):
             image_path = dialog.get_filename()
             if image_type == "banner":
                 self.game.has_custom_banner = True
-                dest_path = os.path.join(
-                    settings.BANNER_PATH, "%s.jpg" % self.game.slug
-                )
+                dest_path = os.path.join(settings.BANNER_PATH,
+                                         "%s.jpg" % self.game.slug)
                 size = BANNER_SIZE
                 file_format = "jpeg"
             else:
@@ -565,7 +566,8 @@ class GameDialogCommon(Dialog):
     def on_custom_image_reset_clicked(self, _widget, image_type):
         if image_type == "banner":
             self.game.has_custom_banner = False
-            dest_path = os.path.join(settings.BANNER_PATH, "%s.jpg" % self.game.slug)
+            dest_path = os.path.join(settings.BANNER_PATH,
+                                     "%s.jpg" % self.game.slug)
         elif image_type == "icon":
             self.game.has_custom_icon = False
             dest_path = resources.get_icon_path(self.game.slug)

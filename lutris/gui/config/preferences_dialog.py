@@ -14,6 +14,7 @@ from lutris.gui.config.sysinfo_box import SysInfoBox
 
 # pylint: disable=no-member
 class PreferencesDialog(GameDialogCommon):
+
     def __init__(self, parent=None):
         super().__init__(_("Lutris settings"), parent=parent)
         self.set_border_width(0)
@@ -24,47 +25,38 @@ class PreferencesDialog(GameDialogCommon):
         sidebar = Gtk.ListBox(visible=True)
         sidebar.connect("row-selected", self.on_sidebar_activated)
         sidebar.add(
-            self.get_sidebar_button("prefs-stack", _("Interface"), "view-grid-symbolic")
-        )
+            self.get_sidebar_button("prefs-stack", _("Interface"),
+                                    "view-grid-symbolic"))
         sidebar.add(
-            self.get_sidebar_button(
-                "runners-stack", _("Runners"), "applications-utilities-symbolic"
-            )
-        )
+            self.get_sidebar_button("runners-stack", _("Runners"),
+                                    "applications-utilities-symbolic"))
         sidebar.add(
-            self.get_sidebar_button(
-                "services-stack", _("Sources"), "application-x-addon-symbolic"
-            )
-        )
+            self.get_sidebar_button("services-stack", _("Sources"),
+                                    "application-x-addon-symbolic"))
         sidebar.add(
-            self.get_sidebar_button(
-                "sysinfo-stack", _("Hardware information"), "computer-symbolic"
-            )
-        )
+            self.get_sidebar_button("sysinfo-stack", _("Hardware information"),
+                                    "computer-symbolic"))
         sidebar.add(
-            self.get_sidebar_button(
-                "system-stack", _("Global options"), "emblem-system-symbolic"
-            )
-        )
+            self.get_sidebar_button("system-stack", _("Global options"),
+                                    "emblem-system-symbolic"))
         hbox.pack_start(sidebar, False, False, 0)
         self.stack = Gtk.Stack(visible=True)
         self.stack.set_vhomogeneous(False)
         self.stack.set_interpolate_size(True)
         hbox.add(self.stack)
         self.vbox.pack_start(hbox, True, True, 0)
-        self.stack.add_named(
-            self.build_scrolled_window(PreferencesBox()), "prefs-stack"
-        )
-        self.stack.add_named(self.build_scrolled_window(RunnersBox()), "runners-stack")
-        self.stack.add_named(
-            self.build_scrolled_window(ServicesBox()), "services-stack"
-        )
-        self.stack.add_named(self.build_scrolled_window(SysInfoBox()), "sysinfo-stack")
+        self.stack.add_named(self.build_scrolled_window(PreferencesBox()),
+                             "prefs-stack")
+        self.stack.add_named(self.build_scrolled_window(RunnersBox()),
+                             "runners-stack")
+        self.stack.add_named(self.build_scrolled_window(ServicesBox()),
+                             "services-stack")
+        self.stack.add_named(self.build_scrolled_window(SysInfoBox()),
+                             "sysinfo-stack")
         self.system_box = SystemBox(self.lutris_config)
         self.system_box.show_all()
-        self.stack.add_named(
-            self.build_scrolled_window(self.system_box), "system-stack"
-        )
+        self.stack.add_named(self.build_scrolled_window(self.system_box),
+                             "system-stack")
         self.build_action_area(self.on_save)
         self.action_area.set_margin_bottom(12)
         self.action_area.set_margin_right(12)

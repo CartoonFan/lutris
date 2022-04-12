@@ -167,37 +167,40 @@ class GameStore(GObject.Object):
     def add_game(self, db_game):
         """Add a PGA game to the store"""
         game = StoreItem(db_game, self.service_media)
-        self.store.append(
-            (
-                str(game.id),
-                game.slug,
-                game.name,
-                game.get_pixbuf() if settings.SHOW_MEDIA else None,
-                game.year,
-                game.runner,
-                game.runner_text,
-                gtk_safe(game.platform),
-                game.lastplayed,
-                game.lastplayed_text,
-                game.installed,
-                game.installed_at,
-                game.installed_at_text,
-                game.playtime,
-                game.playtime_text,
-            )
-        )
+        self.store.append((
+            str(game.id),
+            game.slug,
+            game.name,
+            game.get_pixbuf() if settings.SHOW_MEDIA else None,
+            game.year,
+            game.runner,
+            game.runner_text,
+            gtk_safe(game.platform),
+            game.lastplayed,
+            game.lastplayed_text,
+            game.installed,
+            game.installed_at,
+            game.installed_at_text,
+            game.playtime,
+            game.playtime_text,
+        ))
 
     def on_game_updated(self, game):
         if self.service:
             db_games = sql.filtered_query(
                 settings.PGA_DB,
                 "service_games",
-                filters=({"service": self.service_media.service, "appid": game.appid}),
+                filters=({
+                    "service": self.service_media.service,
+                    "appid": game.appid
+                }),
             )
         else:
-            db_games = sql.filtered_query(
-                settings.PGA_DB, "games", filters=({"id": game.id})
-            )
+            db_games = sql.filtered_query(settings.PGA_DB,
+                                          "games",
+                                          filters=({
+                                              "id": game.id
+                                          }))
 
         for db_game in db_games:
             GLib.idle_add(self.update, db_game)

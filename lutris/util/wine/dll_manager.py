@@ -53,8 +53,7 @@ class DLLManager:
         if not version:
             raise RuntimeError(
                 "No path can be generated for %s because no version information is available."
-                % self.component
-            )
+                % self.component)
         return os.path.join(self.base_dir, version)
 
     @property
@@ -96,9 +95,9 @@ class DLLManager:
         only check if one exists for the supported ones
         """
         return any(
-            system.path_exists(os.path.join(self.path, arch, dll_name + ".dll"))
-            for arch in self.archs.values()
-        )
+            system.path_exists(os.path.join(self.path, arch, dll_name +
+                                            ".dll"))
+            for arch in self.archs.values())
 
     def get_download_url(self):
         """Fetch the download URL from the JSON version file"""
@@ -113,19 +112,21 @@ class DLLManager:
         """Download component to the local cache; returns True if successful but False
         if the component could not be downloaded."""
         if self.is_available():
-            logger.warning("%s already available at %s", self.component, self.path)
+            logger.warning("%s already available at %s", self.component,
+                           self.path)
 
         url = self.get_download_url()
         if not url:
-            logger.warning(
-                "Could not find a release for %s %s", self.component, self.version
-            )
+            logger.warning("Could not find a release for %s %s",
+                           self.component, self.version)
             return False
         archive_path = os.path.join(self.base_dir, os.path.basename(url))
         logger.info("Downloading %s to %s", url, archive_path)
         download_file(url, archive_path, overwrite=True)
-        if not system.path_exists(archive_path) or not os.stat(archive_path).st_size:
-            logger.error("Failed to download %s %s", self.component, self.version)
+        if not system.path_exists(archive_path) or not os.stat(
+                archive_path).st_size:
+            logger.error("Failed to download %s %s", self.component,
+                         self.version)
             return False
         logger.info("Extracting %s to %s", archive_path, self.path)
         extract_archive(archive_path, self.path, merge_single=True)
@@ -138,9 +139,8 @@ class DLLManager:
         if system.path_exists(dll_path):
             wine_dll_path = os.path.join(system_dir, dll)
             if system.path_exists(wine_dll_path):
-                if not self.is_managed_dll(wine_dll_path) and not os.path.islink(
-                    wine_dll_path
-                ):
+                if not self.is_managed_dll(
+                        wine_dll_path) and not os.path.islink(wine_dll_path):
                     # Backing up original version (may not be needed)
                     shutil.move(wine_dll_path, wine_dll_path + ".orig")
                 else:
@@ -148,7 +148,8 @@ class DLLManager:
             try:
                 os.symlink(dll_path, wine_dll_path)
             except OSError:
-                logger.error("Failed linking %s to %s", dll_path, wine_dll_path)
+                logger.error("Failed linking %s to %s", dll_path,
+                             wine_dll_path)
         else:
             self.disable_dll(system_dir, arch, dll)
 
@@ -177,14 +178,16 @@ class DLLManager:
             try:
                 os.symlink(source_path, wine_file_path)
             except OSError:
-                logger.error("Failed linking %s to %s", source_path, wine_file_path)
+                logger.error("Failed linking %s to %s", source_path,
+                             wine_file_path)
         else:
             self.disable_user_file(appdata_dir, file_path)
 
     def disable_user_file(self, appdata_dir, file_path):
         wine_file_path = os.path.join(appdata_dir, file_path)
         # We only create a symlink; if it is a real file, it mus tbe user data.
-        if system.path_exists(wine_file_path) and os.path.islink(wine_file_path):
+        if system.path_exists(wine_file_path) and os.path.islink(
+                wine_file_path):
             os.remove(wine_file_path)
             if system.path_exists(wine_file_path + ".orig"):
                 shutil.move(wine_file_path + ".orig", wine_file_path)
@@ -197,7 +200,9 @@ class DLLManager:
                 self.archs[32]: os.path.join(windows_path, "syswow64"),
             }
         elif self.wine_arch == "win32":
-            system_dirs = {self.archs[32]: os.path.join(windows_path, "system32")}
+            system_dirs = {
+                self.archs[32]: os.path.join(windows_path, "system32")
+            }
 
         for arch, system_dir in system_dirs.items():
             for dll in self.managed_dlls:
@@ -245,7 +250,8 @@ class DLLManager:
         self.fetch_versions()
         if not self.is_available():
             if self.version:
-                logger.info("Downloading %s %s...", self.component, self.version)
+                logger.info("Downloading %s %s...", self.component,
+                            self.version)
                 self.download()
             else:
                 logger.warning(

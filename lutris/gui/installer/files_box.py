@@ -11,7 +11,7 @@ class InstallerFilesBox(Gtk.ListBox):
     max_downloads = 3
 
     __gsignals__ = {
-        "files-ready": (GObject.SIGNAL_RUN_LAST, None, (bool,)),
+        "files-ready": (GObject.SIGNAL_RUN_LAST, None, (bool, )),
         "files-available": (GObject.SIGNAL_RUN_LAST, None, ()),
     }
 
@@ -28,7 +28,8 @@ class InstallerFilesBox(Gtk.ListBox):
             installer_file_box = InstallerFileBox(installer_file)
             installer_file_box.connect("file-ready", self.on_file_ready)
             installer_file_box.connect("file-unready", self.on_file_unready)
-            installer_file_box.connect("file-available", self.on_file_available)
+            installer_file_box.connect("file-available",
+                                       self.on_file_available)
             self.installer_files_boxes[installer_file.id] = installer_file_box
             self.add(installer_file_box)
             if installer_file_box.is_ready:
@@ -57,11 +58,8 @@ class InstallerFilesBox(Gtk.ListBox):
         """
         self._file_queue.clear()
         for file_id, file_box in self.installer_files_boxes.items():
-            if (
-                file_box.started
-                and file_id not in self.available_files
-                and file_box.stop_func is not None
-            ):
+            if (file_box.started and file_id not in self.available_files
+                    and file_box.stop_func is not None):
                 file_box.stop_func()
 
     @property

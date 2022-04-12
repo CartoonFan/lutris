@@ -6,16 +6,13 @@ from http.cookiejar import MozillaCookieJar
 
 
 class WebkitCookieJar(MozillaCookieJar):
-
     """Subclass of MozillaCookieJar for compatibility with cookies
     coming from Webkit2.
     This disables the magic_re header which is not present and adds
     compatibility with HttpOnly cookies (See http://bugs.python.org/issue2190)
     """
 
-    def _really_load(
-        self, f, filename, ignore_discard, ignore_expires
-    ):  # pylint: disable=too-many-locals
+    def _really_load(self, f, filename, ignore_discard, ignore_expires):  # pylint: disable=too-many-locals
         now = time.time()
         try:
             while 1:
@@ -90,6 +87,5 @@ class WebkitCookieJar(MozillaCookieJar):
             raise
         except Exception as err:
             _warn_unhandled_exception()
-            raise OSError(
-                "invalid Netscape format cookies file %r: %r" % (filename, line)
-            ) from err
+            raise OSError("invalid Netscape format cookies file %r: %r" %
+                          (filename, line)) from err

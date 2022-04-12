@@ -24,7 +24,8 @@ class InstallerFile:
         _url = ""
         if isinstance(self._file_meta, dict):
             if "url" not in self._file_meta:
-                raise ScriptingError(_("missing field `url` for file `%s`") % self.id)
+                raise ScriptingError(
+                    _("missing field `url` for file `%s`") % self.id)
             _url = self._file_meta["url"]
         else:
             _url = self._file_meta
@@ -37,8 +38,7 @@ class InstallerFile:
         if isinstance(self._file_meta, dict):
             if "filename" not in self._file_meta:
                 raise ScriptingError(
-                    _("missing field `filename` in file `%s`") % self.id
-                )
+                    _("missing field `filename` in file `%s`") % self.id)
             return self._file_meta["filename"]
         if self._file_meta.startswith("N/A"):
             if self.uses_pga_cache() and os.path.isdir(self.cache_path):
@@ -177,13 +177,14 @@ class InstallerFile:
             hash_type, expected_hash = self.checksum.split(":", 1)
         except ValueError as err:
             raise ScriptingError(
-                _("Invalid checksum, expected format (type:hash) "), self.checksum
-            ) from err
+                _("Invalid checksum, expected format (type:hash) "),
+                self.checksum) from err
 
-        if system.get_file_checksum(self.dest_file, hash_type) != expected_hash:
+        if system.get_file_checksum(self.dest_file,
+                                    hash_type) != expected_hash:
             raise ScriptingError(
-                hash_type.capitalize() + _(" checksum mismatch "), self.checksum
-            )
+                hash_type.capitalize() + _(" checksum mismatch "),
+                self.checksum)
 
     @property
     def is_cached(self):

@@ -21,25 +21,29 @@ class dosbox(Runner):
     ]
     game_options = [
         {
-            "option": "main_file",
-            "type": "file",
-            "label": _("Main file"),
-            "help": _(
-                "The CONF, EXE, COM or BAT file to launch.\n"
-                "It can be left blank if the launch of the executable is "
-                "managed in the config file."
-            ),
+            "option":
+            "main_file",
+            "type":
+            "file",
+            "label":
+            _("Main file"),
+            "help":
+            _("The CONF, EXE, COM or BAT file to launch.\n"
+              "It can be left blank if the launch of the executable is "
+              "managed in the config file."),
         },
         {
-            "option": "config_file",
-            "type": "file",
-            "label": _("Configuration file"),
-            "help": _(
-                "Start DOSBox with the options specified in this file. \n"
-                "It can have a section in which you can put commands "
-                "to execute on startup. Read DOSBox's documentation "
-                "for more information."
-            ),
+            "option":
+            "config_file",
+            "type":
+            "file",
+            "label":
+            _("Configuration file"),
+            "help":
+            _("Start DOSBox with the options specified in this file. \n"
+              "It can have a section in which you can put commands "
+              "to execute on startup. Read DOSBox's documentation "
+              "for more information."),
         },
         {
             "option": "args",
@@ -49,14 +53,16 @@ class dosbox(Runner):
             "validator": shlex.split,
         },
         {
-            "option": "working_dir",
-            "type": "directory_chooser",
-            "label": _("Working directory"),
-            "help": _(
-                "The location where the game is run from.\n"
-                "By default, Lutris uses the directory of the "
-                "executable."
-            ),
+            "option":
+            "working_dir",
+            "type":
+            "directory_chooser",
+            "label":
+            _("Working directory"),
+            "help":
+            _("The location where the game is run from.\n"
+              "By default, Lutris uses the directory of the "
+              "executable."),
         },
     ]
 
@@ -82,15 +88,19 @@ class dosbox(Runner):
     ]
     runner_options = [
         {
-            "option": "scaler",
-            "label": _("Graphic scaler"),
-            "type": "choice",
-            "choices": scaler_modes,
-            "default": "normal3x",
-            "help": _(
-                "The algorithm used to scale up the game's base "
-                "resolution, resulting in different visual styles. "
-            ),
+            "option":
+            "scaler",
+            "label":
+            _("Graphic scaler"),
+            "type":
+            "choice",
+            "choices":
+            scaler_modes,
+            "default":
+            "normal3x",
+            "help":
+            _("The algorithm used to scale up the game's base "
+              "resolution, resulting in different visual styles. "),
         },
         {
             "option": "exit",

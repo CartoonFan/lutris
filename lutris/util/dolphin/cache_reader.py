@@ -3,7 +3,8 @@ import os
 
 from lutris.util.log import logger
 
-DOLPHIN_GAME_CACHE_FILE = os.path.expanduser("~/.cache/dolphin-emu/gamelist.cache")
+DOLPHIN_GAME_CACHE_FILE = os.path.expanduser(
+    "~/.cache/dolphin-emu/gamelist.cache")
 SUPPORTED_CACHE_VERSION = 20
 
 
@@ -101,12 +102,14 @@ class DolphinCacheReader:
         return games
 
     def get_boolean(self):
-        res = bool(get_word_len(self.cache_content[self.offset : self.offset + 1]))
+        res = bool(
+            get_word_len(self.cache_content[self.offset:self.offset + 1]))
         self.offset += 1
         return res
 
     def get_array(self):
-        array_len = get_word_len(self.cache_content[self.offset : self.offset + 4])
+        array_len = get_word_len(self.cache_content[self.offset:self.offset +
+                                                    4])
         self.offset += 4
         array = {}
         for _i in range(array_len):
@@ -115,31 +118,34 @@ class DolphinCacheReader:
         return array
 
     def get_image(self):
-        data_len = get_word_len(self.cache_content[self.offset : self.offset + 4])
+        data_len = get_word_len(self.cache_content[self.offset:self.offset +
+                                                   4])
         self.offset += 4
-        res = self.cache_content[
-            self.offset : self.offset + data_len * 4
-        ]  # vector<u32>
+        res = self.cache_content[self.offset:self.offset +
+                                 data_len * 4]  # vector<u32>
         self.offset += data_len * 4
-        width = get_word_len(self.cache_content[self.offset : self.offset + 4])
+        width = get_word_len(self.cache_content[self.offset:self.offset + 4])
         self.offset += 4
-        height = get_word_len(self.cache_content[self.offset : self.offset + 4])
+        height = get_word_len(self.cache_content[self.offset:self.offset + 4])
         self.offset += 4
         return (width, height), res
 
     def get_cover(self):
-        array_len = get_word_len(self.cache_content[self.offset : self.offset + 4])
+        array_len = get_word_len(self.cache_content[self.offset:self.offset +
+                                                    4])
         self.offset += 4
         return self.get_raw(array_len)
 
     def get_raw(self, word_len):
-        res = get_hex_string(self.cache_content[self.offset : self.offset + word_len])
+        res = get_hex_string(self.cache_content[self.offset:self.offset +
+                                                word_len])
         self.offset += word_len
         return res
 
     def get_string(self):
-        word_len = get_word_len(self.cache_content[self.offset : self.offset + 4])
+        word_len = get_word_len(self.cache_content[self.offset:self.offset +
+                                                   4])
         self.offset += 4
-        string = self.cache_content[self.offset : self.offset + word_len]
+        string = self.cache_content[self.offset:self.offset + word_len]
         self.offset += word_len
         return string.decode("utf8")

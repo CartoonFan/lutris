@@ -68,7 +68,8 @@ def execute(
     existing_env = os.environ.copy()
     if env:
         if not quiet:
-            logger.debug(" ".join("{}={}".format(k, v) for k, v in env.items()))
+            logger.debug(" ".join("{}={}".format(k, v)
+                                  for k, v in env.items()))
         env = {k: v for k, v in env.items() if v is not None}
         existing_env.update(env)
 
@@ -76,17 +77,18 @@ def execute(
     # (especially when using regedit with wine)
     try:
         with subprocess.Popen(
-            command,
-            shell=shell,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE if log_errors else subprocess.DEVNULL,
-            env=existing_env,
-            cwd=cwd,
-            errors="replace",
+                command,
+                shell=shell,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE if log_errors else subprocess.DEVNULL,
+                env=existing_env,
+                cwd=cwd,
+                errors="replace",
         ) as command_process:
             stdout, stderr = command_process.communicate(timeout=timeout)
     except (OSError, TypeError) as ex:
-        logger.error("Could not run command %s (env: %s): %s", command, env, ex)
+        logger.error("Could not run command %s (env: %s): %s", command, env,
+                     ex)
         return ""
     except subprocess.TimeoutExpired:
         logger.error("Command %s after %s seconds", command, timeout)
@@ -99,10 +101,12 @@ def execute(
 def read_process_output(command, timeout=5):
     """Return the output of a command as a string"""
     try:
-        return subprocess.check_output(
-            command, timeout=timeout, encoding="utf-8", errors="ignore"
-        ).strip()
-    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as ex:
+        return subprocess.check_output(command,
+                                       timeout=timeout,
+                                       encoding="utf-8",
+                                       errors="ignore").strip()
+    except (OSError, subprocess.CalledProcessError,
+            subprocess.TimeoutExpired) as ex:
         logger.error("%s command failed: %s", command, ex)
         return ""
 
@@ -179,7 +183,8 @@ def kill_pid(pid):
 def python_identifier(unsafe_string):
     """Converts a string to something that can be used as a python variable"""
     if not isinstance(unsafe_string, str):
-        logger.error("Cannot convert %s to a python identifier", type(unsafe_string))
+        logger.error("Cannot convert %s to a python identifier",
+                     type(unsafe_string))
         return
 
     def _dashrepl(matchobj):
@@ -207,8 +212,8 @@ def substitute(string_template, variables):
     variables = dict((k.replace("-", "_"), v) for k, v in variables.items())
     for identifier in identifiers:
         string_template = string_template.replace(
-            "${}".format(identifier), "${}".format(identifier.replace("-", "_"))
-        )
+            "${}".format(identifier),
+            "${}".format(identifier.replace("-", "_")))
 
     template = string.Template(string_template)
     if string_template in list(variables.keys()):
@@ -230,9 +235,10 @@ def merge_folders(source, destination):
             dirs_exist_ok=True,
         )
     else:
-        shutil.copytree(
-            source, destination, symlinks=False, ignore_dangling_symlinks=True
-        )
+        shutil.copytree(source,
+                        destination,
+                        symlinks=False,
+                        ignore_dangling_symlinks=True)
 
 
 def remove_folder(path):
@@ -342,7 +348,7 @@ def reverse_expanduser(path):
         return path
     user_path = os.path.expanduser("~")
     if path.startswith(user_path):
-        path = path[len(user_path) :].strip("/")
+        path = path[len(user_path):].strip("/")
         return "~/" + path
     return path
 
@@ -415,13 +421,10 @@ def get_disk_size(path):
     """Return the disk size in bytes of a folder"""
     total_size = 0
     for base, _dirs, files in os.walk(path):
-        total_size += sum(
-            [
-                os.stat(os.path.join(base, f)).st_size
-                for f in files
-                if os.path.isfile(os.path.join(base, f))
-            ]
-        )
+        total_size += sum([
+            os.stat(os.path.join(base, f)).st_size for f in files
+            if os.path.isfile(os.path.join(base, f))
+        ])
     return total_size
 
 

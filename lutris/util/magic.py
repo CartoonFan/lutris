@@ -31,6 +31,7 @@ _real_open = open
 
 
 class MagicException(Exception):
+
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -87,8 +88,7 @@ class Magic:
         # it doesn't appear to be available
         if extension and (not _has_version or version() < 524):
             raise NotImplementedError(
-                "MAGIC_EXTENSION is not supported in this version of libmagic"
-            )
+                "MAGIC_EXTENSION is not supported in this version of libmagic")
 
         # For https://github.com/ahupp/python-magic/issues/190
         # libmagic has fixed internal limits that some files exceed, causing
@@ -219,13 +219,10 @@ def from_descriptor(fd, mime=False):
 
 libmagic = None
 # Let's try to find magic or magic1
-dll = (
-    ctypes.util.find_library("magic")
-    or ctypes.util.find_library("magic1")
-    or ctypes.util.find_library("cygmagic-1")
-    or ctypes.util.find_library("libmagic-1")
-    or ctypes.util.find_library("msys-magic-1")
-)  # for MSYS2
+dll = (ctypes.util.find_library("magic") or ctypes.util.find_library("magic1")
+       or ctypes.util.find_library("cygmagic-1")
+       or ctypes.util.find_library("libmagic-1")
+       or ctypes.util.find_library("msys-magic-1"))  # for MSYS2
 
 # necessary because find_library returns None if it doesn't find the library
 if dll:
@@ -239,11 +236,15 @@ if not libmagic or not libmagic._name:
         "msys-magic-1.dll",
     ]
     platform_to_lib = {
-        "darwin": ["/opt/local/lib/libmagic.dylib", "/usr/local/lib/libmagic.dylib"]
+        "darwin":
+        ["/opt/local/lib/libmagic.dylib", "/usr/local/lib/libmagic.dylib"]
         # Assumes there will only be one version installed
-        + glob.glob("/usr/local/Cellar/libmagic/*/lib/libmagic.dylib"),  # flake8:noqa
-        "win32": windows_dlls,
-        "cygwin": windows_dlls,
+        + glob.glob(
+            "/usr/local/Cellar/libmagic/*/lib/libmagic.dylib"),  # flake8:noqa
+        "win32":
+        windows_dlls,
+        "cygwin":
+        windows_dlls,
         "linux": ["libmagic.so.1"],
         # fallback for some Linuxes (e.g. Alpine) where library search does not work # flake8:noqa
     }

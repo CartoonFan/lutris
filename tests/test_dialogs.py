@@ -15,23 +15,23 @@ from lutris.util.test_config import setup_test_environment
 
 gi.require_version("Gtk", "3.0")
 
-
 # from lutris import settings
 
 setup_test_environment()
 
 
 class TestGameDialogCommon(TestCase):
+
     def test_get_runner_liststore(self):
         dlg = GameDialogCommon("test")
         list_store = dlg._get_runner_liststore()
-        self.assertTrue(
-            list_store[1][0].startswith(runners.get_installed()[0].human_name)
-        )
+        self.assertTrue(list_store[1][0].startswith(
+            runners.get_installed()[0].human_name))
         self.assertEqual(list_store[1][1], runners.get_installed()[0].name)
 
 
 class TestGameDialog(TestCase):
+
     def setUp(self):
         lutris_application = Application()
         lutris_window = lutris_application.window
@@ -108,7 +108,9 @@ class TestGameDialog(TestCase):
 
 
 class TestSort(TestCase):
+
     class FakeModel(object):
+
         def __init__(self, rows):
             self.rows = rows
 
@@ -116,6 +118,7 @@ class TestSort(TestCase):
             return self.rows[row_index].cols.get(col_name)
 
     class FakeRow(object):
+
         def __init__(self, coldict):
             self.cols = coldict
 

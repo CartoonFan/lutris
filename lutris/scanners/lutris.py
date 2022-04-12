@@ -94,11 +94,11 @@ def scan_directory(dirname):
             slugs_installed.add(api_game["slug"])
 
     installed_map = {
-        slug: folder for slug, folder in slugs_map.items() if slug in slugs_installed
+        slug: folder
+        for slug, folder in slugs_map.items() if slug in slugs_installed
     }
     missing_map = {
         slug: folder
-        for slug, folder in slugs_map.items()
-        if slug not in slugs_installed
+        for slug, folder in slugs_map.items() if slug not in slugs_installed
     }
     return installed_map, missing_map

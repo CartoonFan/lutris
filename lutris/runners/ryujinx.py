@@ -18,14 +18,12 @@ class ryujinx(Runner):
     runner_executable = "ryujinx/publish/Ryujinx"
     download_url = "https://lutris.nyc3.digitaloceanspaces.com/runners/ryujinx/ryujinx-1.0.7074-linux_x64.tar.gz"
 
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "file",
-            "label": _("NSP file"),
-            "help": _("The game data, commonly called a ROM image."),
-        }
-    ]
+    game_options = [{
+        "option": "main_file",
+        "type": "file",
+        "label": _("NSP file"),
+        "help": _("The game data, commonly called a ROM image."),
+    }]
     runner_options = [
         {
             "option": "prod_keys",
@@ -44,13 +42,12 @@ class ryujinx(Runner):
     @property
     def ryujinx_data_dir(self):
         """Return dir where Ryujinx files lie."""
-        candidates = ("~/.local/share/ryujinx",)
+        candidates = ("~/.local/share/ryujinx", )
         for candidate in candidates:
             path = system.fix_path_case(
-                os.path.join(os.path.expanduser(candidate), "nand")
-            )
+                os.path.join(os.path.expanduser(candidate), "nand"))
             if path and system.path_exists(path):
-                return path[: -len("nand")]
+                return path[:-len("nand")]
 
     def play(self):
         """Run the game."""

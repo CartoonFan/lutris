@@ -8,8 +8,7 @@ from lutris.util.log import logger
 from lutris.util.system import read_process_output
 
 Output = namedtuple(
-    "Output", ("name", "mode", "position", "rotation", "primary", "rate")
-)
+    "Output", ("name", "mode", "position", "rotation", "primary", "rate"))
 
 
 def _get_vidmodes():
@@ -50,7 +49,8 @@ def get_outputs():  # pylint: disable=too-many-locals
                 continue
             if geometry.startswith("("):  # Screen turned off, no geometry
                 continue
-            if rotate.startswith("("):  # Screen not rotated, no need to include
+            if rotate.startswith(
+                    "("):  # Screen not rotated, no need to include
                 rotate = "normal"
             _, x_pos, y_pos = geometry.split("+")
             position = "{x_pos}x{y_pos}".format(x_pos=x_pos, y_pos=y_pos)
@@ -67,8 +67,7 @@ def get_outputs():  # pylint: disable=too-many-locals
                             rotation=rotate,
                             primary=primary,
                             rate=hertz,
-                        )
-                    )
+                        ))
                     break
     return outputs
 
@@ -82,8 +81,8 @@ def turn_off_except(display):
         if output.name != display:
             logger.info("Turning off %s", output[0])
             with subprocess.Popen(
-                [LINUX_SYSTEM.get("xrandr"), "--output", output.name, "--off"]
-            ) as xrandr:
+                [LINUX_SYSTEM.get("xrandr"), "--output", output.name,
+                 "--off"]) as xrandr:
                 xrandr.communicate()
 
 
@@ -100,9 +99,9 @@ def get_resolutions():
 
 def get_unique_resolutions():
     """Return available resolutions, without duplicates and ordered with highest resolution first"""
-    return sorted(
-        set(get_resolutions()), key=lambda x: int(x.split("x")[0]), reverse=True
-    )
+    return sorted(set(get_resolutions()),
+                  key=lambda x: int(x.split("x")[0]),
+                  reverse=True)
 
 
 def change_resolution(resolution):
@@ -122,8 +121,7 @@ def change_resolution(resolution):
         else:
             logger.info("Changing resolution to %s", resolution)
             with subprocess.Popen(
-                [LINUX_SYSTEM.get("xrandr"), "-s", resolution]
-            ) as xrandr:
+                [LINUX_SYSTEM.get("xrandr"), "-s", resolution]) as xrandr:
                 xrandr.communicate()
 
     else:
@@ -131,17 +129,17 @@ def change_resolution(resolution):
             logger.debug("Switching to %s on %s", display.mode, display.name)
 
             if display.rotation is not None and display.rotation in (
-                "normal",
-                "left",
-                "right",
-                "inverted",
+                    "normal",
+                    "left",
+                    "right",
+                    "inverted",
             ):
                 rotation = display.rotation
             else:
                 rotation = "normal"
-            logger.info("Switching resolution of %s to %s", display.name, display.mode)
-            with subprocess.Popen(
-                [
+            logger.info("Switching resolution of %s to %s", display.name,
+                        display.mode)
+            with subprocess.Popen([
                     LINUX_SYSTEM.get("xrandr"),
                     "--output",
                     display.name,
@@ -153,13 +151,11 @@ def change_resolution(resolution):
                     rotation,
                     "--rate",
                     display.rate,
-                ]
-            ) as xrandr:
+            ]) as xrandr:
                 xrandr.communicate()
 
 
 class LegacyDisplayManager:  # pylint: disable=too-few-public-methods
-
     """Legacy XrandR based display manager.
     Does not work on Wayland.
     """

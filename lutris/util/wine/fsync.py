@@ -55,7 +55,7 @@ import functools
 import os
 import subprocess
 
-__all__ = ("is_fsync_supported",)
+__all__ = ("is_fsync_supported", )
 
 
 # pylint: disable=invalid-name,too-few-public-methods
@@ -80,20 +80,18 @@ def _get_syscall_nr_from_headers(syscall_name):
     try:
         with subprocess.Popen(
             ("cpp", "-m" + str(bits), "-E", "-P", "-x", "c", "-"),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            close_fds=True,
-            universal_newlines=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                close_fds=True,
+                universal_newlines=True,
         ) as popen:
-            stdout, stderr = popen.communicate(
-                "#include <sys/syscall.h>\n" "__NR_" + syscall_name + "\n"
-            )
+            stdout, stderr = popen.communicate("#include <sys/syscall.h>\n"
+                                               "__NR_" + syscall_name + "\n")
     except FileNotFoundError as ex:
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "cpp not installed or not in PATH"
-        ) from ex
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "cpp not installed or not in PATH") from ex
 
     if popen.returncode:
         raise RuntimeError(
@@ -103,26 +101,24 @@ def _get_syscall_nr_from_headers(syscall_name):
         )
 
     if not stdout:
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "no output from cpp"
-        )
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "no output from cpp")
 
     last_line = stdout.splitlines()[-1]
 
     if last_line == "__NR_futex":
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "__NR_" + syscall_name + " not expanded"
-        )
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "__NR_" + syscall_name + " not expanded")
 
     try:
         return int(last_line)
     except ValueError as ex:
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "__NR_" + syscall_name + " not a valid number: " + last_line
-        ) from ex
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "__NR_" + syscall_name + " not a valid number: " +
+                           last_line) from ex
 
     assert False
 
@@ -161,11 +157,8 @@ def _get_futex_syscall_nr():
 
 
 def _is_ctypes_obj(obj):
-    return (
-        hasattr(obj, "_b_base_")
-        and hasattr(obj, "_b_needsfree_")
-        and hasattr(obj, "_objects")
-    )
+    return (hasattr(obj, "_b_base_") and hasattr(obj, "_b_needsfree_")
+            and hasattr(obj, "_objects"))
 
 
 def _is_ctypes_obj_pointer(obj):

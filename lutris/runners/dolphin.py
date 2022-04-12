@@ -26,7 +26,8 @@ class dolphin(Runner):
             "option": "platform",
             "type": "choice",
             "label": _("Platform"),
-            "choices": ((_("Nintendo GameCube"), "0"), (_("Nintendo Wii"), "1")),
+            "choices":
+            ((_("Nintendo GameCube"), "0"), (_("Nintendo Wii"), "1")),
         },
     ]
     runner_options = [
@@ -67,7 +68,8 @@ class dolphin(Runner):
         command = [executable]
 
         # Batch isn't available in nogui
-        if self.runner_config.get("batch") and not self.runner_config.get("nogui"):
+        if self.runner_config.get(
+                "batch") and not self.runner_config.get("nogui"):
             command.append("--batch")
 
         # Custom Global User Directory

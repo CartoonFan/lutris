@@ -19,8 +19,7 @@ class WebConnectDialog(Dialog):
         if "http_proxy" in os.environ:
             proxy = WebKit2.NetworkProxySettings.new(os.environ["http_proxy"])
             self.context.set_network_proxy_settings(
-                WebKit2.NetworkProxyMode.CUSTOM, proxy
-            )
+                WebKit2.NetworkProxyMode.CUSTOM, proxy)
         WebKit2.CookieManager.set_persistent_storage(
             self.context.get_cookie_manager(),
             service.cookies_path,
@@ -64,7 +63,8 @@ class WebConnectDialog(Dialog):
             if url.startswith(self.service.redirect_uri):
                 if self.service.requires_login_page:
                     resource = widget.get_main_resource()
-                    resource.get_data(None, self._get_response_data_finish, None)
+                    resource.get_data(None, self._get_response_data_finish,
+                                      None)
                 else:
                     self.service.login_callback(url)
                     self.destroy()

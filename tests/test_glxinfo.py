@@ -21,7 +21,6 @@ class BaseGlxInfo(TestCase):
 
 class TestAMDGlxInfo(BaseGlxInfo):
     fixture = "glxinfo-amd.txt"
-
     """GlxInfo tests"""
 
     def test_can_get_name_of_display(self):
@@ -32,7 +31,8 @@ class TestAMDGlxInfo(BaseGlxInfo):
             "4.5 (Compatibility Profile) Mesa 19.0.0-devel - padoka PPA",
         )
         self.assertEqual(self.glxinfo.opengl_vendor, "X.Org")
-        self.assertEqual(self.glxinfo.GLX_MESA_query_renderer.version, "19.0.0")
+        self.assertEqual(self.glxinfo.GLX_MESA_query_renderer.version,
+                         "19.0.0")
 
 
 class TestNvidiaGlxInfo(BaseGlxInfo):

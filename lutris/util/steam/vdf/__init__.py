@@ -54,9 +54,8 @@ def _escape(text):
 
 
 def _unescape(text):
-    return re.sub(
-        r"(\\n|\\t|\\v|\\b|\\r|\\f|\\a|\\\\|\\\?|\\\"|\\')", _re_unescape_match, text
-    )
+    return re.sub(r"(\\n|\\t|\\v|\\b|\\r|\\f|\\a|\\\\|\\\?|\\\"|\\')",
+                  _re_unescape_match, text)
 
 
 # parsing and dumping for KV1
@@ -76,11 +75,11 @@ def parse(fp, mapper=dict, merge_duplicate_keys=True, escaped=True):
     using ``VDFDict`` and need to preserve the duplicates.
     """
     if not issubclass(mapper, dict):
-        raise TypeError("Expected mapper to be subclass of dict, got %s" % type(mapper))
+        raise TypeError("Expected mapper to be subclass of dict, got %s" %
+                        type(mapper))
     if not hasattr(fp, "readline"):
         raise TypeError(
-            "Expected fp to be a file-like object supporting line iteration"
-        )
+            "Expected fp to be a file-like object supporting line iteration")
 
     lineno = 0
     stack = [mapper()]
@@ -113,7 +112,8 @@ def parse(fp, mapper=dict, merge_duplicate_keys=True, escaped=True):
         if expect_bracket:
             raise SyntaxError(
                 "vdf.parse: expected openning bracket",
-                (getattr(fp, "name", "<%s>" % fp.__class__.__name__), lineno, 1, line),
+                (getattr(fp, "name",
+                         "<%s>" % fp.__class__.__name__), lineno, 1, line),
             )
 
         # one level back
@@ -124,7 +124,8 @@ def parse(fp, mapper=dict, merge_duplicate_keys=True, escaped=True):
 
             raise SyntaxError(
                 "vdf.parse: one too many closing parenthasis",
-                (getattr(fp, "name", "<%s>" % fp.__class__.__name__), lineno, 0, line),
+                (getattr(fp, "name",
+                         "<%s>" % fp.__class__.__name__), lineno, 0, line),
             )
 
         # parse keyvalue pairs
@@ -139,23 +140,18 @@ def parse(fp, mapper=dict, merge_duplicate_keys=True, escaped=True):
                     raise SyntaxError(
                         "vdf.parse: unexpected EOF (open key quote?)",
                         (
-                            getattr(fp, "name", "<%s>" % fp.__class__.__name__),
+                            getattr(fp, "name",
+                                    "<%s>" % fp.__class__.__name__),
                             lineno,
                             0,
                             line,
                         ),
                     )
 
-            key = (
-                match.group("key")
-                if match.group("qkey") is None
-                else match.group("qkey")
-            )
-            val = (
-                match.group("val")
-                if match.group("qval") is None
-                else match.group("qval")
-            )
+            key = (match.group("key")
+                   if match.group("qkey") is None else match.group("qkey"))
+            val = (match.group("val")
+                   if match.group("qval") is None else match.group("qval"))
 
             if escaped:
                 key = _unescape(key)
@@ -175,7 +171,8 @@ def parse(fp, mapper=dict, merge_duplicate_keys=True, escaped=True):
             else:
                 # if the value is line consume one more line and try to match again,
                 # until we get the KeyValue pair
-                if match.group("vq_end") is None and match.group("qval") is not None:
+                if match.group("vq_end") is None and match.group(
+                        "qval") is not None:
                     try:
                         line += next(fp)
                         continue
@@ -183,7 +180,8 @@ def parse(fp, mapper=dict, merge_duplicate_keys=True, escaped=True):
                         raise SyntaxError(
                             "vdf.parse: unexpected EOF (open quote for value?)",
                             (
-                                getattr(fp, "name", "<%s>" % fp.__class__.__name__),
+                                getattr(fp, "name",
+                                        "<%s>" % fp.__class__.__name__),
                                 lineno,
                                 0,
                                 line,
@@ -198,7 +196,8 @@ def parse(fp, mapper=dict, merge_duplicate_keys=True, escaped=True):
     if len(stack) != 1:
         raise SyntaxError(
             "vdf.parse: unclosed parenthasis or quotes (EOF)",
-            (getattr(fp, "name", "<%s>" % fp.__class__.__name__), lineno, 0, line),
+            (getattr(fp, "name",
+                     "<%s>" % fp.__class__.__name__), lineno, 0, line),
         )
 
     return stack.pop()
@@ -280,6 +279,7 @@ def _dump_gen(data, pretty=False, escaped=True, level=0):
 
 # binary VDF
 class BASE_INT(int_type):
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self)
 
@@ -329,7 +329,8 @@ def binary_loads(s, mapper=dict, merge_duplicate_keys=True, alt_format=False):
     if not isinstance(s, bytes):
         raise TypeError("Expected s to be bytes, got %s" % type(s))
     if not issubclass(mapper, dict):
-        raise TypeError("Expected mapper to be subclass of dict, got %s" % type(mapper))
+        raise TypeError("Expected mapper to be subclass of dict, got %s" %
+                        type(mapper))
 
     # helpers
     int32 = struct.Struct("<i")
@@ -364,7 +365,7 @@ def binary_loads(s, mapper=dict, merge_duplicate_keys=True, alt_format=False):
     CURRENT_BIN_END = BIN_END if not alt_format else BIN_END_ALT
 
     while len(s) > idx:
-        t = s[idx : idx + 1]
+        t = s[idx:idx + 1]
         idx += 1
 
         if t == CURRENT_BIN_END:
@@ -406,12 +407,12 @@ def binary_loads(s, mapper=dict, merge_duplicate_keys=True, alt_format=False):
             stack[-1][key] = float32.unpack_from(s, idx)[0]
             idx += float32.size
         else:
-            raise SyntaxError("Unknown data type at offset %d: %s" % (idx - 1, repr(t)))
+            raise SyntaxError("Unknown data type at offset %d: %s" %
+                              (idx - 1, repr(t)))
 
     if len(s) != idx or len(stack) != 1:
-        raise SyntaxError(
-            "Binary VDF ended at offset %d, but length is %d" % (idx, len(s))
-        )
+        raise SyntaxError("Binary VDF ended at offset %d, but length is %d" %
+                          (idx, len(s)))
 
     return stack.pop()
 
@@ -436,11 +437,14 @@ def _binary_dump_gen(obj, level=0, alt_format=False):
         if isinstance(key, string_type):
             key = key.encode("utf-8")
         else:
-            raise TypeError("dict keys must be of type str, got %s" % type(key))
+            raise TypeError("dict keys must be of type str, got %s" %
+                            type(key))
 
         if isinstance(value, dict):
             yield BIN_NONE + key + BIN_NONE
-            for chunk in _binary_dump_gen(value, level + 1, alt_format=alt_format):
+            for chunk in _binary_dump_gen(value,
+                                          level + 1,
+                                          alt_format=alt_format):
                 yield chunk
         elif isinstance(value, UINT_64):
             yield BIN_UINT64 + key + BIN_NONE + uint64.pack(value)
@@ -486,7 +490,7 @@ def vbkv_loads(s, mapper=dict, merge_duplicate_keys=True):
     if s[:4] != b"VBKV":
         raise ValueError("Invalid header")
 
-    (checksum,) = struct.unpack("<i", s[4:8])
+    (checksum, ) = struct.unpack("<i", s[4:8])
 
     if checksum != crc32(s[8:]):
         raise ValueError("Invalid checksum")

@@ -15,6 +15,7 @@ from lutris.util.log import logger
 
 
 class Dialog(Gtk.Dialog):
+
     def __init__(self, title=None, parent=None, flags=0, buttons=None):
         super().__init__(title, parent, flags, buttons)
         self.set_border_width(10)
@@ -78,7 +79,6 @@ class AboutDialog(GtkBuilderDialog):
 
 
 class NoticeDialog(Gtk.MessageDialog):
-
     """Display a message to the user."""
 
     def __init__(self, message, parent=None):
@@ -103,16 +103,14 @@ class ErrorDialog(Gtk.MessageDialog):
 
 
 class QuestionDialog(Gtk.MessageDialog):
-
     """Ask the user a question."""
 
     YES = Gtk.ResponseType.YES
     NO = Gtk.ResponseType.NO
 
     def __init__(self, dialog_settings):
-        super().__init__(
-            message_type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.YES_NO
-        )
+        super().__init__(message_type=Gtk.MessageType.QUESTION,
+                         buttons=Gtk.ButtonsType.YES_NO)
         self.set_markup(dialog_settings["question"])
         self.set_title(dialog_settings["title"])
         if "parent" in dialog_settings:
@@ -125,7 +123,6 @@ class QuestionDialog(Gtk.MessageDialog):
 
 
 class DirectoryDialog:
-
     """Ask the user to select a directory."""
 
     def __init__(self, message, default_path=None, parent=None):
@@ -146,7 +143,6 @@ class DirectoryDialog:
 
 
 class FileDialog:
-
     """Ask the user to select a file."""
 
     def __init__(self, message=None, default_path=None, mode="open"):
@@ -175,6 +171,7 @@ class FileDialog:
 
 
 class LutrisInitDialog(Gtk.Dialog):
+
     def __init__(self, init_lutris):
         super().__init__()
         self.set_size_request(320, 60)
@@ -210,6 +207,7 @@ class LutrisInitDialog(Gtk.Dialog):
 
 
 class InstallOrPlayDialog(Gtk.Dialog):
+
     def __init__(self, game_name):
         Gtk.Dialog.__init__(self, _("%s is already installed") % game_name)
         self.connect("delete-event", lambda *x: self.destroy())
@@ -220,7 +218,8 @@ class InstallOrPlayDialog(Gtk.Dialog):
         self.set_border_width(12)
         vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 6)
         self.get_content_area().add(vbox)
-        play_button = Gtk.RadioButton.new_with_label_from_widget(None, _("Launch game"))
+        play_button = Gtk.RadioButton.new_with_label_from_widget(
+            None, _("Launch game"))
         play_button.connect("toggled", self.on_button_toggled, "play")
         vbox.pack_start(play_button, False, False, 0)
         install_button = Gtk.RadioButton.new_from_widget(play_button)
@@ -246,6 +245,7 @@ class InstallOrPlayDialog(Gtk.Dialog):
 
 
 class LaunchConfigSelectDialog(Gtk.Dialog):
+
     def __init__(self, game, configs):
         Gtk.Dialog.__init__(self, _("Select game to launch"))
         self.connect("delete-event", lambda *x: self.destroy())
@@ -256,7 +256,8 @@ class LaunchConfigSelectDialog(Gtk.Dialog):
         vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 6)
         self.get_content_area().add(vbox)
 
-        primary_game_radio = Gtk.RadioButton.new_with_label_from_widget(None, game.name)
+        primary_game_radio = Gtk.RadioButton.new_with_label_from_widget(
+            None, game.name)
         primary_game_radio.connect("toggled", self.on_button_toggled, 0)
         vbox.pack_start(primary_game_radio, False, False, 0)
         for i, config in enumerate(configs):
@@ -295,8 +296,10 @@ class ClientLoginDialog(GtkBuilderDialog):
     glade_file = "dialog-lutris-login.ui"
     dialog_object = "lutris-login"
     __gsignals__ = {
-        "connected": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
-        "cancel": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
+        "connected":
+        (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
+        "cancel":
+        (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
     }
 
     def __init__(self, parent):
@@ -339,13 +342,12 @@ class ClientLoginDialog(GtkBuilderDialog):
 
 
 class InstallerSourceDialog(Gtk.Dialog):
-
     """Show install script source"""
 
     def __init__(self, code, name, parent):
-        Gtk.Dialog.__init__(
-            self, _("Install script for {}").format(name), parent=parent
-        )
+        Gtk.Dialog.__init__(self,
+                            _("Install script for {}").format(name),
+                            parent=parent)
         self.set_size_request(500, 350)
         self.set_border_width(0)
 
@@ -372,7 +374,6 @@ class InstallerSourceDialog(Gtk.Dialog):
 
 
 class DontShowAgainDialog(Gtk.MessageDialog):
-
     """Display a message to the user and offer an option not to display this dialog again."""
 
     def __init__(
@@ -388,9 +389,9 @@ class DontShowAgainDialog(Gtk.MessageDialog):
             logger.info("Dialog %s dismissed by user", setting)
             return
 
-        super().__init__(
-            type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK, parent=parent
-        )
+        super().__init__(type=Gtk.MessageType.WARNING,
+                         buttons=Gtk.ButtonsType.OK,
+                         parent=parent)
 
         self.set_border_width(12)
         self.set_markup("<b>%s</b>" % message)
@@ -414,20 +415,18 @@ class DontShowAgainDialog(Gtk.MessageDialog):
 
 
 class WineNotInstalledWarning(DontShowAgainDialog):
-
     """Display a warning if Wine is not detected on the system"""
 
     def __init__(self, parent=None):
         super().__init__(
             "hide-wine-systemwide-install-warning",
             _("Wine is not installed on your system."),
-            secondary_message=_(
-                "Having Wine installed on your system guarantees that "
-                "Wine builds from Lutris will have all required dependencies.\n\nPlease "
-                "follow the instructions given in the <a "
-                "href='https://github.com/lutris/lutris/wiki/Wine-Dependencies'>Lutris Wiki</a> to "
-                "install Wine."
-            ),
+            secondary_message=
+            _("Having Wine installed on your system guarantees that "
+              "Wine builds from Lutris will have all required dependencies.\n\nPlease "
+              "follow the instructions given in the <a "
+              "href='https://github.com/lutris/lutris/wiki/Wine-Dependencies'>Lutris Wiki</a> to "
+              "install Wine."),
             parent=parent,
         )
 

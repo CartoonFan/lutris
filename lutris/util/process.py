@@ -11,12 +11,10 @@ IGNORED_PROCESSES = (
 
 
 class InvalidPid(Exception):
-
     """Exception raised when an operation on a non-existent PID is called"""
 
 
 class Process:
-
     """Python abstraction a Linux process"""
 
     def __init__(self, pid):
@@ -49,7 +47,7 @@ class Process:
         except (ProcessLookupError, FileNotFoundError):
             return None
         if parsed:
-            return _stat[_stat.rfind(")") + 1 :].split()
+            return _stat[_stat.rfind(")") + 1:].split()
         return _stat
 
     def get_thread_ids(self):
@@ -78,7 +76,7 @@ class Process:
         """Filename of the executable."""
         _stat = self.get_stat(parsed=False)
         if _stat:
-            return _stat[_stat.find("(") + 1 : _stat.rfind(")")]
+            return _stat[_stat.find("(") + 1:_stat.rfind(")")]
         return None
 
     @property
@@ -115,12 +113,14 @@ class Process:
         if not _environ_text:
             return {}
         try:
-            return dict(
-                [line.split("=", 1) for line in _environ_text.split("\x00") if line]
-            )
+            return dict([
+                line.split("=", 1) for line in _environ_text.split("\x00")
+                if line
+            ])
         except ValueError:
             if environ_path not in self.error_cache:
-                logger.error("Failed to parse environment variables: %s", _environ_text)
+                logger.error("Failed to parse environment variables: %s",
+                             _environ_text)
                 self.error_cache.append(environ_path)
             return {}
 

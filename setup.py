@@ -52,10 +52,13 @@ setup(
     scripts=["bin/lutris"],
     data_files=data_files,
     zip_safe=False,
-    install_requires=["PyYAML", "PyGObject", "evdev", "requests", "distro", "lxml"],
+    install_requires=[
+        "PyYAML", "PyGObject", "evdev", "requests", "distro", "lxml"
+    ],
     url="https://lutris.net",
     description="Video game preservation platform",
-    long_description="""Lutris helps you install and play video games from all eras
+    long_description=
+    """Lutris helps you install and play video games from all eras
     and from most gaming systems. By leveraging and combining existing emulators,
     engine re-implementations and compatibility layers, it gives you a central
     interface to launch all your games.""",

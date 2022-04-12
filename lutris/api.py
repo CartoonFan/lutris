@@ -47,11 +47,11 @@ def connect(username, password):
             get_user_info()
             return token
     except (
-        requests.RequestException,
-        requests.ConnectionError,
-        requests.HTTPError,
-        requests.TooManyRedirects,
-        requests.Timeout,
+            requests.RequestException,
+            requests.ConnectionError,
+            requests.HTTPError,
+            requests.TooManyRedirects,
+            requests.Timeout,
     ) as ex:
         logger.error("Unable to connect to server (%s): %s", login_url, ex)
         return False
@@ -71,12 +71,12 @@ def get_user_info():
         return
     url = settings.SITE_URL + "/api/users/me"
     request = http.Request(
-        url, headers={"Authorization": "Token " + credentials["token"]}
-    )
+        url, headers={"Authorization": "Token " + credentials["token"]})
     response = request.get()
     account_info = response.json
     if not account_info:
-        logger.warning("Unable to fetch user info for %s", credentials["username"])
+        logger.warning("Unable to fetch user info for %s",
+                       credentials["username"])
     with open(USER_INFO_FILE_PATH, "w", encoding="utf-8") as token_file:
         json.dump(account_info, token_file, indent=2)
 
@@ -146,9 +146,9 @@ def get_api_games(game_slugs=None, page=1, service=None):
             logger.error("No page found in %s", response_data["next"])
             break
         if service:
-            response_data = get_game_service_api_page(
-                service, game_slugs, page=next_page
-            )
+            response_data = get_game_service_api_page(service,
+                                                      game_slugs,
+                                                      page=next_page)
         else:
             response_data = get_game_api_page(game_slugs, page=next_page)
         if not response_data:
@@ -184,12 +184,12 @@ def search_games(query):
     if not query:
         return {}
     query = query.lower().strip()[:255]
-    url = "/api/games?%s" % urllib.parse.urlencode(
-        {"search": query, "with-installers": True}
-    )
-    response = http.Request(
-        settings.SITE_URL + url, headers={"Content-Type": "application/json"}
-    )
+    url = "/api/games?%s" % urllib.parse.urlencode({
+        "search": query,
+        "with-installers": True
+    })
+    response = http.Request(settings.SITE_URL + url,
+                            headers={"Content-Type": "application/json"})
     try:
         response.get()
     except http.HTTPError as ex:
@@ -201,9 +201,8 @@ def search_games(query):
 def get_bundle(bundle):
     """Retrieve a lutris bundle from the API"""
     url = "/api/bundles/%s" % bundle
-    response = http.Request(
-        settings.SITE_URL + url, headers={"Content-Type": "application/json"}
-    )
+    response = http.Request(settings.SITE_URL + url,
+                            headers={"Content-Type": "application/json"})
     try:
         response.get()
     except http.HTTPError as ex:

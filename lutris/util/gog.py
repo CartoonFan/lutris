@@ -20,8 +20,7 @@ def get_gog_game_path(target_path):
 def get_gog_config(gog_game_path):
     """Extract runtime information such as executable paths from GOG files"""
     config_filename = [
-        fn
-        for fn in os.listdir(gog_game_path)
+        fn for fn in os.listdir(gog_game_path)
         if fn.startswith("goggame") and fn.endswith(".info")
     ]
     if not config_filename:

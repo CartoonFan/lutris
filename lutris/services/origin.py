@@ -31,17 +31,19 @@ class OriginLauncher:
         self.prefix_path = prefix_path
 
     def iter_manifests(self):
-        manifests_path = os.path.join(self.prefix_path, "drive_c", self.manifests_paths)
+        manifests_path = os.path.join(self.prefix_path, "drive_c",
+                                      self.manifests_paths)
         if not os.path.exists(manifests_path):
             logger.warning("No directory in %s", manifests_path)
             return
         for game_folder in os.listdir(manifests_path):
-            for manifest in os.listdir(os.path.join(manifests_path, game_folder)):
+            for manifest in os.listdir(
+                    os.path.join(manifests_path, game_folder)):
                 if not manifest.endswith(".mfst"):
                     continue
                 with open(
-                    os.path.join(manifests_path, game_folder, manifest),
-                    encoding="utf-8",
+                        os.path.join(manifests_path, game_folder, manifest),
+                        encoding="utf-8",
                 ) as manifest_file:
                     manifest_content = manifest_file.read()
                 parsed_url = urllib.parse.urlparse(manifest_content)
@@ -108,8 +110,7 @@ class OriginService(OnlineService):
         "https://accounts.ea.com/connect/auth"
         "?response_type=code&client_id=ORIGIN_SPA_ID&display=originXWeb/login"
         "&locale=en_US&release_type=prod"
-        "&redirect_uri=%s"
-    ) % redirect_uri
+        "&redirect_uri=%s") % redirect_uri
     is_loading = False
 
     def __init__(self):
@@ -185,9 +186,8 @@ class OriginService(OnlineService):
             identity_data = self._request_identity()
         elif identity_data.get("error"):
             raise RuntimeError(
-                "%s (Error code: %s)"
-                % (identity_data["error"], identity_data["error_number"])
-            )
+                "%s (Error code: %s)" %
+                (identity_data["error"], identity_data["error_number"]))
 
         if "error" in identity_data:
             raise RuntimeError(identity_data["error"])
@@ -237,8 +237,7 @@ class OriginService(OnlineService):
     def get_offer(self, offer_id):
         """Load offer details from Origin"""
         url = "{}/ecommerce2/public/supercat/{}/{}".format(
-            self.api_url, offer_id, "en_US"
-        )
+            self.api_url, offer_id, "en_US")
         response = self.session.get(url, headers=self.get_auth_headers())
         return response.json()
 
@@ -249,7 +248,8 @@ class OriginService(OnlineService):
             user_id,
         )
         headers = self.get_auth_headers()
-        headers["Accept"] = "application/vnd.origin.v3+json; x-cache/force-write"
+        headers[
+            "Accept"] = "application/vnd.origin.v3+json; x-cache/force-write"
         response = self.session.get(url, headers=headers)
         data = response.json()
         return data["entitlements"]
@@ -285,14 +285,15 @@ class OriginService(OnlineService):
         service_game = ServiceGameCollection.get_game("origin", offer_id)
         if not service_game:
             logger.error(
-                "Aborting install, %s is not present in the game library.", offer_id
-            )
+                "Aborting install, %s is not present in the game library.",
+                offer_id)
             return
         lutris_game_id = slugify(service_game["name"]) + "-" + self.id
         existing_game = get_game_by_field(lutris_game_id, "installer_slug")
         if existing_game:
             return
-        game_config = LutrisConfig(game_config_id=origin_game["configpath"]).game_level
+        game_config = LutrisConfig(
+            game_config_id=origin_game["configpath"]).game_level
         game_config["game"]["args"] = get_launch_arguments(manifest["id"])
         configpath = write_game_config(lutris_game_id, game_config)
         game_id = add_game(
@@ -312,9 +313,8 @@ class OriginService(OnlineService):
         origin_game = Game(origin_db_game["id"])
         origin_exe = origin_game.config.game_config["exe"]
         if not os.path.isabs(origin_exe):
-            origin_exe = os.path.join(
-                origin_game.config.game_config["prefix"], origin_exe
-            )
+            origin_exe = os.path.join(origin_game.config.game_config["prefix"],
+                                      origin_exe)
         return {
             "name": db_game["name"],
             "version": self.name,
@@ -323,23 +323,26 @@ class OriginService(OnlineService):
             "runner": self.runner,
             "appid": db_game["appid"],
             "script": {
-                "requires": self.client_installer,
+                "requires":
+                self.client_installer,
                 "game": {
                     "args": get_launch_arguments(db_game["appid"]),
                 },
-                "installer": [
-                    {
-                        "task": {
-                            "name": "wineexec",
-                            "executable": origin_exe,
-                            "args": get_launch_arguments(db_game["appid"], "download"),
-                            "prefix": origin_game.config.game_config["prefix"],
-                            "description": (
-                                "Origin will now open and install %s." % db_game["name"]
-                            ),
-                        }
+                "installer": [{
+                    "task": {
+                        "name":
+                        "wineexec",
+                        "executable":
+                        origin_exe,
+                        "args":
+                        get_launch_arguments(db_game["appid"], "download"),
+                        "prefix":
+                        origin_game.config.game_config["prefix"],
+                        "description":
+                        ("Origin will now open and install %s." %
+                         db_game["name"]),
                     }
-                ],
+                }],
             },
         }
 

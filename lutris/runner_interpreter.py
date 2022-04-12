@@ -22,7 +22,8 @@ def get_launch_parameters(runner, gameplay_info):
 
     # Steam compatibility
     if os.environ.get("SteamAppId"):
-        logger.info("Game launched from steam (AppId: %s)", os.environ["SteamAppId"])
+        logger.info("Game launched from steam (AppId: %s)",
+                    os.environ["SteamAppId"])
         env["LC_ALL"] = ""
 
     # Optimus
@@ -54,9 +55,8 @@ def get_launch_parameters(runner, gameplay_info):
 
     prefix_command = system_config.get("prefix_command") or ""
     if prefix_command:
-        launch_arguments = (
-            shlex.split(os.path.expandvars(prefix_command)) + launch_arguments
-        )
+        launch_arguments = (shlex.split(os.path.expandvars(prefix_command)) +
+                            launch_arguments)
 
     single_cpu = system_config.get("single_cpu") or False
     if single_cpu:
@@ -88,16 +88,17 @@ def get_launch_parameters(runner, gameplay_info):
     if game_ld_library_path:
         ld_library_path = env.get("LD_LIBRARY_PATH")
         env["LD_LIBRARY_PATH"] = os.pathsep.join(
-            filter(None, [game_ld_library_path, ld_library_path])
-        )
+            filter(None, [game_ld_library_path, ld_library_path]))
 
     # Feral gamemode
-    gamemode = system_config.get("gamemode") and LINUX_SYSTEM.gamemode_available()
+    gamemode = system_config.get(
+        "gamemode") and LINUX_SYSTEM.gamemode_available()
     if gamemode:
         launch_arguments.insert(0, "gamemoderun")
 
     # Gamescope
-    gamescope = system_config.get("gamescope") and system.find_executable("gamescope")
+    gamescope = system_config.get("gamescope") and system.find_executable(
+        "gamescope")
     if gamescope:
         launch_arguments = get_gamescope_args(launch_arguments, system_config)
 
@@ -110,14 +111,14 @@ def get_gamescope_args(launch_arguments, system_config):
     launch_arguments.insert(0, "-f")
     if system_config.get("gamescope_output_res"):
         output_width, output_height = (
-            system_config["gamescope_output_res"].lower().split("x")
-        )
+            system_config["gamescope_output_res"].lower().split("x"))
         launch_arguments.insert(0, output_height)
         launch_arguments.insert(0, "-H")
         launch_arguments.insert(0, output_width)
         launch_arguments.insert(0, "-W")
     if system_config.get("gamescope_game_res"):
-        game_width, game_height = system_config["gamescope_game_res"].lower().split("x")
+        game_width, game_height = system_config["gamescope_game_res"].lower(
+        ).split("x")
         launch_arguments.insert(0, game_height)
         launch_arguments.insert(0, "-h")
         launch_arguments.insert(0, game_width)

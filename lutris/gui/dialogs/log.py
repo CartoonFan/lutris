@@ -12,6 +12,7 @@ from lutris.util import datapath
 
 
 class LogWindow(GObject.Object):
+
     def __init__(self, title=None, buffer=None, application=None):
         super().__init__()
         ui_filename = os.path.join(datapath.get(), "ui/log-window.ui")
@@ -29,9 +30,11 @@ class LogWindow(GObject.Object):
         scrolled_window.add(self.logtextview)
 
         self.search_entry = builder.get_object("search_entry")
-        self.search_entry.connect("search-changed", self.logtextview.find_first)
+        self.search_entry.connect("search-changed",
+                                  self.logtextview.find_first)
         self.search_entry.connect("next-match", self.logtextview.find_next)
-        self.search_entry.connect("previous-match", self.logtextview.find_previous)
+        self.search_entry.connect("previous-match",
+                                  self.logtextview.find_previous)
 
         save_button = builder.get_object("save_button")
         save_button.connect("clicked", self.on_save_clicked)
@@ -50,7 +53,8 @@ class LogWindow(GObject.Object):
     def on_save_clicked(self, _button):
         """Handler to save log to a file"""
         now = datetime.now()
-        log_filename = "%s (%s).log" % (self.title, now.strftime("%Y-%m-%d-%H-%M"))
+        log_filename = "%s (%s).log" % (self.title,
+                                        now.strftime("%Y-%m-%d-%H-%M"))
         file_dialog = FileDialog(
             message="Save the logs to...",
             default_path=os.path.expanduser("~/%s" % log_filename),
@@ -60,8 +64,7 @@ class LogWindow(GObject.Object):
         if not log_path:
             return
 
-        text = self.buffer.get_text(
-            self.buffer.get_start_iter(), self.buffer.get_end_iter(), True
-        )
+        text = self.buffer.get_text(self.buffer.get_start_iter(),
+                                    self.buffer.get_end_iter(), True)
         with open(log_path, "w", encoding="utf-8") as log_file:
             log_file.write(text)

@@ -30,6 +30,7 @@ class UnauthorizedAccess(Exception):
 
 
 class Request:
+
     def __init__(
         self,
         url,
@@ -52,7 +53,8 @@ class Request:
         if headers is None:
             headers = {}
         if not isinstance(headers, dict):
-            raise TypeError("HTTP headers needs to be a dict ({})".format(headers))
+            raise TypeError(
+                "HTTP headers needs to be a dict ({})".format(headers))
         self.headers.update(headers)
         if cookies:
             cookie_processor = urllib.request.HTTPCookieProcessor(cookies)
@@ -84,26 +86,25 @@ class Request:
     def get(self, data=None):
         logger.debug("GET %s", self.url)
         try:
-            req = urllib.request.Request(url=self.url, data=data, headers=self.headers)
+            req = urllib.request.Request(url=self.url,
+                                         data=data,
+                                         headers=self.headers)
         except ValueError as ex:
-            raise HTTPError(
-                "Failed to create HTTP request to %s: %s" % (self.url, ex)
-            ) from ex
+            raise HTTPError("Failed to create HTTP request to %s: %s" %
+                            (self.url, ex)) from ex
         try:
             if self.opener:
                 request = self.opener.open(req, timeout=self.timeout)
             else:
-                request = urllib.request.urlopen(
-                    req, timeout=self.timeout
-                )  # pylint: disable=consider-using-with
+                request = urllib.request.urlopen(req, timeout=self.timeout)  # pylint: disable=consider-using-with
         except (urllib.error.HTTPError, CertificateError) as error:
             if error.code == 401:
-                raise UnauthorizedAccess("Access to %s denied" % self.url) from error
+                raise UnauthorizedAccess("Access to %s denied" %
+                                         self.url) from error
             raise HTTPError("%s" % error, code=error.code) from error
         except (socket.timeout, urllib.error.URLError) as error:
-            raise HTTPError(
-                "Unable to connect to server %s: %s" % (self.url, error)
-            ) from error
+            raise HTTPError("Unable to connect to server %s: %s" %
+                            (self.url, error)) from error
 
         self.response_headers = request.getheaders()
         self.status_code = request.getcode()

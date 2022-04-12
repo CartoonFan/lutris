@@ -7,6 +7,7 @@ setup_test_environment()
 
 
 class TestDllOverrides(TestCase):
+
     def test_env_format(self):
         overrides = {
             "d3dcompiler_43": "native,builtin",

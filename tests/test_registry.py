@@ -8,6 +8,7 @@ FIXTURES_PATH = os.path.join(os.path.dirname(__file__), "fixtures")
 
 
 class TestWineRegistry(TestCase):
+
     def setUp(self):
         self.registry_path = os.path.join(FIXTURES_PATH, "user.reg")
         self.registry = WineRegistry(self.registry_path)
@@ -42,12 +43,10 @@ class TestWineRegistry(TestCase):
         self.assertEqual(key.get_subkey("CaretWidth"), 1)
 
     def test_can_render_key(self):
-        expected = (
-            "[Software\\\\Wine\\\\Fonts] 1477412318\n"
-            "#time=1d22edb71813e3c\n"
-            '"Codepages"="1252,437"\n'
-            '"LogPixels"=dword:00000000\n'
-        )
+        expected = ("[Software\\\\Wine\\\\Fonts] 1477412318\n"
+                    "#time=1d22edb71813e3c\n"
+                    '"Codepages"="1252,437"\n'
+                    '"LogPixels"=dword:00000000\n')
         key = self.registry.keys.get("Software/Wine/Fonts")
         self.assertEqual(key.render(), expected)
 
@@ -66,19 +65,25 @@ class TestWineRegistry(TestCase):
         self.assertEqual(content, original_content)
 
     def test_can_set_value_to_existing_subkey(self):
-        self.assertEqual(self.registry.query("Control Panel/Desktop", "DragWidth"), "4")
+        self.assertEqual(
+            self.registry.query("Control Panel/Desktop", "DragWidth"), "4")
         self.registry.set_value("Control Panel/Desktop", "DragWidth", "8")
-        self.assertEqual(self.registry.query("Control Panel/Desktop", "DragWidth"), "8")
+        self.assertEqual(
+            self.registry.query("Control Panel/Desktop", "DragWidth"), "8")
 
     def test_can_set_value_to_a_new_sub_key(self):
-        self.assertEqual(self.registry.query("Control Panel/Desktop", "BliBlu"), None)
+        self.assertEqual(
+            self.registry.query("Control Panel/Desktop", "BliBlu"), None)
         self.registry.set_value("Control Panel/Desktop", "BliBlu", "yep")
-        self.assertEqual(self.registry.query("Control Panel/Desktop", "BliBlu"), "yep")
+        self.assertEqual(
+            self.registry.query("Control Panel/Desktop", "BliBlu"), "yep")
 
     def test_can_set_value_to_a_new_key(self):
-        self.assertEqual(self.registry.query("Wine/DX11", "FullyWorking"), None)
+        self.assertEqual(self.registry.query("Wine/DX11", "FullyWorking"),
+                         None)
         self.registry.set_value("Wine/DX11", "FullyWorking", "HellYeah")
-        self.assertEqual(self.registry.query("Wine/DX11", "FullyWorking"), "HellYeah")
+        self.assertEqual(self.registry.query("Wine/DX11", "FullyWorking"),
+                         "HellYeah")
 
     def test_can_clear_a_key(self):
         path = "Control Panel/Mouse"
@@ -89,6 +94,7 @@ class TestWineRegistry(TestCase):
 
 
 class TestWineRegistryKey(TestCase):
+
     def test_creation_by_key_def_parses(self):
         key = WineRegistryKey(key_def="[Control Panel\\\\Desktop] 1477412318")
         self.assertEqual(key.name, "Control Panel/Desktop")
@@ -108,8 +114,7 @@ class TestWineRegistryKey(TestCase):
         )
         self.assertEqual(
             key.subkeys[
-                "C:\\\\users\\\\strider\\\\My Music\\\\iTunes\\\\iTunes Music\\\\Podcasts\\\\"
-            ],
+                "C:\\\\users\\\\strider\\\\My Music\\\\iTunes\\\\iTunes Music\\\\Podcasts\\\\"],
             "dword:00000001",
         )
 
@@ -119,8 +124,10 @@ class TestWineRegistryKey(TestCase):
         key.parse('"String with "quotes""=val')
         self.assertEqual(key.subkeys['String with "quotes"'], "val")
 
-        key.parse('""C:\\Program Files\\Windows Media Player\\wmplayer.exe""="Yes"')
+        key.parse(
+            '""C:\\Program Files\\Windows Media Player\\wmplayer.exe""="Yes"')
         self.assertEqual(
-            key.subkeys['"C:\\Program Files\\Windows Media Player\\wmplayer.exe"'],
+            key.
+            subkeys['"C:\\Program Files\\Windows Media Player\\wmplayer.exe"'],
             '"Yes"',
         )
