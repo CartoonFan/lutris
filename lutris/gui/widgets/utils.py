@@ -54,25 +54,32 @@ def get_pixbuf(image, size, fallback=None, is_installed=True):
             fallback = get_default_icon(size)
         if system.path_exists(fallback):
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(fallback, width, height)
-    if is_installed:
+    if is_installed and pixbuf:
         pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.NEAREST)
         return pixbuf
     overlay = os.path.join(datapath.get(), "media/unavailable.png")
     transparent_pixbuf = get_overlay(overlay, size).copy()
-    pixbuf.composite(
-        transparent_pixbuf,
-        0,
-        0,
-        size[0],
-        size[1],
-        0,
-        0,
-        1,
-        1,
-        GdkPixbuf.InterpType.NEAREST,
-        100,
-    )
+    if pixbuf:
+        pixbuf.composite(
+            transparent_pixbuf,
+            0,
+            0,
+            size[0],
+            size[1],
+            0,
+            0,
+            1,
+            1,
+            GdkPixbuf.InterpType.NEAREST,
+            100,
+        )
     return transparent_pixbuf
+
+
+def has_stock_icon(name):
+    """This tests if a GTK stock icon is known; if not we can try a fallback."""
+    theme = Gtk.IconTheme.get_default()
+    return theme.has_icon(name)
 
 
 def get_stock_icon(name, size):
@@ -121,10 +128,6 @@ def get_default_icon(size):
     if size[0] == size[1]:
         return os.path.join(datapath.get(), "media/default_icon.png")
     return os.path.join(datapath.get(), "media/default_banner.png")
-
-
-def get_pixbuf_for_game(image_abspath, size, is_installed=True):
-    return get_pixbuf(image_abspath, size, fallback=get_default_icon(size), is_installed=is_installed)
 
 
 def convert_to_background(background_path, target_size=(320, 1080)):

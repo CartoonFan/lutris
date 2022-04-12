@@ -25,10 +25,12 @@ test:
 	rm tests/fixtures/pga.db -f
 	nose2
 
+
 cover:
 	rm tests/fixtures/pga.db -f
 	rm tests/coverage/ -rf
 	nose2 --with-coverage --cover-package=lutris --cover-html --cover-html-dir=tests/coverage
+
 
 pgp-renew:
 	osc signkey --extend home:strycore
@@ -88,7 +90,7 @@ isort-check:
 	poetry run isort lutris -c
 
 flake8:
-	poetry run flake8 . --count --max-complexity=15 --max-line-length=120 --show-source --statistics
+	poetry run flake8 . --count --max-complexity=25 --max-line-length=120 --show-source --statistics
 
 pylint:
 	poetry run pylint lutris --rcfile=.pylintrc --output-format=colorized

@@ -1,12 +1,14 @@
 """Options list for system config."""
 import glob
 import os
+import subprocess
 from collections import OrderedDict, defaultdict
 from gettext import gettext as _
 
 from lutris import runners
 from lutris.util import linux, system
 from lutris.util.display import DISPLAY_MANAGER, SCREEN_SAVER_INHIBITOR, USE_DRI_PRIME
+from lutris.util.graphics import drivers
 
 VULKAN_DATA_DIRS = [
     "/usr/local/etc/vulkan",  # standard site-local location
@@ -63,10 +65,25 @@ def get_optirun_choices():
     return choices
 
 
+def get_gpu_vendor_cmd(nvidia_files):
+    """Run glxinfo command to get vendor based on certain conditions"""
+    glxinfocmd = "glxinfo | grep -i opengl | grep -i vendor"
+
+    if USE_DRI_PRIME == 1:
+        glxinfocmd = "DRI_PRIME=1 glxinfo | grep -i opengl | grep -i vendor"
+    elif nvidia_files == 1:
+        glxinfocmd = "__GLX_VENDOR_LIBRARY_NAME=nvidia glxinfo | grep -i opengl | grep -i vendor"
+    return glxinfocmd
+
+
 def get_vk_icd_choices():
     """Return available Vulkan ICD loaders"""
-    loaders = []
+    intel = []
+    amdradv = []
+    nvidia = []
     amdvlk = []
+    amdvlkpro = []
+    choices = [(_("Auto: WARNING -- No Vulkan Loader detected!"), "")]
     icd_files = defaultdict(list)
     # Add loaders
     for data_dir in VULKAN_DATA_DIRS:
@@ -74,21 +91,51 @@ def get_vk_icd_choices():
         for loader in glob.glob(path):
             icd_key = os.path.basename(loader).split(".")[0]
             icd_files[icd_key].append(os.path.join(path, loader))
-            if "amd_icd" not in loader:
-                loaders.append(loader)
-            else:
-                amdvlk.append(loader)
+            if "intel" in loader:
+                intel.append(loader)
+            elif "radeon" in loader:
+                amdradv.append(loader)
+            elif "nvidia" in loader:
+                nvidia.append(loader)
+            elif "amd" in loader:
+                if "pro" in loader:
+                    amdvlkpro.append(loader)
+                else:
+                    amdvlk.append(loader)
 
-    loader_files = ":".join(loaders)
+    intel_files = ":".join(intel)
+    amdradv_files = ":".join(amdradv)
+    nvidia_files = ":".join(nvidia)
     amdvlk_files = ":".join(amdvlk)
-    choices = [(_("Auto"), loader_files)]
+    amdvlkpro_files = ":".join(amdvlkpro)
 
-    for icd_key in icd_files:
-        if "amd_icd" not in icd_key:
-            files = ":".join(icd_files[icd_key])
-            choices.append((icd_key.capitalize().replace("_icd", " ICD"), files))
+    glxinfocmd = get_gpu_vendor_cmd(0)
+    if nvidia_files:
+        glxinfocmd = get_gpu_vendor_cmd(1)
+    with subprocess.Popen(glxinfocmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as glxvendorget:
+        glxvendor = glxvendorget.communicate()[0].decode("utf-8")
+    default_gpu = glxvendor
 
-    choices.append(("AMDVLK/AMDGPU-PRO", amdvlk_files))
+    if "Intel" in default_gpu:
+        choices = [(_("Auto: Intel Open Source (MESA: ANV)"), intel_files)]
+    elif "AMD" in default_gpu:
+        choices = [(_("Auto: AMD RADV Open Source (MESA: RADV)"), amdradv_files)]
+    elif "NVIDIA" in default_gpu:
+        choices = [(_("Auto: Nvidia Proprietary"), nvidia_files)]
+
+    if intel_files:
+        choices.append(("Intel Open Source (MESA: ANV)", intel_files))
+    if amdradv_files:
+        choices.append(("AMD RADV Open Source (MESA: RADV)", amdradv_files))
+    if nvidia_files:
+        choices.append(("Nvidia Proprietary", nvidia_files))
+    if amdvlk_files:
+        if not amdvlkpro_files:
+            choices.append(("AMDVLK/AMDGPU-PRO Proprietary", amdvlk_files))
+        else:
+            choices.append(("AMDVLK Open source", amdvlk_files))
+    if amdvlkpro_files:
+        choices.append(("AMDGPU-PRO Proprietary", amdvlkpro_files))
     return choices
 
 
@@ -123,14 +170,10 @@ system_options = [  # pylint: disable=invalid-name
                   " over the provided ones."),
     },
     {
-        "option":
-        "reset_desktop",
-        "type":
-        "bool",
-        "label":
-        _("Restore resolution on game exit"),
-        "default":
-        False,
+        "option": "reset_desktop",
+        "type": "bool",
+        "label": _("Restore resolution on game exit"),
+        "default": False,
         "help": _("Some games don't restore your screen resolution when \n"
                   "closed or when they crash. This is when this option comes \n"
                   "into play to save your bacon."),
@@ -141,7 +184,7 @@ system_options = [  # pylint: disable=invalid-name
         "label": _("Enable gamescope"),
         "default": False,
         "advanced": True,
-        "condition": bool(system.find_executable("gamescope")),
+        "condition": bool(system.find_executable("gamescope")) and not drivers.is_nvidia(),
         "help": _("Use gamescope to draw the game window isolated from your desktop.\n"
                   "Use Ctrl+Super+F to toggle fullscreen"),
     },
@@ -166,10 +209,18 @@ system_options = [  # pylint: disable=invalid-name
     {
         "option": "single_cpu",
         "type": "bool",
-        "label": _("Restrict to single core"),
+        "label": _("Restrict number of cores used"),
         "advanced": True,
         "default": False,
-        "help": _("Restrict the game to a single CPU core."),
+        "help": _("Restrict the game to a maximum number of CPU cores."),
+    },
+    {
+        "option": "limit_cpu_count",
+        "type": "string",
+        "label": _("Restrict number of cores to"),
+        "advanced": True,
+        "default": "1",
+        "help": _("Maximum number of CPU cores to be used, if 'Restrict number of cores used' is turned on."),
     },
     {
         "option": "restore_gamma",
@@ -255,16 +306,9 @@ system_options = [  # pylint: disable=invalid-name
     },
     {
         "option": "mangohud",
-        "type": "choice",
+        "type": "bool",
         "label": _("FPS counter (MangoHud)"),
-        "choices": (
-            (_("Disabled"), ""),
-            (_("Enabled (Vulkan)"), "vk64"),
-            (_("Enabled (OpenGL)"), "gl64"),
-            (_("Enabled (OpenGL, 32bit)"), "gl32")
-        ),
-        "default": "",
-        "advanced": False,
+        "default": False,
         "condition": bool(system.find_executable("mangohud")),
         "help": _("Display the game's FPS + other information. Requires MangoHud to be installed."),
     },
@@ -281,7 +325,7 @@ system_options = [  # pylint: disable=invalid-name
         "option": "gamemode",
         "type": "bool",
         "default": linux.LINUX_SYSTEM.gamemode_available(),
-        "condition": linux.LINUX_SYSTEM.gamemode_available,
+        "condition": linux.LINUX_SYSTEM.gamemode_available(),
         "label": _("Enable Feral GameMode"),
         "help": _("Request a set of optimisations be temporarily applied to the host OS"),
     },
@@ -325,6 +369,7 @@ system_options = [  # pylint: disable=invalid-name
         "type": "choice",
         "label": _("Turn off monitors except"),
         "choices": get_output_choices,
+        "condition": linux.LINUX_SYSTEM.display_server != "wayland",
         "default": "off",
         "advanced": True,
         "help": _("Only keep the selected screen active while the game is "
@@ -337,6 +382,7 @@ system_options = [  # pylint: disable=invalid-name
         "type": "choice",
         "label": _("Switch resolution to"),
         "choices": get_resolution_choices,
+        "condition": linux.LINUX_SYSTEM.display_server != "wayland",
         "default": "off",
         "help": _("Switch to this screen resolution while the game is running."),
     },
@@ -411,28 +457,20 @@ system_options = [  # pylint: disable=invalid-name
         "help": _("Script to execute when the game exits"),
     },
     {
-        "option":
-        "include_processes",
-        "type":
-        "string",
-        "label":
-        _("Include processes"),
-        "advanced":
-        True,
+        "option": "include_processes",
+        "type": "string",
+        "label": _("Include processes"),
+        "advanced": True,
         "help": _("What processes to include in process monitoring. "
                   "This is to override the built-in exclude list.\n"
                   "Space-separated list, processes including spaces "
                   "can be wrapped in quotation marks."),
     },
     {
-        "option":
-        "exclude_processes",
-        "type":
-        "string",
-        "label":
-        _("Exclude processes"),
-        "advanced":
-        True,
+        "option": "exclude_processes",
+        "type": "string",
+        "label": _("Exclude processes"),
+        "advanced": True,
         "help": _("What processes to exclude in process monitoring. "
                   "For example background processes that stick around "
                   "after the game has been closed.\n"
@@ -440,49 +478,35 @@ system_options = [  # pylint: disable=invalid-name
                   "can be wrapped in quotation marks."),
     },
     {
-        "option":
-        "killswitch",
-        "type":
-        "string",
-        "label":
-        _("Killswitch file"),
-        "advanced":
-        True,
+        "option": "killswitch",
+        "type": "string",
+        "label": _("Killswitch file"),
+        "advanced": True,
         "help": _("Path to a file which will stop the game when deleted \n"
                   "(usually /dev/input/js0 to stop the game on joystick "
                   "unplugging)"),
     },
     {
-        "option":
-        "sdl_gamecontrollerconfig",
-        "type":
-        "string",
-        "label":
-        _("SDL2 gamepad mapping"),
-        "advanced":
-        True,
+        "option": "sdl_gamecontrollerconfig",
+        "type": "string",
+        "label": _("SDL2 gamepad mapping"),
+        "advanced": True,
         "help": _("SDL_GAMECONTROLLERCONFIG mapping string or path to a custom "
                   "gamecontrollerdb.txt file containing mappings."),
     },
     {
-        "option":
-        "xephyr",
-        "label":
-        _("Use Xephyr"),
-        "type":
-        "choice",
+        "option": "xephyr",
+        "label": _("Use Xephyr"),
+        "type": "choice",
         "choices": (
             (_("Off"), "off"),
             (_("8BPP (256 colors)"), "8bpp"),
             (_("16BPP (65536 colors)"), "16bpp"),
             (_("24BPP (16M colors)"), "24bpp"),
         ),
-        "default":
-        "off",
-        "advanced":
-        True,
-        "help":
-        _("Run program in Xephyr to support 8BPP and 16BPP color modes"),
+        "default": "off",
+        "advanced": True,
+        "help": _("Run program in Xephyr to support 8BPP and 16BPP color modes"),
     },
     {
         "option": "xephyr_resolution",

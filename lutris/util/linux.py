@@ -104,8 +104,6 @@ class LinuxSystem:  # pylint: disable=too-many-public-methods
     required_components = ["OPENGL", "VULKAN", "GNUTLS"]
     optional_components = ["WINE", "GAMEMODE"]
 
-    flatpak_info_path = "/.flatpak-info"
-
     def __init__(self):
         for key in ("COMMANDS", "TERMINALS"):
             self._cache[key] = {}
@@ -218,12 +216,20 @@ class LinuxSystem:  # pylint: disable=too-many-public-methods
     @property
     def has_steam(self):
         """Return whether Steam is installed locally"""
-        return bool(system.find_executable("steam"))
+        return (
+            bool(system.find_executable("steam"))
+            or os.path.exists(os.path.expanduser("~/.steam/steam/ubuntu12_32/steam"))
+        )
+
+    @property
+    def display_server(self):
+        """Return the display server used"""
+        return os.environ.get("XDG_SESSION_TYPE", "unknown")
 
     @property
     def is_flatpak(self):
         """Check is we are running inside Flatpak sandbox"""
-        return system.path_exists(self.flatpak_info_path)
+        return system.path_exists("/.flatpak-info")
 
     @property
     def runtime_architectures(self):
@@ -446,10 +452,10 @@ def gather_system_info_str():
     system_info_readable["System"] = system_dict
     # Add CPU information
     cpu_dict = {}
-    cpu_dict["Vendor"] = system_info["cpus"][0]["vendor_id"]
-    cpu_dict["Model"] = system_info["cpus"][0]["model name"]
-    cpu_dict["Physical cores"] = system_info["cpus"][0]["cpu cores"]
-    cpu_dict["Logical cores"] = system_info["cpus"][0]["siblings"]
+    cpu_dict["Vendor"] = system_info["cpus"][0].get("vendor_id", "Vendor unavailable")
+    cpu_dict["Model"] = system_info["cpus"][0].get("model name", "Model unavailable")
+    cpu_dict["Physical cores"] = system_info["cpus"][0].get("cpu cores", "Physical cores unavailable")
+    cpu_dict["Logical cores"] = system_info["cpus"][0].get("siblings", "Logical cores unavailable")
     system_info_readable["CPU"] = cpu_dict
     # Add memory information
     ram_dict = {}
@@ -459,9 +465,9 @@ def gather_system_info_str():
     # Add graphics information
     graphics_dict = {}
     if LINUX_SYSTEM.glxinfo:
-        graphics_dict["Vendor"] = system_info["glxinfo"]["opengl_vendor"]
-        graphics_dict["OpenGL Renderer"] = system_info["glxinfo"]["opengl_renderer"]
-        graphics_dict["OpenGL Version"] = system_info["glxinfo"]["opengl_version"]
+        graphics_dict["Vendor"] = system_info["glxinfo"].get("opengl_vendor", "Vendor unavailable")
+        graphics_dict["OpenGL Renderer"] = system_info["glxinfo"].get("opengl_renderer", "OpenGL Renderer unavailable")
+        graphics_dict["OpenGL Version"] = system_info["glxinfo"].get("opengl_version", "OpenGL Version unavailable")
         graphics_dict["OpenGL Core"] = system_info["glxinfo"].get(
             "opengl_core_profile_version", "OpenGL core unavailable"
         )
@@ -477,10 +483,10 @@ def gather_system_info_str():
 
     output = ''
     for section, dictionary in system_info_readable.items():
-        output += f'[{section}]\n'
+        output += '[%s]\n' % section
         for key, value in dictionary.items():
             tabs = " " * (16 - len(key))
-            output += f'{key}:{tabs}{value}\n'
+            output += '%s:%s%s\n' % (key, tabs, value)
         output += '\n'
     return output
 

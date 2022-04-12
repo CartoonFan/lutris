@@ -119,23 +119,27 @@ def create_prefix(  # noqa: C901
         )
         return
 
-    if install_gecko == "False":
-        overrides["mshtml"] = "disabled"
-    if install_mono == "False":
-        overrides["mscoree"] = "disabled"
-
     wineenv = {
         "WINEARCH": arch,
         "WINEPREFIX": prefix,
         "WINEDLLOVERRIDES": get_overrides_env(overrides),
+        "WINE_MONO_CACHE_DIR": os.path.join(os.path.dirname(os.path.dirname(wine_path)), "mono"),
+        "WINE_GECKO_CACHE_DIR": os.path.join(os.path.dirname(os.path.dirname(wine_path)), "gecko"),
     }
 
+    if install_gecko == "False":
+        wineenv["WINE_SKIP_GECKO_INSTALLATION"] = "1"
+        overrides["mshtml"] = "disabled"
+    if install_mono == "False":
+        wineenv["WINE_SKIP_MONO_INSTALLATION"] = "1"
+        overrides["mscoree"] = "disabled"
+
     system.execute([wineboot_path], env=wineenv)
-    for loop_index in range(50):
-        time.sleep(0.25)
+    for loop_index in range(1000):
+        time.sleep(0.5)
         if system.path_exists(os.path.join(prefix, "user.reg")):
             break
-        if loop_index == 20:
+        if loop_index == 60:
             logger.warning("Wine prefix creation is taking longer than expected...")
     if not os.path.exists(os.path.join(prefix, "user.reg")):
         logger.error("No user.reg found after prefix creation. " "Prefix might not be valid")
@@ -143,22 +147,6 @@ def create_prefix(  # noqa: C901
     logger.info("%s Prefix created in %s", arch, prefix)
     prefix_manager = WinePrefixManager(prefix)
     prefix_manager.setup_defaults()
-    if 'steamapps/common' in prefix.lower():
-        from lutris.runners.winesteam import winesteam
-        runner = winesteam()
-        logger.info("Transfering Steam information from default prefix to new prefix")
-        dest_path = '/tmp/steam.reg'
-        default_prefix = runner.get_default_prefix(runner.default_arch)
-        wineexec("regedit", args=r"/E '%s' 'HKEY_CURRENT_USER\Software\Valve\Steam'" % dest_path, prefix=default_prefix)
-        set_regedit_file(dest_path, wine_path=wine_path, prefix=prefix, arch=arch)
-        try:
-            os.remove(dest_path)
-        except FileNotFoundError:
-            logger.error("File %s was already removed", dest_path)
-        steam_drive_path = os.path.join(prefix, 'dosdevices', 's:')
-        if not system.path_exists(steam_drive_path):
-            logger.info("Linking Steam default prefix to drive S:")
-            os.symlink(os.path.join(default_prefix, 'drive_c'), steam_drive_path)
 
 
 def winekill(prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_pids=None):
@@ -248,9 +236,11 @@ def wineexec(  # noqa: C901
         include_processes = shlex.split(include_processes)
     if isinstance(exclude_processes, str):
         exclude_processes = shlex.split(exclude_processes)
+
+    wine = import_runner("wine")()
+
     if not wine_path:
-        wine = import_runner("wine")
-        wine_path = wine().get_executable()
+        wine_path = wine.get_executable()
     if not wine_path:
         raise RuntimeError("Wine is not installed")
 
@@ -278,8 +268,8 @@ def wineexec(  # noqa: C901
     if prefix:
         wineenv["WINEPREFIX"] = prefix
 
-    wine_config = config or LutrisConfig(runner_slug="wine")
-    disable_runtime = disable_runtime or wine_config.system_config["disable_runtime"]
+    wine_system_config = config.system_config if config else wine.system_config
+    disable_runtime = disable_runtime or wine_system_config["disable_runtime"]
     if use_lutris_runtime(wine_path=wineenv["WINE"], force_disable=disable_runtime):
         if WINE_DIR in wine_path:
             wine_root_path = os.path.dirname(os.path.dirname(wine_path))
@@ -289,7 +279,7 @@ def wineexec(  # noqa: C901
             wine_root_path = None
         wineenv["LD_LIBRARY_PATH"] = ":".join(
             runtime.get_paths(
-                prefer_system_libs=wine_config.system_config["prefer_system_libs"],
+                prefer_system_libs=wine_system_config["prefer_system_libs"],
                 wine_path=wine_root_path,
             )
         )
@@ -297,20 +287,24 @@ def wineexec(  # noqa: C901
     if overrides:
         wineenv["WINEDLLOVERRIDES"] = get_overrides_env(overrides)
 
-    if env:
-        wineenv.update(env)
+    baseenv = wine.get_env()
+    baseenv.update(wineenv)
+    baseenv.update(env)
 
     command_parameters = [wine_path]
     if executable:
         command_parameters.append(executable)
     command_parameters += split_arguments(args)
+
+    wine.prelaunch()
+
     if blocking:
-        return system.execute(command_parameters, env=wineenv, cwd=working_dir)
-    wine = import_runner("wine")
+        return system.execute(command_parameters, env=baseenv, cwd=working_dir)
+
     command = MonitoredCommand(
         command_parameters,
-        runner=wine(),
-        env=wineenv,
+        runner=wine,
+        env=baseenv,
         cwd=working_dir,
         include_processes=include_processes,
         exclude_processes=exclude_processes,
@@ -409,4 +403,4 @@ def open_wine_terminal(terminal, wine_path, prefix, env):
     env["WINEPREFIX"] = prefix
     shell_command = get_shell_command(prefix, env, aliases)
     terminal = terminal or linux.get_default_terminal()
-    system.execute([linux.get_default_terminal(), "-e", shell_command])
+    system.execute([terminal, "-e", shell_command])

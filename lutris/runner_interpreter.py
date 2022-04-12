@@ -10,19 +10,9 @@ from lutris.util.log import logger
 
 def get_mangohud_conf(system_config):
     """Return correct launch arguments and environment variables for Mangohud."""
-    env = {"MANGOHUD": "1"}
-    mango_args = []
-    mangohud = system_config.get("mangohud") or ""
-    if mangohud and system.find_executable("mangohud"):
-        if mangohud == "gl64":
-            mango_args = ["mangohud"]
-            env["MANGOHUD_DLSYM"] = "1"
-        elif mangohud == "gl32":
-            mango_args = ["mangohud.x86"]
-            env["MANGOHUD_DLSYM"] = "1"
-        else:
-            mango_args = ["mangohud"]
-    return mango_args, env
+    if system_config.get("mangohud") and system.find_executable("mangohud"):
+        return ["mangohud"], {"MANGOHUD": "1", "MANGOHUD_DLSYM": "1"}
+    return None, None
 
 
 def get_launch_parameters(runner, gameplay_info):
@@ -68,8 +58,15 @@ def get_launch_parameters(runner, gameplay_info):
 
     single_cpu = system_config.get("single_cpu") or False
     if single_cpu:
-        logger.info("The game will run on a single CPU core")
-        launch_arguments.insert(0, "0")
+        limit_cpu_count = system_config.get("limit_cpu_count")
+        if limit_cpu_count and limit_cpu_count.isnumeric():
+            limit_cpu_count = int(limit_cpu_count)
+        else:
+            limit_cpu_count = 1
+
+        limit_cpu_count = max(1, limit_cpu_count)
+        logger.info("The game will run on %d CPU core(s)", limit_cpu_count)
+        launch_arguments.insert(0, "0-%d" % (limit_cpu_count - 1))
         launch_arguments.insert(0, "-c")
         launch_arguments.insert(0, "taskset")
 
@@ -85,12 +82,11 @@ def get_launch_parameters(runner, gameplay_info):
         env["LD_PRELOAD"] = ld_preload
 
     # LD_LIBRARY_PATH
-    game_ld_libary_path = gameplay_info.get("ld_library_path")
-    if game_ld_libary_path:
+    game_ld_library_path = gameplay_info.get("ld_library_path")
+    if game_ld_library_path:
         ld_library_path = env.get("LD_LIBRARY_PATH")
-        if not ld_library_path:
-            ld_library_path = "$LD_LIBRARY_PATH"
-        env["LD_LIBRARY_PATH"] = ":".join([game_ld_libary_path, ld_library_path])
+        env["LD_LIBRARY_PATH"] = os.pathsep.join(filter(None, [
+            game_ld_library_path, ld_library_path]))
 
     # Feral gamemode
     gamemode = system_config.get("gamemode") and LINUX_SYSTEM.gamemode_available()
@@ -127,13 +123,15 @@ def get_gamescope_args(launch_arguments, system_config):
 
 def export_bash_script(runner, gameplay_info, script_path):
     """Convert runner configuration into a bash script"""
+    if getattr(runner, 'prelaunch', None) is not None:
+        runner.prelaunch()
     command, env = get_launch_parameters(runner, gameplay_info)
     # Override TERM otherwise the script might not run
     env["TERM"] = "xterm"
     script_content = "#!/bin/bash\n\n\n"
     script_content += "# Environment variables\n"
     for name, value in env.items():
-        script_content += f'export {name}="{value}"\n'
+        script_content += 'export %s="%s"\n' % (name, value)
     script_content += "\n# Command\n"
     script_content += " ".join([shlex.quote(c) for c in command])
     with open(script_path, "w", encoding='utf-8') as script_file:
