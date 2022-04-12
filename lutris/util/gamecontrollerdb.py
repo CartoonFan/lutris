@@ -1,10 +1,10 @@
 # Standard Library
 import os
 
-# Lutris Modules
 from lutris.settings import RUNTIME_DIR
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class ControllerMapping:
@@ -56,11 +56,13 @@ class ControllerMapping:
 
 
 class GameControllerDB:
-    db_path = os.path.join(RUNTIME_DIR, "gamecontrollerdb/gamecontrollerdb.txt")
+    db_path = os.path.join(RUNTIME_DIR,
+                           "gamecontrollerdb/gamecontrollerdb.txt")
 
     def __init__(self):
         if not system.path_exists(self.db_path):
-            raise OSError("Path to gamecontrollerdb.txt not provided or invalid")
+            raise OSError(
+                "Path to gamecontrollerdb.txt not provided or invalid")
         self.controllers = {}
         self.parsedb()
 
@@ -71,7 +73,7 @@ class GameControllerDB:
         return self.controllers[value]
 
     def parsedb(self):
-        with open(self.db_path, "r", encoding='utf-8') as db:
+        with open(self.db_path, "r", encoding="utf-8") as db:
             for line in db.readlines():
                 line = line.strip()
                 if not line or line.startswith("#"):

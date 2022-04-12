@@ -7,7 +7,10 @@ from urllib.parse import urlparse
 from lutris import settings
 from lutris.database.games import get_game_by_field
 from lutris.runners.runner import Runner
-from lutris.util import datapath, linux, resources, system
+from lutris.util import datapath
+from lutris.util import linux
+from lutris.util import resources
+from lutris.util import system
 from lutris.util.strings import split_arguments
 
 DEFAULT_ICON = os.path.join(datapath.get(), "media/default_icon.png")
@@ -17,14 +20,16 @@ class web(Runner):
     human_name = _("Web")
     description = _("Runs web based games")
     platforms = [_("Web")]
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "string",
-            "label": _("Full URL or HTML file path"),
-            "help": _("The full address of the game's web page or path to a HTML file."),
-        }
-    ]
+    game_options = [{
+        "option":
+        "main_file",
+        "type":
+        "string",
+        "label":
+        _("Full URL or HTML file path"),
+        "help":
+        _("The full address of the game's web page or path to a HTML file."),
+    }]
     runner_options = [
         {
             "option": "fullscreen",
@@ -41,9 +46,12 @@ class web(Runner):
             "help": _("Maximizes the window when game starts."),
         },
         {
-            "option": "window_size",
-            "label": _("Window size"),
-            "type": "choice_with_entry",
+            "option":
+            "window_size",
+            "label":
+            _("Window size"),
+            "type":
+            "choice_with_entry",
             "choices": [
                 "640x480",
                 "800x600",
@@ -52,15 +60,22 @@ class web(Runner):
                 "1280x1024",
                 "1920x1080",
             ],
-            "default": "800x600",
-            "help": _("The initial size of the game window when not opened."),
+            "default":
+            "800x600",
+            "help":
+            _("The initial size of the game window when not opened."),
         },
         {
-            "option": "disable_resizing",
-            "label": _("Disable window resizing (disables fullscreen and maximize)"),
-            "type": "bool",
-            "default": False,
-            "help": _("You can't resize this window."),
+            "option":
+            "disable_resizing",
+            "label":
+            _("Disable window resizing (disables fullscreen and maximize)"),
+            "type":
+            "bool",
+            "default":
+            False,
+            "help":
+            _("You can't resize this window."),
         },
         {
             "option": "frameless",
@@ -70,12 +85,17 @@ class web(Runner):
             "help": _("The window has no borders/frame."),
         },
         {
-            "option": "disable_menu_bar",
-            "label": _("Disable menu bar and default shortcuts"),
-            "type": "bool",
-            "default": False,
-            "help": _("This also disables default keyboard shortcuts, "
-                      "like copy/paste and fullscreen toggling."),
+            "option":
+            "disable_menu_bar",
+            "label":
+            _("Disable menu bar and default shortcuts"),
+            "type":
+            "bool",
+            "default":
+            False,
+            "help":
+            _("This also disables default keyboard shortcuts, "
+              "like copy/paste and fullscreen toggling."),
         },
         {
             "option": "disable_scrolling",
@@ -85,12 +105,17 @@ class web(Runner):
             "help": _("Disables scrolling on the page."),
         },
         {
-            "option": "hide_cursor",
-            "label": _("Hide mouse cursor"),
-            "type": "bool",
-            "default": False,
-            "help": _("Prevents the mouse cursor from showing "
-                      "when hovering above the window."),
+            "option":
+            "hide_cursor",
+            "label":
+            _("Hide mouse cursor"),
+            "type":
+            "bool",
+            "default":
+            False,
+            "help":
+            _("Prevents the mouse cursor from showing "
+              "when hovering above the window."),
         },
         {
             "option":
@@ -101,18 +126,23 @@ class web(Runner):
             "bool",
             "default":
             False,
-            "help": _(
-                "Enable this option if you want clicked links to open inside the "
-                "game window. By default all links open in your default web browser."
-            ),
+            "help":
+            _("Enable this option if you want clicked links to open inside the "
+              "game window. By default all links open in your default web browser."
+              ),
         },
         {
-            "option": "remove_margin",
-            "label": _("Remove default <body> margin & padding"),
-            "type": "bool",
-            "default": False,
-            "help": _("Sets margin and padding to zero "
-                      "on &lt;html&gt; and &lt;body&gt; elements."),
+            "option":
+            "remove_margin",
+            "label":
+            _("Remove default <body> margin & padding"),
+            "type":
+            "bool",
+            "default":
+            False,
+            "help":
+            _("Sets margin and padding to zero "
+              "on &lt;html&gt; and &lt;body&gt; elements."),
         },
         {
             "option": "enable_flash",
@@ -122,12 +152,18 @@ class web(Runner):
             "help": _("Enable Adobe Flash Player."),
         },
         {
-            "option": "user_agent",
-            "label": _("Custom User-Agent"),
-            "type": "string",
-            "default": "",
-            "help": _("Overrides the default User-Agent header used by the runner."),
-            "advanced": True,
+            "option":
+            "user_agent",
+            "label":
+            _("Custom User-Agent"),
+            "type":
+            "string",
+            "default":
+            "",
+            "help":
+            _("Overrides the default User-Agent header used by the runner."),
+            "advanced":
+            True,
         },
         {
             "option": "devtools",
@@ -151,10 +187,10 @@ class web(Runner):
             _("Custom web browser executable"),
             "type":
             "file",
-            "help": _(
-                "Select the executable of a browser on your system.\n"
-                "If left blank, Lutris will launch your default browser (xdg-open)."
-            ),
+            "help":
+            _("Select the executable of a browser on your system.\n"
+              "If left blank, Lutris will launch your default browser (xdg-open)."
+              ),
         },
         {
             "option":
@@ -165,11 +201,10 @@ class web(Runner):
             "string",
             "default":
             '"$GAME"',
-            "help": _(
-                "Command line arguments to pass to the executable.\n"
-                "$GAME or $URL inserts the game url.\n\n"
-                'For Chrome/Chromium app mode use: --app="$GAME"'
-            ),
+            "help":
+            _("Command line arguments to pass to the executable.\n"
+              "$GAME or $URL inserts the game url.\n\n"
+              'For Chrome/Chromium app mode use: --app="$GAME"'),
         },
     ]
     system_options_override = [{"option": "disable_runtime", "default": True}]
@@ -187,9 +222,11 @@ class web(Runner):
         url = self.game_config.get("main_file")
         if not url:
             return {
-                "error": "CUSTOM",
-                "text": _("The web address is empty, \n"
-                          "verify the game's configuration."),
+                "error":
+                "CUSTOM",
+                "text":
+                _("The web address is empty, \n"
+                  "verify the game's configuration."),
             }
 
         # check if it's an url or a file
@@ -198,9 +235,11 @@ class web(Runner):
         if not is_url:
             if not system.path_exists(url):
                 return {
-                    "error": "CUSTOM",
-                    "text": _("The file %s does not exist, \n"
-                              "verify the game's configuration.") % url,
+                    "error":
+                    "CUSTOM",
+                    "text":
+                    _("The file %s does not exist, \n"
+                      "verify the game's configuration.") % url,
                 }
             url = "file://" + url
 
@@ -209,11 +248,15 @@ class web(Runner):
         # keep the old behavior from browser runner, but with support for extra arguments!
         if self.runner_config.get("external_browser"):
             # is it possible to disable lutris runtime here?
-            browser = self.runner_config.get("custom_browser_executable") or "xdg-open"
+            browser = self.runner_config.get(
+                "custom_browser_executable") or "xdg-open"
 
             args = self.runner_config.get("custom_browser_args")
             args = args or '"$GAME"'
-            arguments = string.Template(args).safe_substitute({"GAME": url, "URL": url})
+            arguments = string.Template(args).safe_substitute({
+                "GAME": url,
+                "URL": url
+            })
 
             command = [browser]
 
@@ -228,7 +271,8 @@ class web(Runner):
 
         command = [
             self.get_executable(),
-            os.path.join(settings.RUNNER_DIR, "web/electron/resources/app.asar"),
+            os.path.join(settings.RUNNER_DIR,
+                         "web/electron/resources/app.asar"),
             url,
             "--name",
             game_data.get("name"),
@@ -237,16 +281,16 @@ class web(Runner):
         ]
 
         for key in [
-            "fullscreen",
-            "frameless",
-            "devtools",
-            "disable_resizing",
-            "disable_menu_bar",
-            "maximize_window",
-            "disable_scrolling",
-            "hide_cursor",
-            "open_links",
-            "remove_margin",
+                "fullscreen",
+                "frameless",
+                "devtools",
+                "disable_resizing",
+                "disable_menu_bar",
+                "maximize_window",
+                "disable_scrolling",
+                "hide_cursor",
+                "open_links",
+                "remove_margin",
         ]:
             if self.runner_config.get(key):
                 converted_opt_name = key.replace("_", "-")

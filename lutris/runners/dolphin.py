@@ -1,16 +1,18 @@
 """Dolphin runner"""
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
+# Lutris Modules
 
 
 class dolphin(Runner):
     description = _("GameCube and Wii emulator")
     human_name = _("Dolphin")
     platforms = [_("Nintendo GameCube"), _("Nintendo Wii")]
-    require_libs = ["libOpenGL.so.0", ]
+    require_libs = [
+        "libOpenGL.so.0",
+    ]
     runnable_alone = True
     runner_executable = "dolphin/dolphin-emu"
     game_options = [
@@ -24,7 +26,8 @@ class dolphin(Runner):
             "option": "platform",
             "type": "choice",
             "label": _("Platform"),
-            "choices": ((_("Nintendo GameCube"), "0"), (_("Nintendo Wii"), "1")),
+            "choices":
+            ((_("Nintendo GameCube"), "0"), (_("Nintendo Wii"), "1")),
         },
     ]
     runner_options = [
@@ -65,7 +68,8 @@ class dolphin(Runner):
         command = [executable]
 
         # Batch isn't available in nogui
-        if self.runner_config.get("batch") and not self.runner_config.get("nogui"):
+        if self.runner_config.get(
+                "batch") and not self.runner_config.get("nogui"):
             command.append("--batch")
 
         # Custom Global User Directory

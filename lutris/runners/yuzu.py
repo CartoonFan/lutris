@@ -4,10 +4,10 @@ import os
 from gettext import gettext as _
 from shutil import copyfile
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class yuzu(Runner):
@@ -16,26 +16,25 @@ class yuzu(Runner):
     description = _("Nintendo Switch emulator")
     runnable_alone = True
     runner_executable = "yuzu/yuzu"
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "file",
-            "label": _("ROM file"),
-            "help": _("The game data, commonly called a ROM image."),
-        }
-    ]
+    game_options = [{
+        "option": "main_file",
+        "type": "file",
+        "label": _("ROM file"),
+        "help": _("The game data, commonly called a ROM image."),
+    }]
     runner_options = [
         {
             "option": "prod_keys",
             "label": _("Encryption keys"),
             "type": "file",
             "help": _("File containing the encryption keys."),
-        }, {
+        },
+        {
             "option": "title_keys",
             "label": _("Title keys"),
             "type": "file",
             "help": _("File containing the title keys."),
-        }
+        },
     ]
 
     @property
@@ -43,7 +42,8 @@ class yuzu(Runner):
         """Return dir where Yuzu files lie."""
         candidates = ("~/.local/share/yuzu", )
         for candidate in candidates:
-            path = system.fix_path_case(os.path.join(os.path.expanduser(candidate), "nand"))
+            path = system.fix_path_case(
+                os.path.join(os.path.expanduser(candidate), "nand"))
             if path and system.path_exists(path):
                 return path[:-len("nand")]
 
@@ -57,7 +57,7 @@ class yuzu(Runner):
         return {"command": arguments}
 
     def _update_key(self, key_type):
-        """Update a keys file if set """
+        """Update a keys file if set"""
         yuzu_data_dir = self.yuzu_data_dir
         if not yuzu_data_dir:
             logger.error("Yuzu data dir not set")

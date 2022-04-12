@@ -1,6 +1,7 @@
 import os
 
-from lutris.api import get_api_games, get_game_installers
+from lutris.api import get_api_games
+from lutris.api import get_game_installers
 from lutris.database.games import get_games
 from lutris.installer.errors import MissingGameDependency
 from lutris.installer.interpreter import ScriptInterpreter
@@ -57,8 +58,8 @@ def find_game(game_folder, api_game):
 def get_used_directories():
     directories = set()
     for game in get_games():
-        if game['directory']:
-            directories.add(game['directory'])
+        if game["directory"]:
+            directories.add(game["directory"])
     return directories
 
 
@@ -92,6 +93,12 @@ def scan_directory(dirname):
             download_lutris_media(installer["game_slug"])
             slugs_installed.add(api_game["slug"])
 
-    installed_map = {slug: folder for slug, folder in slugs_map.items() if slug in slugs_installed}
-    missing_map = {slug: folder for slug, folder in slugs_map.items() if slug not in slugs_installed}
+    installed_map = {
+        slug: folder
+        for slug, folder in slugs_map.items() if slug in slugs_installed
+    }
+    missing_map = {
+        slug: folder
+        for slug, folder in slugs_map.items() if slug not in slugs_installed
+    }
     return installed_map, missing_map

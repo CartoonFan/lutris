@@ -5,9 +5,11 @@ import time
 
 from lutris import settings
 from lutris.database.services import ServiceGameCollection
-from lutris.gui.widgets.utils import get_default_icon, get_pixbuf
+from lutris.gui.widgets.utils import get_default_icon
+from lutris.gui.widgets.utils import get_pixbuf
 from lutris.util import system
-from lutris.util.http import HTTPError, download_file
+from lutris.util.http import download_file
+from lutris.util.http import HTTPError
 from lutris.util.log import logger
 
 PGA_DB = settings.PGA_DB
@@ -43,11 +45,17 @@ class ServiceMedia:
 
     def get_pixbuf_for_game(self, slug, is_installed=True):
         image_abspath = self.get_absolute_path(slug)
-        return get_pixbuf(image_abspath, self.size, fallback=get_default_icon(self.size), is_installed=is_installed)
+        return get_pixbuf(
+            image_abspath,
+            self.size,
+            fallback=get_default_icon(self.size),
+            is_installed=is_installed,
+        )
 
     def get_media_url(self, details):
         if self.api_field not in details:
-            logger.warning("No field '%s' in API game %s", self.api_field, details)
+            logger.warning("No field '%s' in API game %s", self.api_field,
+                           details)
             return
         if not details[self.api_field]:
             return
@@ -79,7 +87,8 @@ class ServiceMedia:
         if system.path_exists(cache_path):
             cache_stats = os.stat(cache_path)
             # Empty files have a life time between 1 and 2 weeks, retry them after
-            if time.time() - cache_stats.st_mtime < 3600 * 24 * random.choice(range(7, 15)):
+            if time.time() - cache_stats.st_mtime < 3600 * 24 * random.choice(
+                    range(7, 15)):
                 return cache_path
             os.unlink(cache_path)
         try:

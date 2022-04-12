@@ -1,6 +1,9 @@
 import enum
 
-from gi.repository import Gio, GLib, GObject, Gtk
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris import settings
 from lutris.util.log import logger
@@ -35,7 +38,8 @@ class StyleManager(GObject.Object):
         super().__init__()
 
         self.gtksettings = Gtk.Settings.get_default()
-        self.is_config_dark = settings.read_setting("dark_theme", default="false").lower() == "true"
+        self.is_config_dark = (settings.read_setting(
+            "dark_theme", default="false").lower() == "true")
 
         Gio.DBusProxy.new_for_bus(
             Gio.BusType.SESSION,
@@ -131,7 +135,9 @@ class StyleManager(GObject.Object):
         self._is_config_dark = is_config_dark
         self._set_is_dark(is_config_dark or self._is_system_dark)
 
-    @GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READABLE)
+    @GObject.Property(type=bool,
+                      default=False,
+                      flags=GObject.ParamFlags.READABLE)
     def is_dark(self) -> bool:
         return self._is_dark
 
@@ -142,9 +148,8 @@ class StyleManager(GObject.Object):
         self._is_dark = is_dark
         self.notify("is-dark")
 
-        self.gtksettings.set_property(
-            "gtk-application-prefer-dark-theme", is_dark
-        )
+        self.gtksettings.set_property("gtk-application-prefer-dark-theme",
+                                      is_dark)
 
     @property
     def color_scheme(self) -> ColorScheme:

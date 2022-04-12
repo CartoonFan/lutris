@@ -5,7 +5,6 @@ from configparser import RawConfigParser
 
 
 class EvilConfigParser(RawConfigParser):  # pylint: disable=too-many-ancestors
-
     """ConfigParser with support for evil INIs using duplicate keys."""
 
     _SECT_TMPL = r"""
@@ -43,13 +42,13 @@ class EvilConfigParser(RawConfigParser):  # pylint: disable=too-many-ancestors
                     continue
                 if (value is not None) or (self._optcre == self.OPTCRE):
                     # Duplicated keys writing support inside
-                    key = "=".join((key, str(value).replace("\n", "\n%s=" % key)))
+                    key = "=".join(
+                        (key, str(value).replace("\n", "\n%s=" % key)))
                 fp.write("{}\n".format(key).encode("utf-8"))
             fp.write("\n".encode("utf-8"))
 
 
 class MultiOrderedDict(OrderedDict):
-
     """dict_type to use with an EvilConfigParser instance."""
 
     def __setitem__(self, key, value):

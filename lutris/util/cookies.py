@@ -1,10 +1,11 @@
 # Standard Library
 import time
-from http.cookiejar import Cookie, MozillaCookieJar, _warn_unhandled_exception
+from http.cookiejar import _warn_unhandled_exception
+from http.cookiejar import Cookie
+from http.cookiejar import MozillaCookieJar
 
 
 class WebkitCookieJar(MozillaCookieJar):
-
     """Subclass of MozillaCookieJar for compatibility with cookies
     coming from Webkit2.
     This disables the magic_re header which is not present and adds
@@ -30,7 +31,16 @@ class WebkitCookieJar(MozillaCookieJar):
                 elif sline.startswith("#") or sline == "":
                     continue
 
-                domain, domain_specified, path, secure, expires, name, value, *_extra = line.split("\t")
+                (
+                    domain,
+                    domain_specified,
+                    path,
+                    secure,
+                    expires,
+                    name,
+                    value,
+                    *_extra,
+                ) = line.split("\t")
                 secure = secure == "TRUE"
                 domain_specified = domain_specified == "TRUE"
                 if name == "":
@@ -77,4 +87,5 @@ class WebkitCookieJar(MozillaCookieJar):
             raise
         except Exception as err:
             _warn_unhandled_exception()
-            raise OSError("invalid Netscape format cookies file %r: %r" % (filename, line)) from err
+            raise OSError("invalid Netscape format cookies file %r: %r" %
+                          (filename, line)) from err

@@ -1,22 +1,31 @@
 """TreeView based game list"""
 from gettext import gettext as _
 
-# Third Party Libraries
-# pylint: disable=no-member
-from gi.repository import Gdk, Gtk, Pango
+from gi.repository import Gdk
+from gi.repository import Gtk
+from gi.repository import Pango
 
-# Lutris Modules
 from lutris import settings
-from lutris.gui.views import (
-    COL_ICON, COL_INSTALLED_AT, COL_INSTALLED_AT_TEXT, COL_LASTPLAYED, COL_LASTPLAYED_TEXT, COL_NAME, COL_PLATFORM,
-    COL_PLAYTIME, COL_PLAYTIME_TEXT, COL_RUNNER_HUMAN_NAME, COL_YEAR, COLUMN_NAMES
-)
+from lutris.gui.views import COL_ICON
+from lutris.gui.views import COL_INSTALLED_AT
+from lutris.gui.views import COL_INSTALLED_AT_TEXT
+from lutris.gui.views import COL_LASTPLAYED
+from lutris.gui.views import COL_LASTPLAYED_TEXT
+from lutris.gui.views import COL_NAME
+from lutris.gui.views import COL_PLATFORM
+from lutris.gui.views import COL_PLAYTIME
+from lutris.gui.views import COL_PLAYTIME_TEXT
+from lutris.gui.views import COL_RUNNER_HUMAN_NAME
+from lutris.gui.views import COL_YEAR
+from lutris.gui.views import COLUMN_NAMES
 from lutris.gui.views.base import GameView
 from lutris.gui.views.store import sort_func
+# Third Party Libraries
+# pylint: disable=no-member
+# Lutris Modules
 
 
 class GameListView(Gtk.TreeView, GameView):
-
     """Show the main list of games."""
 
     __gsignals__ = GameView.__gsignals__
@@ -42,15 +51,23 @@ class GameListView(Gtk.TreeView, GameView):
         name_cell = self.set_text_cell()
         name_cell.set_padding(5, 0)
 
-        self.set_column(name_cell, _("Name"), COL_NAME, 200, always_visible=True)
+        self.set_column(name_cell,
+                        _("Name"),
+                        COL_NAME,
+                        200,
+                        always_visible=True)
         self.set_column(default_text_cell, _("Year"), COL_YEAR, 60)
-        self.set_column(default_text_cell, _("Runner"), COL_RUNNER_HUMAN_NAME, 120)
+        self.set_column(default_text_cell, _("Runner"), COL_RUNNER_HUMAN_NAME,
+                        120)
         self.set_column(default_text_cell, _("Platform"), COL_PLATFORM, 120)
-        self.set_column(default_text_cell, _("Last Played"), COL_LASTPLAYED_TEXT, 120)
+        self.set_column(default_text_cell, _("Last Played"),
+                        COL_LASTPLAYED_TEXT, 120)
         self.set_sort_with_column(COL_LASTPLAYED_TEXT, COL_LASTPLAYED)
-        self.set_column(default_text_cell, _("Installed At"), COL_INSTALLED_AT_TEXT, 120)
+        self.set_column(default_text_cell, _("Installed At"),
+                        COL_INSTALLED_AT_TEXT, 120)
         self.set_sort_with_column(COL_INSTALLED_AT_TEXT, COL_INSTALLED_AT)
-        self.set_column(default_text_cell, _("Play Time"), COL_PLAYTIME_TEXT, 100)
+        self.set_column(default_text_cell, _("Play Time"), COL_PLAYTIME_TEXT,
+                        100)
         self.set_sort_with_column(COL_PLAYTIME_TEXT, COL_PLAYTIME)
 
         self.get_selection().set_mode(Gtk.SelectionMode.SINGLE)
@@ -66,20 +83,30 @@ class GameListView(Gtk.TreeView, GameView):
         text_cell.set_property("ellipsize", Pango.EllipsizeMode.END)
         return text_cell
 
-    def set_column(self, cell, header, column_id, default_width, always_visible=False, sort_id=None):
+    def set_column(self,
+                   cell,
+                   header,
+                   column_id,
+                   default_width,
+                   always_visible=False,
+                   sort_id=None):
         column = Gtk.TreeViewColumn(header, cell, markup=column_id)
         column.set_sort_indicator(True)
         column.set_sort_column_id(column_id if sort_id is None else sort_id)
         self.set_column_sort(column_id if sort_id is None else sort_id)
         column.set_resizable(True)
         column.set_reorderable(True)
-        width = settings.read_setting("%s_column_width" % COLUMN_NAMES[column_id], "list view")
-        is_visible = settings.read_setting("%s_visible" % COLUMN_NAMES[column_id], "list view")
+        width = settings.read_setting(
+            "%s_column_width" % COLUMN_NAMES[column_id], "list view")
+        is_visible = settings.read_setting(
+            "%s_visible" % COLUMN_NAMES[column_id], "list view")
         column.set_fixed_width(int(width) if width else default_width)
-        column.set_visible(is_visible == "True" or always_visible if is_visible else True)
+        column.set_visible(
+            is_visible == "True" or always_visible if is_visible else True)
         self.append_column(column)
         column.connect("notify::width", self.on_column_width_changed)
-        column.get_button().connect('button-press-event', self.on_column_header_button_pressed)
+        column.get_button().connect("button-press-event",
+                                    self.on_column_header_button_pressed)
         return column
 
     def set_column_sort(self, col):

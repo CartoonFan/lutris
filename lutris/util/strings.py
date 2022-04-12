@@ -6,8 +6,8 @@ import shlex
 import unicodedata
 import uuid
 
-# Lutris Modules
 from lutris.util.log import logger
+# Lutris Modules
 
 NO_PLAYTIME = "Never played"
 
@@ -104,7 +104,9 @@ def unpack_dependencies(string):
     dependencies = [dep.strip() for dep in string.split(",") if dep.strip()]
     for index, dependency in enumerate(dependencies):
         if "|" in dependency:
-            dependencies[index] = tuple(option.strip() for option in dependency.split("|") if option.strip())
+            dependencies[index] = tuple(option.strip()
+                                        for option in dependency.split("|")
+                                        if option.strip())
     return [dependency for dependency in dependencies if dependency]
 
 
@@ -113,7 +115,8 @@ def gtk_safe(string):
     if not string:
         string = ""
     string = str(string)
-    return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return string.replace("&", "&amp;").replace("<",
+                                                "&lt;").replace(">", "&gt;")
 
 
 def get_formatted_playtime(playtime):
@@ -139,7 +142,8 @@ def get_formatted_playtime(playtime):
     else:
         minutes_text = ""
 
-    formatted_time = " and ".join([text for text in (hours_text, minutes_text) if text])
+    formatted_time = " and ".join(
+        [text for text in (hours_text, minutes_text) if text])
     if formatted_time:
         return formatted_time
     if playtime:
@@ -147,7 +151,7 @@ def get_formatted_playtime(playtime):
     return NO_PLAYTIME
 
 
-def _split_arguments(args, closing_quot='', quotations=None):
+def _split_arguments(args, closing_quot="", quotations=None):
     if quotations is None:
         quotations = ["'", '"']
     try:

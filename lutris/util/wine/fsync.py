@@ -55,7 +55,7 @@ import functools
 import os
 import subprocess
 
-__all__ = ("is_fsync_supported",)
+__all__ = ("is_fsync_supported", )
 
 
 # pylint: disable=invalid-name,too-few-public-methods
@@ -66,6 +66,7 @@ class timespec(ctypes.Structure):
         tv_sec: The whole seconds of the timespec.
         tv_nsec: The nanoseconds of the timespec.
     """
+
     __slots__ = ()
     _fields_ = [
         ("tv_sec", ctypes.c_long),
@@ -78,51 +79,46 @@ def _get_syscall_nr_from_headers(syscall_name):
 
     try:
         with subprocess.Popen(
-                ("cpp", "-m" + str(bits), "-E", "-P", "-x", "c", "-"),
+            ("cpp", "-m" + str(bits), "-E", "-P", "-x", "c", "-"),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 close_fds=True,
                 universal_newlines=True,
         ) as popen:
-            stdout, stderr = popen.communicate(
-                "#include <sys/syscall.h>\n"
-                "__NR_" + syscall_name + "\n"
-            )
+            stdout, stderr = popen.communicate("#include <sys/syscall.h>\n"
+                                               "__NR_" + syscall_name + "\n")
     except FileNotFoundError as ex:
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "cpp not installed or not in PATH"
-        ) from ex
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "cpp not installed or not in PATH") from ex
 
     if popen.returncode:
         raise RuntimeError(
             "failed to determine " + syscall_name + " syscall number: "
             "cpp returned nonzero exit code",
-            stderr
+            stderr,
         )
 
     if not stdout:
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "no output from cpp"
-        )
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "no output from cpp")
 
     last_line = stdout.splitlines()[-1]
 
     if last_line == "__NR_futex":
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "__NR_" + syscall_name + " not expanded"
-        )
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "__NR_" + syscall_name + " not expanded")
 
     try:
         return int(last_line)
     except ValueError as ex:
-        raise RuntimeError(
-            "failed to determine " + syscall_name + " syscall number: "
-            "__NR_" + syscall_name + " not a valid number: " + last_line
-        ) from ex
+        raise RuntimeError("failed to determine " + syscall_name +
+                           " syscall number: "
+                           "__NR_" + syscall_name + " not a valid number: " +
+                           last_line) from ex
 
     assert False
 
@@ -157,15 +153,12 @@ def _get_futex_syscall_nr():
     except KeyError:
         pass
 
-    return _get_syscall_nr_from_headers('futex')
+    return _get_syscall_nr_from_headers("futex")
 
 
 def _is_ctypes_obj(obj):
-    return (
-        hasattr(obj, "_b_base_")
-        and hasattr(obj, "_b_needsfree_")
-        and hasattr(obj, "_objects")
-    )
+    return (hasattr(obj, "_b_base_") and hasattr(obj, "_b_needsfree_")
+            and hasattr(obj, "_objects"))
 
 
 def _is_ctypes_obj_pointer(obj):
@@ -197,9 +190,15 @@ def _get_futex_syscall():
         RuntimeError: When the syscall number could not be determined.
     """
     futex_syscall = ctypes.CDLL(None, use_errno=True).syscall
-    futex_syscall.argtypes = (ctypes.c_long, ctypes.c_void_p, ctypes.c_int,
-                              ctypes.c_int, ctypes.POINTER(timespec),
-                              ctypes.c_void_p, ctypes.c_int)
+    futex_syscall.argtypes = (
+        ctypes.c_long,
+        ctypes.c_void_p,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.POINTER(timespec),
+        ctypes.c_void_p,
+        ctypes.c_int,
+    )
     futex_syscall.restype = ctypes.c_int
     futex_syscall_nr = _get_futex_syscall_nr()
 
@@ -230,7 +229,7 @@ def _get_futex_syscall():
             val,
             _coerce_to_pointer(timeout or timespec()),
             _coerce_to_pointer(uaddr2),
-            val3
+            val3,
         )
         return error, (ctypes.get_errno() if error == -1 else 0)
 
@@ -315,7 +314,7 @@ def _get_futex_waitv_syscall_nr():
     except KeyError:
         pass
 
-    return _get_syscall_nr_from_headers('futex_waitv')
+    return _get_syscall_nr_from_headers("futex_waitv")
 
 
 # pylint: disable=invalid-name,too-few-public-methods
@@ -327,6 +326,7 @@ class futex_waitv(ctypes.Structure):
         uaddr: The address to wait for.
         flags: The type and size of the futex.
     """
+
     __slots__ = ()
     _fields_ = [
         ("val", ctypes.c_uint64),
@@ -347,9 +347,13 @@ def _get_futex_waitv_syscall():
         RuntimeError: When the syscall number could not be determined.
     """
     futex_waitv_syscall = ctypes.CDLL(None, use_errno=True).syscall
-    futex_waitv_syscall.argtypes = (ctypes.c_long, ctypes.POINTER(futex_waitv),
-                                    ctypes.c_uint, ctypes.c_uint,
-                                    ctypes.POINTER(timespec))
+    futex_waitv_syscall.argtypes = (
+        ctypes.c_long,
+        ctypes.POINTER(futex_waitv),
+        ctypes.c_uint,
+        ctypes.c_uint,
+        ctypes.POINTER(timespec),
+    )
     futex_waitv_syscall.restype = ctypes.c_long
     futex_waitv_syscall_nr = _get_futex_waitv_syscall_nr()
 
@@ -379,7 +383,7 @@ def _get_futex_waitv_syscall():
             _coerce_to_pointer(waiters),
             nr_futexes,
             flags,
-            _coerce_to_pointer(timeout)
+            _coerce_to_pointer(timeout),
         )
         return error, (ctypes.get_errno() if error == -1 else 0)
 

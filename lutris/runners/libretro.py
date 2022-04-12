@@ -27,14 +27,21 @@ def get_libretro_cores():
     # Get core identifiers from info dir
     info_path = get_default_config_path("info")
     if not os.path.exists(info_path):
-        req = requests.get("http://buildbot.libretro.com/assets/frontend/info.zip", allow_redirects=True)
+        req = requests.get(
+            "http://buildbot.libretro.com/assets/frontend/info.zip",
+            allow_redirects=True,
+        )
         if req.status_code == requests.codes.ok:  # pylint: disable=no-member
-            with open(get_default_config_path('info.zip'), 'wb') as info_zip:
+            with open(get_default_config_path("info.zip"), "wb") as info_zip:
                 info_zip.write(req.content)
-            with ZipFile(get_default_config_path('info.zip'), 'r') as info_zip:
+            with ZipFile(get_default_config_path("info.zip"), "r") as info_zip:
                 info_zip.extractall(info_path)
         else:
-            logger.error("Error retrieving libretro info archive from server: %s - %s", req.status_code, req.reason)
+            logger.error(
+                "Error retrieving libretro info archive from server: %s - %s",
+                req.status_code,
+                req.reason,
+            )
             return []
     # Parse info files to fetch display name and platform/system
     for info_file in os.listdir(info_path):
@@ -42,7 +49,8 @@ def get_libretro_cores():
             continue
         core_identifier = info_file.replace("_libretro.info", "")
         core_config = RetroConfig(os.path.join(info_path, info_file))
-        if "categories" in core_config.keys() and "Emulator" in core_config["categories"]:
+        if ("categories" in core_config.keys()
+                and "Emulator" in core_config["categories"]):
             core_label = core_config["display_name"] or ""
             core_system = core_config["systemname"] or ""
             cores.append((core_label, core_identifier, core_system))
@@ -119,8 +127,10 @@ class libretro(Runner):
 
     def get_core_path(self, core):
         """Return the path of a core, prioritizing Retroarch cores"""
-        lutris_cores_folder = os.path.join(settings.RUNNER_DIR, "retroarch", "cores")
-        retroarch_core_folder = os.path.join(os.path.expanduser("~/.config/retroarch/cores"))
+        lutris_cores_folder = os.path.join(settings.RUNNER_DIR, "retroarch",
+                                           "cores")
+        retroarch_core_folder = os.path.join(
+            os.path.expanduser("~/.config/retroarch/cores"))
         core_filename = "{}_libretro.so".format(core)
         retroarch_core = os.path.join(retroarch_core_folder, core_filename)
         if system.path_exists(retroarch_core):
@@ -152,7 +162,9 @@ class libretro(Runner):
                 captured_super.install(version, downloader, callback)
 
         if not self.is_retroarch_installed():
-            captured_super.install(version=None, downloader=downloader, callback=install_core)
+            captured_super.install(version=None,
+                                   downloader=downloader,
+                                   callback=install_core)
         else:
             captured_super.install(version, downloader, callback)
 
@@ -163,7 +175,8 @@ class libretro(Runner):
         }
 
     def get_config_file(self):
-        return self.runner_config.get("config_file") or get_default_config_path("retroarch.cfg")
+        return self.runner_config.get(
+            "config_file") or get_default_config_path("retroarch.cfg")
 
     @staticmethod
     def get_system_directory(retro_config):
@@ -179,33 +192,50 @@ class libretro(Runner):
         # TODO: review later
         # Create retroarch.cfg if it doesn't exist.
         if not system.path_exists(config_file):
-            with open(config_file, "w", encoding='utf-8') as f:
+            with open(config_file, "w", encoding="utf-8") as f:
                 f.write("# Lutris RetroArch Configuration")
                 f.close()
 
             # Build the default config settings.
             retro_config = RetroConfig(config_file)
-            retro_config["libretro_directory"] = get_default_config_path("cores")
-            retro_config["libretro_info_path"] = get_default_config_path("info")
-            retro_config["content_database_path"] = get_default_config_path("database/rdb")
-            retro_config["cheat_database_path"] = get_default_config_path("database/cht")
-            retro_config["cursor_directory"] = get_default_config_path("database/cursors")
-            retro_config["screenshot_directory"] = get_default_config_path("screenshots")
-            retro_config["input_remapping_directory"] = get_default_config_path("remaps")
-            retro_config["video_shader_dir"] = get_default_config_path("shaders")
-            retro_config["core_assets_directory"] = get_default_config_path("downloads")
-            retro_config["thumbnails_directory"] = get_default_config_path("thumbnails")
-            retro_config["playlist_directory"] = get_default_config_path("playlists")
-            retro_config["joypad_autoconfig_dir"] = get_default_config_path("autoconfig")
-            retro_config["rgui_config_directory"] = get_default_config_path("config")
-            retro_config["overlay_directory"] = get_default_config_path("overlay")
-            retro_config["assets_directory"] = get_default_config_path("assets")
+            retro_config["libretro_directory"] = get_default_config_path(
+                "cores")
+            retro_config["libretro_info_path"] = get_default_config_path(
+                "info")
+            retro_config["content_database_path"] = get_default_config_path(
+                "database/rdb")
+            retro_config["cheat_database_path"] = get_default_config_path(
+                "database/cht")
+            retro_config["cursor_directory"] = get_default_config_path(
+                "database/cursors")
+            retro_config["screenshot_directory"] = get_default_config_path(
+                "screenshots")
+            retro_config[
+                "input_remapping_directory"] = get_default_config_path(
+                    "remaps")
+            retro_config["video_shader_dir"] = get_default_config_path(
+                "shaders")
+            retro_config["core_assets_directory"] = get_default_config_path(
+                "downloads")
+            retro_config["thumbnails_directory"] = get_default_config_path(
+                "thumbnails")
+            retro_config["playlist_directory"] = get_default_config_path(
+                "playlists")
+            retro_config["joypad_autoconfig_dir"] = get_default_config_path(
+                "autoconfig")
+            retro_config["rgui_config_directory"] = get_default_config_path(
+                "config")
+            retro_config["overlay_directory"] = get_default_config_path(
+                "overlay")
+            retro_config["assets_directory"] = get_default_config_path(
+                "assets")
             retro_config.save()
         else:
             retro_config = RetroConfig(config_file)
 
         core = self.game_config.get("core")
-        info_file = os.path.join(get_default_config_path("info"), "{}_libretro.info".format(core))
+        info_file = os.path.join(get_default_config_path("info"),
+                                 "{}_libretro.info".format(core))
         if system.path_exists(info_file):
             retro_config = RetroConfig(info_file)
             try:
@@ -232,9 +262,11 @@ class libretro(Runner):
                             checksum_status = "Checksum failed"
                     else:
                         checksum_status = "No checksum info"
-                    logger.info("Firmware '%s' found (%s)", firmware_filename, checksum_status)
+                    logger.info("Firmware '%s' found (%s)", firmware_filename,
+                                checksum_status)
                 else:
-                    logger.warning("Firmware '%s' not found!", firmware_filename)
+                    logger.warning("Firmware '%s' not found!",
+                                   firmware_filename)
 
                 # Before closing issue #431
                 # TODO check for firmware*_opt and display an error message if
@@ -289,12 +321,12 @@ class libretro(Runner):
 
     # Checks whether the retroarch or libretro directories can be uninstalled.
     def can_uninstall(self):
-        retroarch_path = os.path.join(settings.RUNNER_DIR, 'retroarch')
+        retroarch_path = os.path.join(settings.RUNNER_DIR, "retroarch")
         return os.path.isdir(retroarch_path) or super().can_uninstall()
 
     # Remove the `retroarch` directory.
     def uninstall(self):
-        retroarch_path = os.path.join(settings.RUNNER_DIR, 'retroarch')
+        retroarch_path = os.path.join(settings.RUNNER_DIR, "retroarch")
         if os.path.isdir(retroarch_path):
             system.remove_folder(retroarch_path)
         super().uninstall()

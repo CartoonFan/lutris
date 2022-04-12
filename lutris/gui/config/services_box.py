@@ -1,10 +1,13 @@
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris import settings
 from lutris.gui.config.base_config_box import BaseConfigBox
-from lutris.gui.widgets.utils import ICON_SIZE, get_icon
+from lutris.gui.widgets.utils import get_icon
+from lutris.gui.widgets.utils import ICON_SIZE
 from lutris.services import SERVICES
 
 
@@ -15,11 +18,12 @@ class ServicesBox(BaseConfigBox):
 
     def __init__(self):
         super().__init__()
-        self.add(self.get_section_label(_("Enable integrations with game sources")))
-        self.add(self.get_description_label(
-            _("Access your game libraries from various sources. "
-              "Changes require a restart to take effect.")
-        ))
+        self.add(
+            self.get_section_label(_("Enable integrations with game sources")))
+        self.add(
+            self.get_description_label(
+                _("Access your game libraries from various sources. "
+                  "Changes require a restart to take effect.")))
         self.listbox = Gtk.ListBox(visible=True)
         self.pack_start(self.listbox, False, False, 12)
         GLib.idle_add(self.populate_services)

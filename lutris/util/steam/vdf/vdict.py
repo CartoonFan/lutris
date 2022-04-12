@@ -1,27 +1,31 @@
+import collections as _c
 from collections import Counter
 
-_iter_values = 'values'
+_iter_values = "values"
 _range = range
 _string_type = str
-import collections as _c
 
 
 class _kView(_c.KeysView):
+
     def __iter__(self):
         return self._mapping.iterkeys()
 
 
 class _vView(_c.ValuesView):
+
     def __iter__(self):
         return self._mapping.itervalues()
 
 
 class _iView(_c.ItemsView):
+
     def __iter__(self):
         return self._mapping.iteritems()
 
 
 class VDFDict(dict):
+
     def __init__(self, data=None):
         """
         This is a dictionary that supports duplicate keys and preserves insert order
@@ -40,7 +44,9 @@ class VDFDict(dict):
 
         if data is not None:
             if not isinstance(data, (list, dict)):
-                raise ValueError("Expected data to be list of pairs or dict, got %s" % type(data))
+                raise ValueError(
+                    "Expected data to be list of pairs or dict, got %s" %
+                    type(data))
             self.update(data)
 
     def __repr__(self):
@@ -53,7 +59,8 @@ class VDFDict(dict):
 
     def _verify_key_tuple(self, key):
         if len(key) != 2:
-            raise ValueError("Expected key tuple length to be 2, got %d" % len(key))
+            raise ValueError("Expected key tuple length to be 2, got %d" %
+                             len(key))
         if not isinstance(key[0], int):
             raise TypeError("Key index should be an int")
         if not isinstance(key[1], _string_type):
@@ -65,7 +72,8 @@ class VDFDict(dict):
         elif isinstance(key, tuple):
             self._verify_key_tuple(key)
         else:
-            raise TypeError("Expected key to be a str or tuple, got %s" % type(key))
+            raise TypeError("Expected key to be a str or tuple, got %s" %
+                            type(key))
         return key
 
     def __setitem__(self, key, value):
@@ -157,7 +165,8 @@ class VDFDict(dict):
         if isinstance(data, dict):
             data = data.items()
         elif not isinstance(data, list):
-            raise TypeError("Expected data to be a list or dict, got %s" % type(data))
+            raise TypeError("Expected data to be a list or dict, got %s" %
+                            type(data))
 
         for key, value in data:
             self.__setitem__(key, value)
@@ -181,13 +190,13 @@ class VDFDict(dict):
         return _iView(self)
 
     def get_all_for(self, key):
-        """ Returns all values of the given key """
+        """Returns all values of the given key"""
         if not isinstance(key, _string_type):
             raise TypeError("Key needs to be a string.")
         return [self[(idx, key)] for idx in _range(self.__kcount[key])]
 
     def remove_all_for(self, key):
-        """ Removes all items with the given key """
+        """Removes all items with the given key"""
         if not isinstance(key, _string_type):
             raise TypeError("Key need to be a string.")
 

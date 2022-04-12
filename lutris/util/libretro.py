@@ -14,7 +14,7 @@ class RetroConfig:
 
     @property
     def config(self):
-        """Lazy loading of the RetroArch config """
+        """Lazy loading of the RetroArch config"""
         if self._config:
             return self._config
         try:
@@ -24,7 +24,7 @@ class RetroConfig:
             logger.error(
                 "The Retroarch config in %s could not "
                 "be read because of character encoding issues",
-                self.config_path
+                self.config_path,
             )
             return []
 
@@ -32,15 +32,16 @@ class RetroConfig:
         """Load the configuration from file"""
         self._config = []
         if not os.path.isfile(self.config_path):
-            raise OSError("Specified config file {} does not exist".format(self.config_path))
-        with open(self.config_path, "r", encoding='utf-8') as config_file:
+            raise OSError("Specified config file {} does not exist".format(
+                self.config_path))
+        with open(self.config_path, "r", encoding="utf-8") as config_file:
             for line in config_file.readlines():
                 if not line:
                     continue
                 line = line.strip()
-                if line == "" or line.startswith('#'):
+                if line == "" or line.startswith("#"):
                     continue
-                if '=' in line:
+                if "=" in line:
                     key, value = line.split("=", 1)
                     key = key.strip()
                     value = value.strip().strip('"')
@@ -49,7 +50,7 @@ class RetroConfig:
                     self._config.append((key, value))
 
     def save(self):
-        with open(self.config_path, "w", encoding='utf-8') as config_file:
+        with open(self.config_path, "w", encoding="utf-8") as config_file:
             for (key, value) in self.config:
                 config_file.write('{} = "{}"\n'.format(key, value))
 

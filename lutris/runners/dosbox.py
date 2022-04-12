@@ -3,10 +3,11 @@ import os
 import shlex
 from gettext import gettext as _
 
-# Lutris Modules
-from lutris.runners.commands.dosbox import dosexec, makeconfig  # NOQA pylint: disable=unused-import
+from lutris.runners.commands.dosbox import dosexec
+from lutris.runners.commands.dosbox import makeconfig
 from lutris.runners.runner import Runner
 from lutris.util import system
+# Lutris Modules
 
 
 class dosbox(Runner):
@@ -15,28 +16,34 @@ class dosbox(Runner):
     platforms = [_("MS-DOS")]
     runnable_alone = True
     runner_executable = "dosbox/bin/dosbox"
-    require_libs = ["libopusfile.so.0", ]
+    require_libs = [
+        "libopusfile.so.0",
+    ]
     game_options = [
         {
-            "option": "main_file",
-            "type": "file",
-            "label": _("Main file"),
-            "help": _(
-                "The CONF, EXE, COM or BAT file to launch.\n"
-                "It can be left blank if the launch of the executable is "
-                "managed in the config file."
-            ),
+            "option":
+            "main_file",
+            "type":
+            "file",
+            "label":
+            _("Main file"),
+            "help":
+            _("The CONF, EXE, COM or BAT file to launch.\n"
+              "It can be left blank if the launch of the executable is "
+              "managed in the config file."),
         },
         {
-            "option": "config_file",
-            "type": "file",
-            "label": _("Configuration file"),
-            "help": _(
-                "Start DOSBox with the options specified in this file. \n"
-                "It can have a section in which you can put commands "
-                "to execute on startup. Read DOSBox's documentation "
-                "for more information."
-            ),
+            "option":
+            "config_file",
+            "type":
+            "file",
+            "label":
+            _("Configuration file"),
+            "help":
+            _("Start DOSBox with the options specified in this file. \n"
+              "It can have a section in which you can put commands "
+              "to execute on startup. Read DOSBox's documentation "
+              "for more information."),
         },
         {
             "option": "args",
@@ -46,14 +53,16 @@ class dosbox(Runner):
             "validator": shlex.split,
         },
         {
-            "option": "working_dir",
-            "type": "directory_chooser",
-            "label": _("Working directory"),
-            "help": _(
-                "The location where the game is run from.\n"
-                "By default, Lutris uses the directory of the "
-                "executable."
-            ),
+            "option":
+            "working_dir",
+            "type":
+            "directory_chooser",
+            "label":
+            _("Working directory"),
+            "help":
+            _("The location where the game is run from.\n"
+              "By default, Lutris uses the directory of the "
+              "executable."),
         },
     ]
 

@@ -13,7 +13,7 @@ def write_date_to_cache(key):
     """Write current time to the cache for 'key'"""
     cache = _read_cache_content()
     cache[key] = datetime.strftime(datetime.now(), DATE_FORMAT)
-    with open(UPDATE_CACHE_PATH, "w", encoding='utf-8') as json_file:
+    with open(UPDATE_CACHE_PATH, "w", encoding="utf-8") as json_file:
         json.dump(cache, json_file, indent=2)
 
 
@@ -21,7 +21,7 @@ def _read_cache_content():
     """Return the content of the cache"""
     if not os.path.exists(UPDATE_CACHE_PATH):
         return {}
-    with open(UPDATE_CACHE_PATH, "r", encoding='utf-8') as json_file:
+    with open(UPDATE_CACHE_PATH, "r", encoding="utf-8") as json_file:
         cache = json.load(json_file)
     return cache
 

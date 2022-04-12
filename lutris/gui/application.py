@@ -14,47 +14,62 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import json
 import logging
 import os
 import signal
 import sys
 import tempfile
-
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from gettext import gettext as _
 
 import gi
-gi.require_version("Gdk", "3.0")
-gi.require_version("Gtk", "3.0")
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 
-from gi.repository import Gio, GLib, Gtk, GObject
-
-from lutris.runners import get_runner_names, import_runner, InvalidRunner, RunnerInstallationError
+from .lutriswindow import LutrisWindow
 from lutris import settings
-from lutris.api import parse_installer_url, get_runners
+from lutris.api import get_runners
+from lutris.api import parse_installer_url
 from lutris.command import exec_command
 from lutris.database import games as games_db
-from lutris.game import Game, export_game, import_game
-from lutris.installer import get_installers
+from lutris.database.services import ServiceGameCollection
+from lutris.game import export_game
+from lutris.game import Game
+from lutris.game import import_game
+from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import InstallOrPlayDialog
+from lutris.gui.dialogs import LutrisInitDialog
 from lutris.gui.dialogs.download import simple_downloader
-from lutris.gui.dialogs import ErrorDialog, InstallOrPlayDialog, LutrisInitDialog
 from lutris.gui.dialogs.issue import IssueReportWindow
 from lutris.gui.installerwindow import InstallerWindow
 from lutris.gui.widgets.status_icon import LutrisStatusIcon
+from lutris.installer import get_installers
 from lutris.migrations import migrate
-from lutris.startup import init_lutris, run_all_checks, update_runtime
-from lutris.style_manager import StyleManager
-from lutris.util import datapath, log, system
-from lutris.util.http import HTTPError, Request
-from lutris.util.log import logger
-from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
-from lutris.util.steam.config import get_steamapps_paths
+from lutris.runners import get_runner_names
+from lutris.runners import import_runner
+from lutris.runners import InvalidRunner
+from lutris.runners import RunnerInstallationError
 from lutris.services import get_enabled_services
-from lutris.database.services import ServiceGameCollection
+from lutris.startup import init_lutris
+from lutris.startup import run_all_checks
+from lutris.startup import update_runtime
+from lutris.style_manager import StyleManager
+from lutris.util import datapath
+from lutris.util import log
+from lutris.util import system
+from lutris.util.http import HTTPError
+from lutris.util.http import Request
+from lutris.util.log import logger
+from lutris.util.steam.appmanifest import AppManifest
+from lutris.util.steam.appmanifest import get_appmanifests
+from lutris.util.steam.config import get_steamapps_paths
 
-from .lutriswindow import LutrisWindow
+gi.require_version("Gdk", "3.0")
+gi.require_version("Gtk", "3.0")
 
 
 class Application(Gtk.Application):
@@ -70,8 +85,10 @@ class Application(Gtk.Application):
         GObject.add_emission_hook(Game, "game-start", self.on_game_start)
         GObject.add_emission_hook(Game, "game-stop", self.on_game_stop)
         GObject.add_emission_hook(Game, "game-install", self.on_game_install)
-        GObject.add_emission_hook(Game, "game-install-update", self.on_game_install_update)
-        GObject.add_emission_hook(Game, "game-install-dlc", self.on_game_install_dlc)
+        GObject.add_emission_hook(Game, "game-install-update",
+                                  self.on_game_install_update)
+        GObject.add_emission_hook(Game, "game-install-dlc",
+                                  self.on_game_install_dlc)
 
         GLib.set_application_name(_("Lutris"))
         self.window = None
@@ -84,29 +101,34 @@ class Application(Gtk.Application):
         self.style_manager = None
 
         if os.geteuid() == 0:
-            ErrorDialog(_("Running Lutris as root is not recommended and may cause unexpected issues"))
+            ErrorDialog(
+                _("Running Lutris as root is not recommended and may cause unexpected issues"
+                  ))
 
         try:
-            self.css_provider.load_from_path(os.path.join(datapath.get(), "ui", "lutris.css"))
+            self.css_provider.load_from_path(
+                os.path.join(datapath.get(), "ui", "lutris.css"))
         except GLib.Error as e:
             logger.exception(e)
 
         if hasattr(self, "add_main_option"):
             self.add_arguments()
         else:
-            ErrorDialog(_("Your Linux distribution is too old. Lutris won't function properly."))
+            ErrorDialog(
+                _("Your Linux distribution is too old. Lutris won't function properly."
+                  ))
 
     def add_arguments(self):
         if hasattr(self, "set_option_context_summary"):
-            self.set_option_context_summary(_(
-                "Run a game directly by adding the parameter lutris:rungame/game-identifier.\n"
-                "If several games share the same identifier you can use the numerical ID "
-                "(displayed when running lutris --list-games) and add "
-                "lutris:rungameid/numerical-id.\n"
-                "To install a game, add lutris:install/game-identifier."
-            ))
+            self.set_option_context_summary(
+                _("Run a game directly by adding the parameter lutris:rungame/game-identifier.\n"
+                  "If several games share the same identifier you can use the numerical ID "
+                  "(displayed when running lutris --list-games) and add "
+                  "lutris:rungameid/numerical-id.\n"
+                  "To install a game, add lutris:install/game-identifier."))
         else:
-            logger.warning("GLib.set_option_context_summary missing, " "was added in GLib 2.56 (Released 2018-03-12)")
+            logger.warning("GLib.set_option_context_summary missing, "
+                           "was added in GLib 2.56 (Released 2018-03-12)")
         self.add_main_option(
             "version",
             ord("v"),
@@ -251,7 +273,14 @@ class Application(Gtk.Application):
             _("Reinstall game"),
             None,
         )
-        self.add_main_option("submit-issue", 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE, _("Submit an issue"), None)
+        self.add_main_option(
+            "submit-issue",
+            0,
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            _("Submit an issue"),
+            None,
+        )
         self.add_main_option(
             GLib.OPTION_REMAINING,
             0,
@@ -278,7 +307,9 @@ class Application(Gtk.Application):
         if not self.window:
             self.window = LutrisWindow(application=self)
             screen = self.window.props.screen  # pylint: disable=no-member
-            Gtk.StyleContext.add_provider_for_screen(screen, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            Gtk.StyleContext.add_provider_for_screen(
+                screen, self.css_provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         if not self.run_in_background:
             self.window.present()
         else:
@@ -327,19 +358,24 @@ class Application(Gtk.Application):
             window_inst.set_application(self)
         else:
             window_inst = window_class(application=self, **kwargs)
-        window_inst.connect("destroy", self.on_app_window_destroyed, self.get_window_key(**kwargs))
+        window_inst.connect("destroy", self.on_app_window_destroyed,
+                            self.get_window_key(**kwargs))
         self.app_windows[window_key] = window_inst
         logger.debug("Showing window %s", window_key)
         window_inst.show()
         return window_inst
 
-    def show_installer_window(self, installers, service=None, appid=None, is_update=False):
+    def show_installer_window(self,
+                              installers,
+                              service=None,
+                              appid=None,
+                              is_update=False):
         self.show_window(
             InstallerWindow,
             installers=installers,
             service=service,
             appid=appid,
-            is_update=is_update
+            is_update=is_update,
         )
 
     def on_app_window_destroyed(self, app_window, window_key):
@@ -350,7 +386,8 @@ class Application(Gtk.Application):
             logger.debug("Removed window %s", window_key)
         except KeyError:
             logger.warning("Failed to remove window %s", window_key)
-            logger.info("Available windows: %s", ", ".join(self.app_windows.keys()))
+            logger.info("Available windows: %s",
+                        ", ".join(self.app_windows.keys()))
         return True
 
     @staticmethod
@@ -486,7 +523,8 @@ class Application(Gtk.Application):
             url = options.lookup_value(GLib.OPTION_REMAINING)
             installer_info = self.get_lutris_action(url)
         except ValueError:
-            self._print(command_line, _("%s is not a valid URI") % url.get_strv())
+            self._print(command_line,
+                        _("%s is not a valid URI") % url.get_strv())
             return 1
 
         game_slug = installer_info["game_slug"]
@@ -506,17 +544,22 @@ class Application(Gtk.Application):
                 try:
                     request = Request(installer_file).get()
                 except HTTPError:
-                    self._print(command_line, _("Failed to download %s") % installer_file)
+                    self._print(command_line,
+                                _("Failed to download %s") % installer_file)
                     return 1
                 try:
                     headers = dict(request.response_headers)
-                    file_name = headers["Content-Disposition"].split("=", 1)[-1]
+                    file_name = headers["Content-Disposition"].split("=",
+                                                                     1)[-1]
                 except (KeyError, IndexError):
                     file_name = os.path.basename(installer_file)
                 file_path = os.path.join(tempfile.gettempdir(), file_name)
-                self._print(command_line, _("download {url} to {file} started").format(
-                    url=installer_file, file=file_path))
-                with open(file_path, 'wb') as dest_file:
+                self._print(
+                    command_line,
+                    _("download {url} to {file} started").format(
+                        url=installer_file, file=file_path),
+                )
+                with open(file_path, "wb") as dest_file:
                     dest_file.write(request.content)
                 installer_file = file_path
                 action = "install"
@@ -525,7 +568,8 @@ class Application(Gtk.Application):
                 action = "install"
 
             if not os.path.isfile(installer_file):
-                self._print(command_line, _("No such file: %s") % installer_file)
+                self._print(command_line,
+                            _("No such file: %s") % installer_file)
                 return 1
 
         db_game = None
@@ -541,15 +585,15 @@ class Application(Gtk.Application):
             elif action == "install":
                 # Installers can use game or installer slugs
                 self.run_in_background = True
-                db_game = games_db.get_game_by_field(game_slug, "slug") \
-                    or games_db.get_game_by_field(game_slug, "installer_slug")
+                db_game = games_db.get_game_by_field(
+                    game_slug, "slug") or games_db.get_game_by_field(
+                        game_slug, "installer_slug")
             else:
                 # Dazed and confused, try anything that might works
-                db_game = (
-                    games_db.get_game_by_field(game_slug, "id")
-                    or games_db.get_game_by_field(game_slug, "slug")
-                    or games_db.get_game_by_field(game_slug, "installer_slug")
-                )
+                db_game = (games_db.get_game_by_field(game_slug, "id")
+                           or games_db.get_game_by_field(game_slug, "slug")
+                           or games_db.get_game_by_field(
+                               game_slug, "installer_slug"))
 
         # If reinstall flag is passed, force the action to install
         if options.contains("reinstall"):
@@ -559,7 +603,9 @@ class Application(Gtk.Application):
             if not db_game or not db_game["id"]:
                 logger.warning("No game provided to generate the script")
                 return 1
-            self.generate_script(db_game, options.lookup_value("output-script").get_string())
+            self.generate_script(
+                db_game,
+                options.lookup_value("output-script").get_string())
             return 0
 
         # Graphical commands
@@ -642,7 +688,10 @@ class Application(Gtk.Application):
         if installers:
             self.show_installer_window(installers)
         else:
-            ErrorDialog(_("There is no installer available for %s.") % game.name, parent=self.window)
+            ErrorDialog(
+                _("There is no installer available for %s.") % game.name,
+                parent=self.window,
+            )
         return True
 
     def on_game_install_update(self, game):
@@ -650,7 +699,10 @@ class Application(Gtk.Application):
         db_game = games_db.get_game_by_field(game.id, "id")
         installers = service.get_update_installers(db_game)
         if installers:
-            self.show_installer_window(installers, service, game.appid, is_update=True)
+            self.show_installer_window(installers,
+                                       service,
+                                       game.appid,
+                                       is_update=True)
         else:
             ErrorDialog(_("No updates found"))
         return True
@@ -700,7 +752,13 @@ class Application(Gtk.Application):
 
     @staticmethod
     def get_lutris_action(url):
-        installer_info = {"game_slug": None, "revision": None, "action": None, "service": None, "appid": None}
+        installer_info = {
+            "game_slug": None,
+            "revision": None,
+            "action": None,
+            "service": None,
+            "appid": None,
+        }
 
         if url:
             url = url.get_strv()
@@ -726,26 +784,28 @@ class Application(Gtk.Application):
             )
 
     def print_game_json(self, command_line, game_list):
-        games = [
-            {
-                "id": game["id"],
-                "slug": game["slug"],
-                "name": game["name"],
-                "runner": game["runner"],
-                "platform": game["platform"] or None,
-                "year": game["year"] or None,
-                "directory": game["directory"] or None,
-                "hidden": bool(game["hidden"]),
-                "playtime": (
-                    str(timedelta(hours=game["playtime"]))
-                    if game["playtime"] else None
-                ),
-                "lastplayed": (
-                    str(datetime.fromtimestamp(game["lastplayed"]))
-                    if game["lastplayed"] else None
-                )
-            } for game in game_list
-        ]
+        games = [{
+            "id":
+            game["id"],
+            "slug":
+            game["slug"],
+            "name":
+            game["name"],
+            "runner":
+            game["runner"],
+            "platform":
+            game["platform"] or None,
+            "year":
+            game["year"] or None,
+            "directory":
+            game["directory"] or None,
+            "hidden":
+            bool(game["hidden"]),
+            "playtime": (str(timedelta(
+                hours=game["playtime"])) if game["playtime"] else None),
+            "lastplayed": (str(datetime.fromtimestamp(game["lastplayed"]))
+                           if game["lastplayed"] else None),
+        } for game in game_list]
         self._print(command_line, json.dumps(games, indent=2))
 
     def print_steam_list(self, command_line):
@@ -802,7 +862,9 @@ class Application(Gtk.Application):
 
     def uninstall_runner(self, runner):
         if "wine" in runner:
-            print("Are sure you want to delete Wine and all of the installed runners?[Y/N]")
+            print(
+                "Are sure you want to delete Wine and all of the installed runners?[Y/N]"
+            )
             ans = input()
             if ans.lower() in ("y", "yes"):
                 self.uninstall_runner_cli(runner)
@@ -819,7 +881,8 @@ class Application(Gtk.Application):
         """
 
         WINE_DIR = os.path.join(settings.RUNNER_DIR, "wine")
-        runner_path = os.path.join(WINE_DIR, f"{version}{'' if '-x86_64' in version else '-x86_64'}")
+        runner_path = os.path.join(
+            WINE_DIR, f"{version}{'' if '-x86_64' in version else '-x86_64'}")
         if os.path.isdir(runner_path):
             print(f"Wine version '{version}' is already installed.")
         else:
@@ -856,7 +919,9 @@ Also, check that the version specified is in the correct format.
         else:
             try:
                 runner = import_runner(runner_name)
-                runner().install(version=None, downloader=simple_downloader, callback=None)
+                runner().install(version=None,
+                                 downloader=simple_downloader,
+                                 callback=None)
                 print(f"'{runner_name}' has been installed")
             except (InvalidRunner, RunnerInstallationError) as ex:
                 print(ex.message)
@@ -884,13 +949,15 @@ Also, check that the version specified is in the correct format.
     def do_shutdown(self):  # pylint: disable=arguments-differ
         logger.info("Shutting down Lutris")
         if self.window:
-            settings.write_setting("selected_category", self.window.selected_category)
+            settings.write_setting("selected_category",
+                                   self.window.selected_category)
             self.window.destroy()
         Gtk.Application.do_shutdown(self)
 
     def set_tray_icon(self):
         """Creates or destroys a tray icon for the application"""
-        active = settings.read_setting("show_tray_icon", default="false").lower() == "true"
+        active = (settings.read_setting("show_tray_icon",
+                                        default="false").lower() == "true")
         if active and not self.tray:
             self.tray = LutrisStatusIcon(application=self)
         if self.tray:

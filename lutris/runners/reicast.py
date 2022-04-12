@@ -6,11 +6,12 @@ from collections import Counter
 from configparser import RawConfigParser
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris import settings
 from lutris.gui.dialogs import NoticeDialog
 from lutris.runners.runner import Runner
-from lutris.util import joypad, system
+from lutris.util import joypad
+from lutris.util import system
+# Lutris Modules
 
 
 class reicast(Runner):
@@ -22,15 +23,17 @@ class reicast(Runner):
 
     joypads = None
 
-    game_options = [
-        {
-            "option": "iso",
-            "type": "file",
-            "label": _("Disc image file"),
-            "help": _("The game data.\n"
-                      "Supported formats: ISO, CDI"),
-        }
-    ]
+    game_options = [{
+        "option":
+        "iso",
+        "type":
+        "file",
+        "label":
+        _("Disc image file"),
+        "help":
+        _("The game data.\n"
+          "Supported formats: ISO, CDI"),
+    }]
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -76,12 +79,16 @@ class reicast(Runner):
 
         def on_runner_installed(*args):
             mapping_path = system.create_folder("~/.reicast/mappings")
-            mapping_source = os.path.join(settings.RUNNER_DIR, "reicast/mappings")
+            mapping_source = os.path.join(settings.RUNNER_DIR,
+                                          "reicast/mappings")
             for mapping_file in os.listdir(mapping_source):
-                shutil.copy(os.path.join(mapping_source, mapping_file), mapping_path)
+                shutil.copy(os.path.join(mapping_source, mapping_file),
+                            mapping_path)
 
             system.create_folder("~/.reicast/data")
-            NoticeDialog(_("You have to copy valid BIOS files to ~/.reicast/data before playing"))
+            NoticeDialog(
+                _("You have to copy valid BIOS files to ~/.reicast/data before playing"
+                  ))
 
         super().install(version, downloader, on_runner_installed)
 
@@ -119,7 +126,7 @@ class reicast(Runner):
 
         config_path = os.path.expanduser("~/.reicast/emu.cfg")
         if system.path_exists(config_path):
-            with open(config_path, "r", encoding='utf-8') as config_file:
+            with open(config_path, "r", encoding="utf-8") as config_file:
                 parser.read_file(config_file)
 
         for section in config:
@@ -128,7 +135,7 @@ class reicast(Runner):
             for (key, value) in config[section].items():
                 parser.set(section, key, str(value))
 
-        with open(config_path, "w", encoding='utf-8') as config_file:
+        with open(config_path, "w", encoding="utf-8") as config_file:
             parser.write(config_file)
 
     def play(self):
@@ -155,5 +162,7 @@ class reicast(Runner):
         self.write_config(reicast_config)
 
         iso = self.game_config.get("iso")
-        command = [self.get_executable(), "-config", "config:image={}".format(iso)]
+        command = [
+            self.get_executable(), "-config", "config:image={}".format(iso)
+        ]
         return {"command": command}

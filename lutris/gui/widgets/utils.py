@@ -2,10 +2,15 @@
 import array
 import os
 
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import Gtk
 
 from lutris import settings
-from lutris.util import datapath, system
+from lutris.util import datapath
+from lutris.util import system
 from lutris.util.log import logger
 
 try:
@@ -35,7 +40,8 @@ def open_uri(uri):
     try:
         Gtk.show_uri(None, uri, Gdk.CURRENT_TIME)
     except GLib.Error as ex:
-        logger.exception("Failed to open URI %s: %s, falling back to xdg-open", uri, ex)
+        logger.exception("Failed to open URI %s: %s, falling back to xdg-open",
+                         uri, ex)
         system.execute(["xdg-open", uri])
 
 
@@ -45,17 +51,21 @@ def get_pixbuf(image, size, fallback=None, is_installed=True):
     pixbuf = None
     if system.path_exists(image, exclude_empty=True):
         try:
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(image, width, height)
-            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.NEAREST)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+                image, width, height)
+            pixbuf = pixbuf.scale_simple(width, height,
+                                         GdkPixbuf.InterpType.NEAREST)
         except GLib.GError:
             logger.error("Unable to load icon from image %s", image)
     else:
         if not fallback:
             fallback = get_default_icon(size)
         if system.path_exists(fallback):
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(fallback, width, height)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+                fallback, width, height)
     if is_installed and pixbuf:
-        pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.NEAREST)
+        pixbuf = pixbuf.scale_simple(width, height,
+                                     GdkPixbuf.InterpType.NEAREST)
         return pixbuf
     overlay = os.path.join(datapath.get(), "media/unavailable.png")
     transparent_pixbuf = get_overlay(overlay, size).copy()
@@ -86,7 +96,8 @@ def get_stock_icon(name, size):
     """Return a pixbuf from a stock icon name"""
     theme = Gtk.IconTheme.get_default()
     try:
-        return theme.load_icon(name, size, Gtk.IconLookupFlags.GENERIC_FALLBACK)
+        return theme.load_icon(name, size,
+                               Gtk.IconLookupFlags.GENERIC_FALLBACK)
     except GLib.GError:
         logger.error("Failed to read icon %s", name)
         return None
@@ -102,7 +113,8 @@ def get_icon(icon_name, icon_format="image", size=None, icon_type="runner"):
     icon_type -- Retrieve either a 'runner' or 'platform' icon (default 'runner')
     """
     filename = icon_name.lower().replace(" ", "") + ".png"
-    icon_path = os.path.join(settings.RUNTIME_DIR, "icons/hicolor/64x64/apps", filename)
+    icon_path = os.path.join(settings.RUNTIME_DIR, "icons/hicolor/64x64/apps",
+                             filename)
     if not os.path.exists(icon_path):
         return None
     if icon_format == "image":
@@ -119,8 +131,10 @@ def get_icon(icon_name, icon_format="image", size=None, icon_type="runner"):
 
 def get_overlay(overlay_path, size):
     width, height = size
-    transparent_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(overlay_path, width, height)
-    transparent_pixbuf = transparent_pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.NEAREST)
+    transparent_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+        overlay_path, width, height)
+    transparent_pixbuf = transparent_pixbuf.scale_simple(
+        width, height, GdkPixbuf.InterpType.NEAREST)
     return transparent_pixbuf
 
 
@@ -146,7 +160,8 @@ def convert_to_background(background_path, target_size=(320, 1080)):
     coverart = coverart.crop((offset, 0, target_width + offset, image_height))
 
     # Resize canvas of coverart by putting transparent pixels on the bottom
-    coverart_bg = Image.new('RGBA', (target_width, target_height), (0, 0, 0, 0))
+    coverart_bg = Image.new("RGBA", (target_width, target_height),
+                            (0, 0, 0, 0))
     coverart_bg.paste(coverart, (0, 0, target_width, image_height))
 
     # Apply a tint to the base image
@@ -154,7 +169,7 @@ def convert_to_background(background_path, target_size=(320, 1080)):
     # coverart = Image.blend(coverart, tint, 0.6)
 
     # Paste coverart on transparent image while applying a gradient mask
-    background = Image.new('RGBA', (target_width, target_height), (0, 0, 0, 0))
+    background = Image.new("RGBA", (target_width, target_height), (0, 0, 0, 0))
     mask = Image.open(os.path.join(datapath.get(), "media/mask.png"))
     background.paste(coverart_bg, mask=mask)
 
@@ -177,7 +192,8 @@ def thumbnail_image(base_image, target_size):
     x_offset = int((width - target_width) / 2)
     y_offset = int((height - target_height) / 2)
     base_image = base_image.resize((width, height), resample=Image.BICUBIC)
-    base_image = base_image.crop((x_offset, y_offset, width - x_offset, height - y_offset))
+    base_image = base_image.crop(
+        (x_offset, y_offset, width - x_offset, height - y_offset))
     return base_image
 
 
@@ -187,22 +203,21 @@ def paste_overlay(base_image, overlay_image, position=0.7):
     offset_x = int((base_width - overlay_width) / 2)
     offset_y = int((base_height - overlay_height) / 2)
     base_image.paste(
-        overlay_image, (
-            offset_x,
-            offset_y,
-            overlay_width + offset_x,
-            overlay_height + offset_y
-        ),
-        mask=overlay_image
+        overlay_image,
+        (offset_x, offset_y, overlay_width + offset_x,
+         overlay_height + offset_y),
+        mask=overlay_image,
     )
     return base_image
 
 
 def image2pixbuf(image):
     """Converts a PIL Image to a GDK Pixbuf"""
-    image_array = array.array('B', image.tobytes())
+    image_array = array.array("B", image.tobytes())
     width, height = image.size
-    return GdkPixbuf.Pixbuf.new_from_data(image_array, GdkPixbuf.Colorspace.RGB, True, 8, width, height, width * 4)
+    return GdkPixbuf.Pixbuf.new_from_data(image_array,
+                                          GdkPixbuf.Colorspace.RGB, True, 8,
+                                          width, height, width * 4)
 
 
 def get_link_button(text):

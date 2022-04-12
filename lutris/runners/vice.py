@@ -2,11 +2,11 @@
 import os
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris import settings
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class vice(Runner):
@@ -28,28 +28,25 @@ class vice(Runner):
         ("Plus/4", "plus4"),
         ("CBM-II", "cbmii"),
     ]
-    game_options = [
-        {
-            "option":
-            "main_file",
-            "type":
-            "file",
-            "label":
-            _("ROM file"),
-            "help": _(
-                "The game data, commonly called a ROM image.\n"
-                "Supported formats: X64, D64, G64, P64, D67, D71, D81, "
-                "D80, D82, D1M, D2M, D4M, T46, P00 and CRT."
-            ),
-        }
-    ]
+    game_options = [{
+        "option":
+        "main_file",
+        "type":
+        "file",
+        "label":
+        _("ROM file"),
+        "help":
+        _("The game data, commonly called a ROM image.\n"
+          "Supported formats: X64, D64, G64, P64, D67, D71, D81, "
+          "D80, D82, D1M, D2M, D4M, T46, P00 and CRT."),
+    }]
 
     runner_options = [
         {
             "option": "joy",
             "type": "bool",
             "label": _("Use joysticks"),
-            "default": False
+            "default": False,
         },
         {
             "option": "fullscreen",
@@ -160,7 +157,14 @@ class vice(Runner):
 
     @staticmethod
     def get_joydevs(machine):
-        joydevs = {"c64": 2, "c128": 2, "vic20": 1, "pet": 0, "plus4": 2, "cmbii": 0}
+        joydevs = {
+            "c64": 2,
+            "c128": 2,
+            "vic20": 1,
+            "pet": 0,
+            "plus4": 2,
+            "cmbii": 0
+        }
         return joydevs[machine]
 
     @staticmethod

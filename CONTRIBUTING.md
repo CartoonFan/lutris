@@ -1,8 +1,6 @@
-Contributing to Lutris
-======================
+# Contributing to Lutris
 
-Finding features to work on
----------------------------
+## Finding features to work on
 
 If you are looking for issues to work on, have a look at the
 [milestones](https://github.com/lutris/lutris/milestones) and see which one is
@@ -43,8 +41,7 @@ architectural changes for the sake of "modularity", "Unix pureness" or subjectiv
 aspects might not be received warmly. There are no plans for any rewrite in
 another language or switching to another toolkit.
 
-Running Lutris from Git
------------------------
+## Running Lutris from Git
 
 Running Lutris from a local git repository is easy, it only requires cloning
 the repository and executing Lutris from there.
@@ -66,8 +63,7 @@ it is not possible for pip to install them or use them from a virtualenv. Make
 sure to always use PyGOject from your distribution's package manager. Also
 install the necessary GObject bindings as described in the INSTALL file.
 
-Set up your development environment
------------------------------------
+## Set up your development environment
 
 To ensure you have the proper dependencies installed run: `make dev`
 This will use poetry to create a virtual environment installing all necessary
@@ -77,8 +73,7 @@ This project includes .editorconfig so you're good to go if you're using any
 editor/IDE that supports this. Otherwise make sure to configure your max line
 length to 120, indent style to space and always end files with an empty new line.
 
-Formatting your code
---------------------
+## Formatting your code
 
 To ensure getting your contributions getting merged faster and to avoid other
 developers from going back and fixing your code, please make sure your code
@@ -95,15 +90,13 @@ When writing docstrings, you should follow the Google style
 You should always provide docstrings, otherwise your code wouldn't pass a
 Pylint check.
 
-Writing tests
--------------
+## Writing tests
 
 If your patch does not require interactions with a GUI or external processes,
 please consider adding unit tests for your code. Have a look at the existing
 test suite in the `tests` folder to see what kind of features are tested.
 
-Running tests
--------------
+## Running tests
 
 Be sure to test your changes thoroughly, never submit changes without running
 the code. At the very least, run the test suite and check that nothing broke.
@@ -112,38 +105,33 @@ In order to run the test, you'll need to install nose2 and flake8:
 
     pip3 install nose2 flake8
 
-QAing your changes
-------------------
+## QAing your changes
 
 It is very important that any of your changes be tested manually, especially if
 you didn't add unit tests for the patch. Even trivial changes should be tested
 as they could potentially introduce breaking changes from a simple oversight.
 
-Submitting your changes
------------------------
+## Submitting your changes
 
 Make a new git branch based of `master` in most cases, or `next` if you want to
 target a future release. Send a pull request through GitHub describing what
 issue the patch solves. If the PR is related to and existing bug report, you
 can add `(Closes #nnn)` or `(Fixes #nnn)` to your PR title or message, where
 `nnn` is the ticket number you're fixing. If you have been fixing your PR with
-several commits, please consider squashing those commits into one with `git
-rebase -i`.
+several commits, please consider squashing those commits into one with `git rebase -i`.
 
-Developer resources
--------------------
+## Developer resources
 
 Lutris uses Python 3 and GObject / Gtk+ 3 as its core stack, here are some
 links to some resources that can help you familiarize yourself with the
 project's code base.
 
-* [Python 3 documentation](https://docs.python.org/3/)
-* [PyGObject documentation](https://pygobject.readthedocs.io/en/latest/)
-* [Python Gtk 3 tutorial](https://python-gtk-3-tutorial.readthedocs.io/en/latest/objects.html)
-* [Fakegir GObject code completion](https://github.com/strycore/fakegir)
+-   [Python 3 documentation](https://docs.python.org/3/)
+-   [PyGObject documentation](https://pygobject.readthedocs.io/en/latest/)
+-   [Python Gtk 3 tutorial](https://python-gtk-3-tutorial.readthedocs.io/en/latest/objects.html)
+-   [Fakegir GObject code completion](https://github.com/strycore/fakegir)
 
-Project structure
------------------
+## Project structure
 
     [root]-+ Config files and READMEs
         |

@@ -10,7 +10,8 @@ import string
 import subprocess
 from gettext import gettext as _
 
-from gi.repository import Gio, GLib
+from gi.repository import Gio
+from gi.repository import GLib
 
 from lutris import settings
 from lutris.util.log import logger
@@ -24,24 +25,32 @@ PROTECTED_HOME_FOLDERS = (
     _("Videos"),
     _("Pictures"),
     _("Projects"),
-    _("Games")
+    _("Games"),
 )
 
 
-def execute(command, env=None, cwd=None, log_errors=False, quiet=False, shell=False, timeout=None):
+def execute(
+    command,
+    env=None,
+    cwd=None,
+    log_errors=False,
+    quiet=False,
+    shell=False,
+    timeout=None,
+):
     """
-        Execute a system command and return its results.
+    Execute a system command and return its results.
 
-        Params:
-            command (list): A list containing an executable and its parameters
-            env (dict): Dict of values to add to the current environment
-            cwd (str): Working directory
-            log_errors (bool): Pipe stderr to stdout (might cause slowdowns)
-            quiet (bool): Do not display log messages
-            timeout (int): Number of seconds the program is allowed to run, disabled by default
+    Params:
+        command (list): A list containing an executable and its parameters
+        env (dict): Dict of values to add to the current environment
+        cwd (str): Working directory
+        log_errors (bool): Pipe stderr to stdout (might cause slowdowns)
+        quiet (bool): Do not display log messages
+        timeout (int): Number of seconds the program is allowed to run, disabled by default
 
-        Returns:
-            str: stdout output
+    Returns:
+        str: stdout output
     """
 
     # Check if the executable exists
@@ -59,7 +68,8 @@ def execute(command, env=None, cwd=None, log_errors=False, quiet=False, shell=Fa
     existing_env = os.environ.copy()
     if env:
         if not quiet:
-            logger.debug(" ".join("{}={}".format(k, v) for k, v in env.items()))
+            logger.debug(" ".join("{}={}".format(k, v)
+                                  for k, v in env.items()))
         env = {k: v for k, v in env.items() if v is not None}
         existing_env.update(env)
 
@@ -67,17 +77,18 @@ def execute(command, env=None, cwd=None, log_errors=False, quiet=False, shell=Fa
     # (especially when using regedit with wine)
     try:
         with subprocess.Popen(
-            command,
-            shell=shell,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE if log_errors else subprocess.DEVNULL,
-            env=existing_env,
-            cwd=cwd,
-            errors="replace"
+                command,
+                shell=shell,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE if log_errors else subprocess.DEVNULL,
+                env=existing_env,
+                cwd=cwd,
+                errors="replace",
         ) as command_process:
             stdout, stderr = command_process.communicate(timeout=timeout)
     except (OSError, TypeError) as ex:
-        logger.error("Could not run command %s (env: %s): %s", command, env, ex)
+        logger.error("Could not run command %s (env: %s): %s", command, env,
+                     ex)
         return ""
     except subprocess.TimeoutExpired:
         logger.error("Command %s after %s seconds", command, timeout)
@@ -90,13 +101,12 @@ def execute(command, env=None, cwd=None, log_errors=False, quiet=False, shell=Fa
 def read_process_output(command, timeout=5):
     """Return the output of a command as a string"""
     try:
-        return subprocess.check_output(
-            command,
-            timeout=timeout,
-            encoding="utf-8",
-            errors="ignore"
-        ).strip()
-    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as ex:
+        return subprocess.check_output(command,
+                                       timeout=timeout,
+                                       encoding="utf-8",
+                                       errors="ignore").strip()
+    except (OSError, subprocess.CalledProcessError,
+            subprocess.TimeoutExpired) as ex:
         logger.error("%s command failed: %s", command, ex)
         return ""
 
@@ -173,7 +183,8 @@ def kill_pid(pid):
 def python_identifier(unsafe_string):
     """Converts a string to something that can be used as a python variable"""
     if not isinstance(unsafe_string, str):
-        logger.error("Cannot convert %s to a python identifier", type(unsafe_string))
+        logger.error("Cannot convert %s to a python identifier",
+                     type(unsafe_string))
         return
 
     def _dashrepl(matchobj):
@@ -200,7 +211,9 @@ def substitute(string_template, variables):
     # Replace the dashes with underscores in the mapping and template
     variables = dict((k.replace("-", "_"), v) for k, v in variables.items())
     for identifier in identifiers:
-        string_template = string_template.replace("${}".format(identifier), "${}".format(identifier.replace("-", "_")))
+        string_template = string_template.replace(
+            "${}".format(identifier),
+            "${}".format(identifier.replace("-", "_")))
 
     template = string.Template(string_template)
     if string_template in list(variables.keys()):
@@ -214,9 +227,18 @@ def merge_folders(source, destination):
     # Check if dirs_exist_ok is defined ( Python >= 3.8)
     sig = inspect.signature(shutil.copytree)
     if "dirs_exist_ok" in sig.parameters:
-        shutil.copytree(source, destination, symlinks=False, ignore_dangling_symlinks=True, dirs_exist_ok=True)
+        shutil.copytree(
+            source,
+            destination,
+            symlinks=False,
+            ignore_dangling_symlinks=True,
+            dirs_exist_ok=True,
+        )
     else:
-        shutil.copytree(source, destination, symlinks=False, ignore_dangling_symlinks=True)
+        shutil.copytree(source,
+                        destination,
+                        symlinks=False,
+                        ignore_dangling_symlinks=True)
 
 
 def remove_folder(path):
@@ -232,7 +254,12 @@ def remove_folder(path):
     try:
         shutil.rmtree(path)
     except OSError as ex:
-        logger.error("Failed to remove folder %s: %s (Error code %s)", path, ex.strerror, ex.errno)
+        logger.error(
+            "Failed to remove folder %s: %s (Error code %s)",
+            path,
+            ex.strerror,
+            ex.errno,
+        )
         return False
     return True
 
@@ -372,8 +399,22 @@ def update_desktop_icons():
     Other desktop manager icon cache commands must be added here if needed
     """
     if find_executable("gtk-update-icon-cache"):
-        execute(["gtk-update-icon-cache", "-tf", os.path.join(GLib.get_user_data_dir(), "icons/hicolor")], quiet=True)
-        execute(["gtk-update-icon-cache", "-tf", os.path.join(settings.RUNTIME_DIR, "icons/hicolor")], quiet=True)
+        execute(
+            [
+                "gtk-update-icon-cache",
+                "-tf",
+                os.path.join(GLib.get_user_data_dir(), "icons/hicolor"),
+            ],
+            quiet=True,
+        )
+        execute(
+            [
+                "gtk-update-icon-cache",
+                "-tf",
+                os.path.join(settings.RUNTIME_DIR, "icons/hicolor"),
+            ],
+            quiet=True,
+        )
 
 
 def get_disk_size(path):
@@ -381,8 +422,7 @@ def get_disk_size(path):
     total_size = 0
     for base, _dirs, files in os.walk(path):
         total_size += sum([
-            os.stat(os.path.join(base, f)).st_size
-            for f in files
+            os.stat(os.path.join(base, f)).st_size for f in files
             if os.path.isfile(os.path.join(base, f))
         ])
     return total_size

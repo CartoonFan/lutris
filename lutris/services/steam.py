@@ -7,8 +7,11 @@ from gettext import gettext as _
 from gi.repository import Gio
 
 from lutris import settings
-from lutris.config import LutrisConfig, write_game_config
-from lutris.database.games import add_game, get_game_by_field, get_games
+from lutris.config import LutrisConfig
+from lutris.config import write_game_config
+from lutris.database.games import add_game
+from lutris.database.games import get_game_by_field
+from lutris.database.games import get_games
 from lutris.database.services import ServiceGameCollection
 from lutris.game import Game
 from lutris.installer.installer_file import InstallerFile
@@ -16,8 +19,11 @@ from lutris.services.base import BaseService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util.log import logger
-from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
-from lutris.util.steam.config import get_steam_library, get_steamapps_paths, get_user_steam_id
+from lutris.util.steam.appmanifest import AppManifest
+from lutris.util.steam.appmanifest import get_appmanifests
+from lutris.util.steam.config import get_steam_library
+from lutris.util.steam.config import get_steamapps_paths
+from lutris.util.steam.config import get_user_steam_id
 from lutris.util.strings import slugify
 
 
@@ -99,7 +105,9 @@ class SteamService(BaseService):
             return
         steam_games = get_steam_library(steamid)
         if not steam_games:
-            raise RuntimeError(_("Failed to load games. Check that your profile is set to public during the sync."))
+            raise RuntimeError(
+                _("Failed to load games. Check that your profile is set to public during the sync."
+                  ))
         for steam_game in steam_games:
             if steam_game["appid"] in self.excluded_appids:
                 continue
@@ -113,10 +121,14 @@ class SteamService(BaseService):
         steam_uri = "$STEAM:%s:."
         appid = str(installer.script["game"]["appid"])
         return [
-            InstallerFile(installer.game_slug, "steam_game", {
-                "url": steam_uri % appid,
-                "filename": appid
-            })
+            InstallerFile(
+                installer.game_slug,
+                "steam_game",
+                {
+                    "url": steam_uri % appid,
+                    "filename": appid
+                },
+            )
         ]
 
     def install_from_steam(self, manifest):
@@ -158,7 +170,8 @@ class SteamService(BaseService):
         installed_appids = []
         for steamapps_path in self.steamapps_paths:
             for appmanifest_file in get_appmanifests(steamapps_path):
-                app_manifest_path = os.path.join(steamapps_path, appmanifest_file)
+                app_manifest_path = os.path.join(steamapps_path,
+                                                 appmanifest_file)
                 app_manifest = AppManifest(app_manifest_path)
                 installed_appids.append(app_manifest.steamid)
                 self.install_from_steam(app_manifest)
@@ -199,13 +212,19 @@ class SteamService(BaseService):
             "runner": self.runner,
             "appid": db_game["appid"],
             "script": {
-                "game": {"appid": db_game["appid"]}
-            }
+                "game": {
+                    "appid": db_game["appid"]
+                }
+            },
         }
 
     def install(self, db_game):
         appid = db_game["appid"]
-        db_games = get_games(filters={"service_id": appid, "installed": "1", "service": self.id})
+        db_games = get_games(filters={
+            "service_id": appid,
+            "installed": "1",
+            "service": self.id
+        })
         existing_game = self.match_existing_game(db_games, appid)
         if existing_game:
             logger.debug("Found steam game: %s", existing_game)
@@ -216,4 +235,6 @@ class SteamService(BaseService):
         if not service_installers:
             service_installers = [self.generate_installer(db_game)]
         application = Gio.Application.get_default()
-        application.show_installer_window(service_installers, service=self, appid=appid)
+        application.show_installer_window(service_installers,
+                                          service=self,
+                                          appid=appid)

@@ -3,7 +3,8 @@ from gettext import gettext as _
 from gi.repository import Gtk
 
 from lutris.gui.installer.widgets import InstallerLabel
-from lutris.util.strings import add_url_tags, gtk_safe
+from lutris.util.strings import add_url_tags
+from lutris.util.strings import gtk_safe
 
 
 class InstallerScriptBox(Gtk.VBox):
@@ -33,7 +34,8 @@ class InstallerScriptBox(Gtk.VBox):
         runner_label = InstallerLabel("%s" % self.script["runner"])
         runner_label.get_style_context().add_class("info-pill")
         title_box.pack_start(runner_label, False, False, 0)
-        title_box.add(InstallerLabel("<b>%s</b>" % gtk_safe(self.script["version"])))
+        title_box.add(
+            InstallerLabel("<b>%s</b>" % gtk_safe(self.script["version"])))
         title_box.pack_start(InstallerLabel(""), True, True, 0)
         rating_label = InstallerLabel(self.get_rating())
         rating_label.set_alignment(1, 0.5)

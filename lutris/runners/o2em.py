@@ -2,9 +2,9 @@
 import os
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
+# Lutris Modules
 
 
 class o2em(Runner):
@@ -38,15 +38,13 @@ class o2em(Runner):
         (_("W,S,A,D,SPACE"), "2"),
         (_("Joystick"), "3"),
     ]
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "file",
-            "label": _("ROM file"),
-            "default_path": "game_path",
-            "help": _("The game data, commonly called a ROM image."),
-        }
-    ]
+    game_options = [{
+        "option": "main_file",
+        "type": "file",
+        "label": _("ROM file"),
+        "default_path": "game_path",
+        "help": _("The game data, commonly called a ROM image."),
+    }]
     runner_options = [
         {
             "option": "bios",
@@ -76,12 +74,17 @@ class o2em(Runner):
             "default": False,
         },
         {
-            "option": "scanlines",
-            "type": "bool",
-            "label": _("Scanlines display style"),
-            "default": False,
-            "help": _("Activates a display filter adding scanlines to imitate "
-                      "the displays of yesteryear."),
+            "option":
+            "scanlines",
+            "type":
+            "bool",
+            "label":
+            _("Scanlines display style"),
+            "default":
+            False,
+            "help":
+            _("Activates a display filter adding scanlines to imitate "
+              "the displays of yesteryear."),
         },
     ]
 

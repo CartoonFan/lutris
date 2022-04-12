@@ -4,7 +4,8 @@ import os
 
 from lutris import settings
 from lutris.runners.runner import Runner
-from lutris.util import datapath, system
+from lutris.util import datapath
+from lutris.util import system
 
 JSON_RUNNER_DIRS = [
     os.path.join(datapath.get(), "json"),
@@ -18,8 +19,10 @@ class JsonRunner(Runner):
     def __init__(self, config=None):
         super().__init__(config)
         if not self.json_path:
-            raise RuntimeError("Create subclasses of JsonRunner with the json_path attribute set")
-        with open(self.json_path, encoding='utf-8') as json_file:
+            raise RuntimeError(
+                "Create subclasses of JsonRunner with the json_path attribute set"
+            )
+        with open(self.json_path, encoding="utf-8") as json_file:
             self._json_data = json.load(json_file)
 
         self.game_options = self._json_data["game_options"]
@@ -28,8 +31,10 @@ class JsonRunner(Runner):
         self.description = self._json_data["description"]
         self.platforms = self._json_data["platforms"]
         self.runner_executable = self._json_data["runner_executable"]
-        self.system_options_override = self._json_data.get("system_options_override", [])
-        self.entry_point_option = self._json_data.get("entry_point_option", "main_file")
+        self.system_options_override = self._json_data.get(
+            "system_options_override", [])
+        self.entry_point_option = self._json_data.get("entry_point_option",
+                                                      "main_file")
         self.download_url = self._json_data.get("download_url")
 
     def play(self):
@@ -66,7 +71,7 @@ def load_json_runners():
             runner_class = type(
                 runner_name,
                 (JsonRunner, ),
-                {'json_path': os.path.join(json_dir, json_path)}
+                {"json_path": os.path.join(json_dir, json_path)},
             )
             json_runners[runner_name] = runner_class
     return json_runners

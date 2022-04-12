@@ -13,7 +13,6 @@
         }
     ],
     "runner_options": [
-
         {
             "option": "16kb",
             "type": "bool",

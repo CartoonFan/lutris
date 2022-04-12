@@ -1,4 +1,5 @@
-from gi.repository import GObject, Gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris.gui.installer.script_box import InstallerScriptBox
 
@@ -6,15 +7,18 @@ from lutris.gui.installer.script_box import InstallerScriptBox
 class InstallerPicker(Gtk.ListBox):
     """List box to pick between several installers"""
 
-    __gsignals__ = {"installer-selected": (GObject.SIGNAL_RUN_FIRST, None, (str, ))}
+    __gsignals__ = {
+        "installer-selected": (GObject.SIGNAL_RUN_FIRST, None, (str, ))
+    }
 
     def __init__(self, scripts):
         super().__init__()
         revealed = True
         for script in scripts:
-            self.add(InstallerScriptBox(script, parent=self, revealed=revealed))
+            self.add(InstallerScriptBox(script, parent=self,
+                                        revealed=revealed))
             revealed = False  # Only reveal the first installer.
-        self.connect('row-selected', self.on_activate)
+        self.connect("row-selected", self.on_activate)
         self.show_all()
 
     @staticmethod

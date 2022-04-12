@@ -9,7 +9,8 @@ from lutris.services.base import BaseService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util import system
-from lutris.util.dolphin.cache_reader import DOLPHIN_GAME_CACHE_FILE, DolphinCacheReader
+from lutris.util.dolphin.cache_reader import DOLPHIN_GAME_CACHE_FILE
+from lutris.util.dolphin.cache_reader import DolphinCacheReader
 from lutris.util.strings import slugify
 
 
@@ -26,15 +27,16 @@ class DolphinService(BaseService):
     icon = "dolphin"
     name = _("Dolphin")
     local = True
-    medias = {
-        "icon": DolphinBanner
-    }
+    medias = {"icon": DolphinBanner}
 
     def load(self):
         if not system.path_exists(DOLPHIN_GAME_CACHE_FILE):
             return
         cache_reader = DolphinCacheReader()
-        dolphin_games = [DolphinGame.new_from_cache(game) for game in cache_reader.get_games()]
+        dolphin_games = [
+            DolphinGame.new_from_cache(game)
+            for game in cache_reader.get_games()
+        ]
         for game in dolphin_games:
             game.save()
         return dolphin_games
@@ -52,7 +54,7 @@ class DolphinService(BaseService):
                     "main_file": details["path"],
                     "platform": details["platform"]
                 },
-            }
+            },
         }
 
     def get_game_directory(self, installer):
@@ -77,8 +79,10 @@ class DolphinGame(ServiceGame):
         service_game.icon = service_game.get_banner(cache_entry)
 
         service_game.details = json.dumps({
-            "path": cache_entry["file_path"],
-            "platform": cache_entry["platform"][:-1]
+            "path":
+            cache_entry["file_path"],
+            "platform":
+            cache_entry["platform"][:-1]
         })
         return service_game
 
@@ -97,7 +101,8 @@ class DolphinGame(ServiceGame):
 
         (width, height), data = cache_entry["volume_banner"]
         if data:
-            img = Image.frombytes("RGB", (width, height), data, "raw", ("BGRX"))
+            img = Image.frombytes("RGB", (width, height), data, "raw",
+                                  ("BGRX"))
             # 96x32 is a bit small, maybe 2x scale?
             # img.resize((width * 2, height * 2))
             img.save(banner_path)

@@ -88,7 +88,7 @@ DATABASE = {
         {
             "name": "service_id",
             "type": "TEXT"
-        }
+        },
     ],
     "service_games": [
         {
@@ -134,17 +134,40 @@ DATABASE = {
         },
     ],
     "sources": [
-        {"name": "id", "type": "INTEGER", "indexed": True},
-        {"name": "uri", "type": "TEXT UNIQUE"},
+        {
+            "name": "id",
+            "type": "INTEGER",
+            "indexed": True
+        },
+        {
+            "name": "uri",
+            "type": "TEXT UNIQUE"
+        },
     ],
     "categories": [
-        {"name": "id", "type": "INTEGER", "indexed": True},
-        {"name": "name", "type": "TEXT", "unique": True},
+        {
+            "name": "id",
+            "type": "INTEGER",
+            "indexed": True
+        },
+        {
+            "name": "name",
+            "type": "TEXT",
+            "unique": True
+        },
     ],
     "games_categories": [
-        {"name": "game_id", "type": "INTEGER", "indexed": False},
-        {"name": "category_id", "type": "INTEGER", "indexed": False},
-    ]
+        {
+            "name": "game_id",
+            "type": "INTEGER",
+            "indexed": False
+        },
+        {
+            "name": "category_id",
+            "type": "INTEGER",
+            "indexed": False
+        },
+    ],
 }
 
 

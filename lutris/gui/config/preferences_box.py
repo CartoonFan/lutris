@@ -1,6 +1,7 @@
 from gettext import gettext as _
 
-from gi.repository import Gio, Gtk
+from gi.repository import Gio
+from gi.repository import Gtk
 
 from lutris import settings
 from lutris.gui.widgets.common import VBox
@@ -8,10 +9,12 @@ from lutris.gui.widgets.common import VBox
 
 class PreferencesBox(VBox):
     settings_options = {
-        "hide_client_on_game_start": _("Minimize client when a game is launched"),
+        "hide_client_on_game_start":
+        _("Minimize client when a game is launched"),
         "hide_text_under_icons": _("Hide text under icons (requires restart)"),
         "show_tray_icon": _("Show Tray Icon (requires restart)"),
-        "dark_theme": _("Use dark theme (requires dark theme variant for Gtk)")
+        "dark_theme":
+        _("Use dark theme (requires dark theme variant for Gtk)"),
     }
 
     def _get_section_label(self, text):
@@ -37,12 +40,10 @@ class PreferencesBox(VBox):
             listbox.add(list_box_row)
 
     def _get_setting_box(self, setting_key, label):
-        box = Gtk.Box(
-            spacing=12,
-            margin_top=12,
-            margin_bottom=12,
-            visible=True
-        )
+        box = Gtk.Box(spacing=12,
+                      margin_top=12,
+                      margin_bottom=12,
+                      visible=True)
         label = Gtk.Label(label, visible=True)
         label.set_alignment(0, 0.5)
         box.pack_start(label, True, True, 12)

@@ -1,6 +1,7 @@
 from gettext import gettext as _
 
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk
+from gi.repository import Gtk
 
 from lutris.gui.widgets.log_text_view import LogTextView
 from lutris.util.linux import gather_system_info_str
@@ -8,7 +9,8 @@ from lutris.util.linux import gather_system_info_str
 
 class SysInfoBox(Gtk.Fixed):
     settings_options = {
-        "hide_client_on_game_start": _("Minimize client when a game is launched"),
+        "hide_client_on_game_start":
+        _("Minimize client when a game is launched"),
         "hide_text_under_icons": _("Hide text under icons"),
         "show_tray_icon": _("Show Tray Icon"),
     }
@@ -22,7 +24,8 @@ class SysInfoBox(Gtk.Fixed):
         sysinfo_frame = Gtk.Frame(visible=True)
         sysinfo_frame.set_size_request(550, 455)
         scrolled_window = Gtk.ScrolledWindow(visible=True)
-        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
 
         sysinfo_view = LogTextView(autoscroll=False)
         sysinfo_view.set_cursor_visible(False)

@@ -3,10 +3,12 @@ from gettext import gettext as _
 
 from gi.repository import Gio
 
-from lutris.database.games import get_game_by_field, get_games
+from lutris.database.games import get_game_by_field
+from lutris.database.games import get_games
 from lutris.game import Game
 from lutris.installer import get_installers
-from lutris.services.steam import SteamGame, SteamService
+from lutris.services.steam import SteamGame
+from lutris.services.steam import SteamService
 from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.strings import slugify
@@ -42,8 +44,8 @@ class SteamWindowsService(SteamService):
                     "exe": steam_game.config.game_config["exe"],
                     "args": "-no-cef-sandbox -applaunch %s" % db_game["appid"],
                     "prefix": steam_game.config.game_config["prefix"],
-                }
-            }
+                },
+            },
         }
 
     def get_steam(self):
@@ -54,14 +56,16 @@ class SteamWindowsService(SteamService):
     def install(self, db_game):
         steam_game = self.get_steam()
         if not steam_game:
-            installers = get_installers(
-                game_slug=self.client_installer,
-            )
+            installers = get_installers(game_slug=self.client_installer, )
             appid = None
         else:
             installers = [self.generate_installer(db_game, steam_game)]
             appid = db_game["appid"]
-            db_games = get_games(filters={"service_id": appid, "installed": "1", "service": self.id})
+            db_games = get_games(filters={
+                "service_id": appid,
+                "installed": "1",
+                "service": self.id
+            })
             existing_game = self.match_existing_game(db_games, appid)
             if existing_game:
                 logger.debug("Found steam game: %s", existing_game)
@@ -69,11 +73,9 @@ class SteamWindowsService(SteamService):
                 game.save()
                 return
         application = Gio.Application.get_default()
-        application.show_installer_window(
-            installers,
-            service=self,
-            appid=appid
-        )
+        application.show_installer_window(installers,
+                                          service=self,
+                                          appid=appid)
 
     @property
     def steamapps_paths(self):

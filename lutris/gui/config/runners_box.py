@@ -1,9 +1,11 @@
 """Add, remove and configure runners"""
 from gettext import gettext as _
 
-from gi.repository import GLib, Gtk
+from gi.repository import GLib
+from gi.repository import Gtk
 
-from lutris import runners, settings
+from lutris import runners
+from lutris import settings
 from lutris.gui.config.base_config_box import BaseConfigBox
 from lutris.gui.config.runner_box import RunnerBox
 from lutris.gui.widgets.utils import open_uri
@@ -15,10 +17,10 @@ class RunnersBox(BaseConfigBox):
     def __init__(self):
         super().__init__()
         self.add(self.get_section_label(_("Add, remove or configure runners")))
-        self.add(self.get_description_label(
-            _("Runners are programs such as emulators, engines or "
-              "translation layers capable of running games.")
-        ))
+        self.add(
+            self.get_description_label(
+                _("Runners are programs such as emulators, engines or "
+                  "translation layers capable of running games.")))
         self.runner_listbox = Gtk.ListBox(visible=True)
         self.pack_start(self.runner_listbox, False, False, 12)
         GLib.idle_add(self.populate_runners)

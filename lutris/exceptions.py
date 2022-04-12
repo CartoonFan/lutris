@@ -4,7 +4,6 @@ from gettext import gettext as _
 
 
 class LutrisError(Exception):
-
     """Base exception for Lutris related errors"""
 
     def __init__(self, message):
@@ -13,7 +12,6 @@ class LutrisError(Exception):
 
 
 class GameConfigError(LutrisError):
-
     """Throw this error when the game configuration prevents the game from
     running properly.
     """
@@ -24,10 +22,7 @@ class UnavailableLibraries(RuntimeError):
     def __init__(self, libraries, arch=None):
         message = _(
             "The following {arch} libraries are required but are not installed on your system:\n{libs}"
-        ).format(
-            arch=arch if arch else "",
-            libs=", ".join(libraries)
-        )
+        ).format(arch=arch if arch else "", libs=", ".join(libraries))
         super().__init__(message)
         self.libraries = libraries
 
@@ -41,7 +36,6 @@ class UnavailableGame(Exception):
 
 
 class MultipleInstallerError(BaseException):
-
     """Current implementation doesn't know how to deal with multiple installers
     Raise this if a game returns more than 1 installer."""
 

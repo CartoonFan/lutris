@@ -2,14 +2,18 @@
 # Standard Library
 import os
 
-# Lutris Modules
 from lutris import runtime
 from lutris.runners import import_runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
-def dosexec(config_file=None, executable=None, args=None, close_on_exit=True, working_dir=None):
+def dosexec(config_file=None,
+            executable=None,
+            args=None,
+            close_on_exit=True,
+            working_dir=None):
     """Execute Dosbox with given config_file."""
     if config_file:
         run_with = "config {}".format(config_file)
@@ -20,7 +24,8 @@ def dosexec(config_file=None, executable=None, args=None, close_on_exit=True, wo
         if not working_dir:
             working_dir = os.path.dirname(executable)
     else:
-        raise ValueError("Neither a config file or an executable were provided")
+        raise ValueError(
+            "Neither a config file or an executable were provided")
     logger.debug("Running dosbox with %s", run_with)
     working_dir = system.create_folder(working_dir)
     dosbox = import_runner("dosbox")
@@ -41,7 +46,7 @@ def dosexec(config_file=None, executable=None, args=None, close_on_exit=True, wo
 
 def makeconfig(path, drives, commands):
     system.create_folder(os.path.dirname(path))
-    with open(path, "w", encoding='utf-8') as config_file:
+    with open(path, "w", encoding="utf-8") as config_file:
         config_file.write("[autoexec]\n")
         for drive in drives:
             config_file.write('mount {} "{}"\n'.format(drive, drives[drive]))

@@ -1,7 +1,10 @@
 from gettext import gettext as _
 from urllib.parse import urlparse
 
-from gi.repository import GLib, GObject, Gtk, Pango
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
 
 from lutris.util.downloader import Downloader
 from lutris.util.log import logger
@@ -9,13 +12,14 @@ from lutris.util.strings import gtk_safe
 
 
 class DownloadProgressBox(Gtk.Box):
-
     """Progress bar used to monitor a file download."""
 
     __gsignals__ = {
-        "complete": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
+        "complete":
+        (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
         "cancel": (GObject.SignalFlags.RUN_LAST, None, ()),
-        "error": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
+        "error":
+        (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
     }
 
     def __init__(self, params, cancelable=True, downloader=None):
@@ -45,7 +49,8 @@ class DownloadProgressBox(Gtk.Box):
         progress_box.pack_start(self.progressbar, True, True, 0)
 
         self.cancel_button = Gtk.Button.new_with_mnemonic(_("_Cancel"))
-        self.cancel_cb_id = self.cancel_button.connect("clicked", self.on_cancel_clicked)
+        self.cancel_cb_id = self.cancel_button.connect("clicked",
+                                                       self.on_cancel_clicked)
         if not cancelable:
             self.cancel_button.set_sensitive(False)
         progress_box.pack_end(self.cancel_button, False, False, 0)
@@ -68,7 +73,10 @@ class DownloadProgressBox(Gtk.Box):
         """Start downloading a file."""
         if not self.downloader:
             try:
-                self.downloader = Downloader(self.url, self.dest, referer=self.referer, overwrite=True)
+                self.downloader = Downloader(self.url,
+                                             self.dest,
+                                             referer=self.referer,
+                                             overwrite=True)
             except RuntimeError as ex:
                 from lutris.gui.dialogs import ErrorDialog
 
@@ -87,7 +95,8 @@ class DownloadProgressBox(Gtk.Box):
         """Transform the cancel button into a retry button"""
         self.cancel_button.set_label(_("Retry"))
         self.cancel_button.disconnect(self.cancel_cb_id)
-        self.cancel_cb_id = self.cancel_button.connect("clicked", self.on_retry_clicked)
+        self.cancel_cb_id = self.cancel_button.connect("clicked",
+                                                       self.on_retry_clicked)
         self.cancel_button.set_sensitive(True)
 
     def on_retry_clicked(self, button):
@@ -109,7 +118,9 @@ class DownloadProgressBox(Gtk.Box):
     def _progress(self):
         """Show download progress."""
         progress = min(self.downloader.check_progress(), 1)
-        if self.downloader.state in [self.downloader.CANCELLED, self.downloader.ERROR]:
+        if self.downloader.state in [
+                self.downloader.CANCELLED, self.downloader.ERROR
+        ]:
             self.progressbar.set_fraction(0)
             if self.downloader.state == self.downloader.CANCELLED:
                 self._set_text(_("Download interrupted"))

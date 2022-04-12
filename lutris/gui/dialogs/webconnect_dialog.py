@@ -3,10 +3,11 @@ import os
 from gettext import gettext as _
 
 import gi
-gi.require_version("WebKit2", "4.0")
 from gi.repository import WebKit2
 
 from lutris.gui.dialogs import Dialog
+
+gi.require_version("WebKit2", "4.0")
 
 
 class WebConnectDialog(Dialog):
@@ -17,7 +18,8 @@ class WebConnectDialog(Dialog):
         self.context = WebKit2.WebContext.new()
         if "http_proxy" in os.environ:
             proxy = WebKit2.NetworkProxySettings.new(os.environ["http_proxy"])
-            self.context.set_network_proxy_settings(WebKit2.NetworkProxyMode.CUSTOM, proxy)
+            self.context.set_network_proxy_settings(
+                WebKit2.NetworkProxyMode.CUSTOM, proxy)
         WebKit2.CookieManager.set_persistent_storage(
             self.context.get_cookie_manager(),
             service.cookies_path,
@@ -61,7 +63,8 @@ class WebConnectDialog(Dialog):
             if url.startswith(self.service.redirect_uri):
                 if self.service.requires_login_page:
                     resource = widget.get_main_resource()
-                    resource.get_data(None, self._get_response_data_finish, None)
+                    resource.get_data(None, self._get_response_data_finish,
+                                      None)
                 else:
                     self.service.login_callback(url)
                     self.destroy()
@@ -89,7 +92,7 @@ class WebPopupDialog(Dialog):
     def __init__(self, webview, parent=None):
         # pylint: disable=no-member
         self.parent = parent
-        super().__init__(title=_('Loading...'), parent=parent)
+        super().__init__(title=_("Loading..."), parent=parent)
         self.webview = webview
         self.webview.connect("ready-to-show", self.on_ready_webview)
         self.webview.connect("notify::title", self.on_available_webview_title)

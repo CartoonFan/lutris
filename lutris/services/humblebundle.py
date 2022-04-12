@@ -6,19 +6,22 @@ from gettext import gettext as _
 
 from lutris import settings
 from lutris.exceptions import UnavailableGame
-from lutris.installer import AUTO_ELF_EXE, AUTO_WIN32_EXE
+from lutris.installer import AUTO_ELF_EXE
+from lutris.installer import AUTO_WIN32_EXE
 from lutris.installer.installer_file import InstallerFile
 from lutris.services.base import OnlineService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util import linux
-from lutris.util.http import HTTPError, Request
+from lutris.util.http import HTTPError
+from lutris.util.http import Request
 from lutris.util.log import logger
 from lutris.util.strings import slugify
 
 
 class HumbleBundleIcon(ServiceMedia):
     """HumbleBundle icon"""
+
     service = "humblebundle"
     size = (70, 70)
     dest_path = os.path.join(settings.CACHE_DIR, "humblebundle/icons")
@@ -36,6 +39,7 @@ class HumbleBigIcon(HumbleBundleIcon):
 
 class HumbleBundleGame(ServiceGame):
     """Service game for DRM free Humble Bundle games"""
+
     service = "humblebundle"
 
     @classmethod
@@ -61,7 +65,7 @@ class HumbleBundleService(OnlineService):
     medias = {
         "small_icon": HumbleSmallIcon,
         "icon": HumbleBundleIcon,
-        "big_icon": HumbleBigIcon
+        "big_icon": HumbleBigIcon,
     }
     default_format = "icon"
 
@@ -96,7 +100,9 @@ class HumbleBundleService(OnlineService):
         try:
             library = self.get_library()
         except ValueError:
-            logger.error("Failed to get Humble Bundle library. Try logging out and back-in.")
+            logger.error(
+                "Failed to get Humble Bundle library. Try logging out and back-in."
+            )
             return
         humble_games = []
         seen = set()
@@ -132,11 +138,13 @@ class HumbleBundleService(OnlineService):
         # logger.debug("Getting Humble Bundle order %s", gamekey)
         cache_filename = self.order_path(gamekey)
         if os.path.exists(cache_filename):
-            with open(cache_filename, encoding='utf-8') as cache_file:
+            with open(cache_filename, encoding="utf-8") as cache_file:
                 return json.load(cache_file)
-        response = self.make_api_request(self.api_url + "api/v1/order/%s?all_tpkds=true" % gamekey)
+        response = self.make_api_request(self.api_url +
+                                         "api/v1/order/%s?all_tpkds=true" %
+                                         gamekey)
         os.makedirs(self.cache_path, exist_ok=True)
-        with open(cache_filename, "w", encoding='utf-8') as cache_file:
+        with open(cache_filename, "w", encoding="utf-8") as cache_file:
             json.dump(response, cache_file)
         return response
 
@@ -167,7 +175,8 @@ class HumbleBundleService(OnlineService):
         gamekeys = self.get_gamekeys_from_local_orders()
         orders = []
         if not gamekeys:
-            gamekeys = self.make_api_request(self.api_url + "api/v1/user/order")
+            gamekeys = self.make_api_request(self.api_url +
+                                             "api/v1/user/order")
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             future_orders = [
                 executor.submit(self.get_order, gamekey["gamekey"])
@@ -186,8 +195,11 @@ class HumbleBundleService(OnlineService):
                 continue
             available_platforms = [d["platform"] for d in product["downloads"]]
             if platform not in available_platforms:
-                logger.warning("Requested platform %s not available in available platforms: %s",
-                               platform, available_platforms)
+                logger.warning(
+                    "Requested platform %s not available in available platforms: %s",
+                    platform,
+                    available_platforms,
+                )
 
                 if "linux" in available_platforms:
                     platform = "linux"
@@ -202,7 +214,7 @@ class HumbleBundleService(OnlineService):
                     "product": order["product"],
                     "gamekey": order["gamekey"],
                     "created": order["created"],
-                    "download": download
+                    "download": download,
                 }
 
     def get_downloads(self, humbleid, platform):
@@ -217,7 +229,8 @@ class HumbleBundleService(OnlineService):
     def get_installer_files(self, installer, installer_file_id):
         """Replace the user provided file with download links from Humble Bundle"""
         try:
-            link = get_humble_download_link(installer.service_appid, installer.runner)
+            link = get_humble_download_link(installer.service_appid,
+                                            installer.runner)
         except Exception as ex:
             logger.exception("Failed to get Humble Bundle game: %s", ex)
             raise UnavailableGame from ex
@@ -225,10 +238,14 @@ class HumbleBundleService(OnlineService):
             raise UnavailableGame("No game found on Humble Bundle")
         filename = link.split("?")[0].split("/")[-1]
         return [
-            InstallerFile(installer.game_slug, installer_file_id, {
-                "url": link,
-                "filename": filename
-            })
+            InstallerFile(
+                installer.game_slug,
+                installer_file_id,
+                {
+                    "url": link,
+                    "filename": filename
+                },
+            )
         ]
 
     @staticmethod
@@ -251,46 +268,128 @@ class HumbleBundleService(OnlineService):
         details = json.loads(db_game["details"])
         platforms = [download["platform"] for download in details["downloads"]]
         system_config = {}
-        if "linux" in platforms and self.platform_has_downloads(details["downloads"], "linux"):
+        if "linux" in platforms and self.platform_has_downloads(
+                details["downloads"], "linux"):
             runner = "linux"
             game_config = {"exe": AUTO_ELF_EXE}
-            filename = self.get_filename_for_platform(details["downloads"], "linux")
+            filename = self.get_filename_for_platform(details["downloads"],
+                                                      "linux")
             if filename.lower().endswith(".sh"):
                 script = [
-                    {"extract": {"file": "humblegame", "format": "zip", "dst": "$CACHE"}},
-                    {"merge": {"src": "$CACHE/data/noarch", "dst": "$GAMEDIR", "optional": True}},
-                    {"move": {"src": "$CACHE/data/noarch", "dst": "$CACHE/noarch", "optional": True}},
-                    {"merge": {"src": "$CACHE/data/x86_64", "dst": "$GAMEDIR", "optional": True}},
-                    {"move": {"src": "$CACHE/data/x86_64", "dst": "$CACHE/x86_64", "optional": True}},
-                    {"merge": {"src": "$CACHE/data/x86", "dst": "$GAMEDIR", "optional": True}},
-                    {"move": {"src": "$CACHE/data/x86", "dst": "$CACHE/x86", "optional": True}},
-                    {"merge": {"src": "$CACHE/data/", "dst": "$GAMEDIR", "optional": True}},
+                    {
+                        "extract": {
+                            "file": "humblegame",
+                            "format": "zip",
+                            "dst": "$CACHE",
+                        }
+                    },
+                    {
+                        "merge": {
+                            "src": "$CACHE/data/noarch",
+                            "dst": "$GAMEDIR",
+                            "optional": True,
+                        }
+                    },
+                    {
+                        "move": {
+                            "src": "$CACHE/data/noarch",
+                            "dst": "$CACHE/noarch",
+                            "optional": True,
+                        }
+                    },
+                    {
+                        "merge": {
+                            "src": "$CACHE/data/x86_64",
+                            "dst": "$GAMEDIR",
+                            "optional": True,
+                        }
+                    },
+                    {
+                        "move": {
+                            "src": "$CACHE/data/x86_64",
+                            "dst": "$CACHE/x86_64",
+                            "optional": True,
+                        }
+                    },
+                    {
+                        "merge": {
+                            "src": "$CACHE/data/x86",
+                            "dst": "$GAMEDIR",
+                            "optional": True,
+                        }
+                    },
+                    {
+                        "move": {
+                            "src": "$CACHE/data/x86",
+                            "dst": "$CACHE/x86",
+                            "optional": True,
+                        }
+                    },
+                    {
+                        "merge": {
+                            "src": "$CACHE/data/",
+                            "dst": "$GAMEDIR",
+                            "optional": True,
+                        }
+                    },
                 ]
             elif filename.endswith("-bin") or filename.endswith("mojo.run"):
                 script = [
-                    {"extract": {"file": "humblegame", "format": "zip", "dst": "$CACHE"}},
-                    {"merge": {"src": "$CACHE/data/", "dst": "$GAMEDIR"}},
+                    {
+                        "extract": {
+                            "file": "humblegame",
+                            "format": "zip",
+                            "dst": "$CACHE",
+                        }
+                    },
+                    {
+                        "merge": {
+                            "src": "$CACHE/data/",
+                            "dst": "$GAMEDIR"
+                        }
+                    },
                 ]
             elif filename.endswith(".air"):
                 script = [
-                    {"move": {"src": "humblegame", "dst": "$GAMEDIR"}},
+                    {
+                        "move": {
+                            "src": "humblegame",
+                            "dst": "$GAMEDIR"
+                        }
+                    },
                 ]
             else:
                 script = [{"extract": {"file": "humblegame"}}]
-                system_config = {"gamemode": 'false'}  # Unity games crash with gamemode
+                system_config = {
+                    "gamemode": "false"
+                }  # Unity games crash with gamemode
         elif "windows" in platforms:
             runner = "wine"
             game_config = {"exe": AUTO_WIN32_EXE, "prefix": "$GAMEDIR"}
-            filename = self.get_filename_for_platform(details["downloads"], "windows")
+            filename = self.get_filename_for_platform(details["downloads"],
+                                                      "windows")
             if filename.lower().endswith(".zip"):
                 script = [
-                    {"task": {"name": "create_prefix", "prefix": "$GAMEDIR"}},
-                    {"extract": {"file": "humblegame", "dst": "$GAMEDIR/drive_c/%s" % db_game["slug"]}}
+                    {
+                        "task": {
+                            "name": "create_prefix",
+                            "prefix": "$GAMEDIR"
+                        }
+                    },
+                    {
+                        "extract": {
+                            "file": "humblegame",
+                            "dst": "$GAMEDIR/drive_c/%s" % db_game["slug"],
+                        }
+                    },
                 ]
             else:
-                script = [
-                    {"task": {"name": "wineexec", "executable": "humblegame"}}
-                ]
+                script = [{
+                    "task": {
+                        "name": "wineexec",
+                        "executable": "humblegame"
+                    }
+                }]
         else:
             logger.warning("Unsupported platforms: %s", platforms)
             return {}
@@ -302,13 +401,17 @@ class HumbleBundleService(OnlineService):
             "runner": runner,
             "humbleid": db_game["appid"],
             "script": {
-                "game": game_config,
-                "system": system_config,
-                "files": [
-                    {"humblegame": "N/A:Select the installer from Humble Bundle"}
-                ],
-                "installer": script
-            }
+                "game":
+                game_config,
+                "system":
+                system_config,
+                "files": [{
+                    "humblegame":
+                    "N/A:Select the installer from Humble Bundle"
+                }],
+                "installer":
+                script,
+            },
         }
 
 
@@ -336,7 +439,9 @@ def pick_download_url_from_download_info(download_info):
                 return -10
         return 1 * bonus
 
-    sorted_downloads = sorted(download_info["download_struct"], key=humble_sort, reverse=True)
+    sorted_downloads = sorted(download_info["download_struct"],
+                              key=humble_sort,
+                              reverse=True)
     logger.debug("Humble bundle installers:")
     for download in sorted_downloads:
         logger.debug(download)
@@ -349,7 +454,8 @@ def get_humble_download_link(humbleid, runner):
     platform = runner if runner != "wine" else "windows"
     downloads = service.get_downloads(humbleid, platform)
     if not downloads:
-        logger.error("Game %s for %s not found in the Humble Bundle library", humbleid, platform)
+        logger.error("Game %s for %s not found in the Humble Bundle library",
+                     humbleid, platform)
         return
     logger.info("Found %s download for %s", len(downloads), humbleid)
     download = downloads[0]

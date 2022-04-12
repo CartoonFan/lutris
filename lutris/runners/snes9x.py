@@ -4,11 +4,11 @@ import subprocess
 import xml.etree.ElementTree as etree
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris import settings
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 SNES9X_DIR = os.path.join(settings.DATA_DIR, "runners/snes9x")
 
@@ -19,22 +19,20 @@ class snes9x(Runner):
     platforms = [_("Nintendo SNES")]
     runnable_alone = True
     runner_executable = "snes9x/bin/snes9x-gtk"
-    game_options = [
-        {
-            "option": "main_file",
-            "type": "file",
-            "default_path": "game_path",
-            "label": _("ROM file"),
-            "help": _("The game data, commonly called a ROM image."),
-        }
-    ]
+    game_options = [{
+        "option": "main_file",
+        "type": "file",
+        "default_path": "game_path",
+        "label": _("ROM file"),
+        "help": _("The game data, commonly called a ROM image."),
+    }]
 
     runner_options = [
         {
             "option": "fullscreen",
             "type": "bool",
             "label": _("Fullscreen"),
-            "default": "1"
+            "default": "1",
         },
         {
             "option":
@@ -45,13 +43,12 @@ class snes9x(Runner):
             _("Maintain aspect ratio (4:3)"),
             "default":
             "1",
-            "help": _(
-                "Super Nintendo games were made for 4:3 "
-                "screens with rectangular pixels, but modern screens "
-                "have square pixels, which results in a vertically "
-                "squeezed image. This option corrects this by displaying "
-                "rectangular pixels."
-            ),
+            "help":
+            _("Super Nintendo games were made for 4:3 "
+              "screens with rectangular pixels, but modern screens "
+              "have square pixels, which results in a vertically "
+              "squeezed image. This option corrects this by displaying "
+              "rectangular pixels."),
         },
         {
             "option": "sound_driver",
@@ -66,7 +63,8 @@ class snes9x(Runner):
     def set_option(self, option, value):
         config_file = os.path.expanduser("~/.snes9x/snes9x.xml")
         if not system.path_exists(config_file):
-            with subprocess.Popen([self.get_executable(), "-help"]) as snes9x_process:
+            with subprocess.Popen([self.get_executable(),
+                                   "-help"]) as snes9x_process:
                 snes9x_process.communicate()
         if not system.path_exists(config_file):
             logger.error("Snes9x config file creation failed")

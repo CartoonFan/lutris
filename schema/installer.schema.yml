@@ -429,17 +429,17 @@ properties:
                 - description
                 - options
           oneOf:
-            - required: [ insert-disk ]
-            - required: [ move ]
-            - required: [ merge ]
-            - required: [ extract ]
-            - required: [ chmodx ]
-            - required: [ execute ]
-            - required: [ write_file ]
-            - required: [ write_config ]
-            - required: [ write_json ]
-            - required: [ write_task ]
-            - required: [ input_menu ]
+            - required: [insert-disk]
+            - required: [move]
+            - required: [merge]
+            - required: [extract]
+            - required: [chmodx]
+            - required: [execute]
+            - required: [write_file]
+            - required: [write_config]
+            - required: [write_json]
+            - required: [write_task]
+            - required: [input_menu]
       system:
         type: object
         description: System configuration directives
@@ -467,11 +467,11 @@ properties:
           xephyr:
             type: string
             description: To enable Xephyr, pass the desired bit per plane value
-            examples: [ "8bpp" ]
+            examples: ["8bpp"]
           xephyr_resolution:
             type: string
             description: The size of the Xephyr window
-            examples: [ "1024x768" ]
+            examples: ["1024x768"]
       wine:
         $ref: "#/definitions/wine-runner"
 
@@ -495,7 +495,7 @@ definitions:
       WineDesktop:
         type: string
         description: The resolution of the Wine virtual desktop
-        examples: [ "1024x768" ]
+        examples: ["1024x768"]
       dxvk:
         type: boolean
         description: Enable DXVK

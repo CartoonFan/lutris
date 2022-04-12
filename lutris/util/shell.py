@@ -15,19 +15,17 @@ def get_terminal_script(command, cwd, env):
     """
     script_path = os.path.join(settings.CACHE_DIR, "run_in_term.sh")
     env["TERM"] = "xterm"
-    exported_environment = "\n".join('export %s="%s" ' % (key, value) for key, value in env.items())
+    exported_environment = "\n".join('export %s="%s" ' % (key, value)
+                                     for key, value in env.items())
     command = " ".join(['"%s"' % token for token in command])
-    with open(script_path, "w", encoding='utf-8') as script_file:
+    with open(script_path, "w", encoding="utf-8") as script_file:
         script_file.write(
-            dedent(
-                """#!/bin/sh
+            dedent("""#!/bin/sh
             cd "%s"
             %s
             exec %s
             exit $?
-            """ % (cwd, exported_environment, command)
-            )
-        )
+            """ % (cwd, exported_environment, command)))
         os.chmod(script_path, 0o744)
     return script_path
 
@@ -36,27 +34,26 @@ def get_bash_rc_file(cwd, env, aliases=None):
     """Return a bash prompt configured with pre-defined environment variables and aliases"""
     script_path = os.path.join(settings.CACHE_DIR, "bashrc.sh")
     env["TERM"] = "xterm"
-    exported_environment = "\n".join('export %s="%s"' % (key, value) for key, value in env.items())
+    exported_environment = "\n".join('export %s="%s"' % (key, value)
+                                     for key, value in env.items())
     aliases = aliases or {}
-    alias_commands = "\n".join('alias %s="%s"' % (key, value) for key, value in aliases.items())
+    alias_commands = "\n".join('alias %s="%s"' % (key, value)
+                               for key, value in aliases.items())
     current_bashrc = os.path.expanduser("~/.bashrc")
-    with open(script_path, "w", encoding='utf-8') as script_file:
+    with open(script_path, "w", encoding="utf-8") as script_file:
         script_file.write(
-            dedent(
-                """
+            dedent("""
             . %s
 
             %s
             %s
             cd "%s"
             """ % (
-                    current_bashrc,
-                    exported_environment,
-                    alias_commands,
-                    cwd,
-                )
-            )
-        )
+                current_bashrc,
+                exported_environment,
+                alias_commands,
+                cwd,
+            )))
     return script_path
 
 

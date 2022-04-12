@@ -3,11 +3,12 @@ import os
 import shutil
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.config import LutrisConfig
-from lutris.gui.dialogs import FileDialog, QuestionDialog
+from lutris.gui.dialogs import FileDialog
+from lutris.gui.dialogs import QuestionDialog
 from lutris.runners.runner import Runner
 from lutris.util import system
+# Lutris Modules
 
 
 class hatari(Runner):
@@ -26,12 +27,11 @@ class hatari(Runner):
             "file",
             "label":
             _("Floppy Disk A"),
-            "help": _(
-                "Hatari supports floppy disk images in the following "
-                "formats: ST, DIM, MSA, STX, IPF, RAW and CRT. The last "
-                "three require the caps library (capslib). ZIP is "
-                "supported, you don't need to uncompress the file."
-            ),
+            "help":
+            _("Hatari supports floppy disk images in the following "
+              "formats: ST, DIM, MSA, STX, IPF, RAW and CRT. The last "
+              "three require the caps library (capslib). ZIP is "
+              "supported, you don't need to uncompress the file."),
         },
         {
             "option":
@@ -40,16 +40,19 @@ class hatari(Runner):
             "file",
             "label":
             _("Floppy Disk B"),
-            "help": _(
-                "Hatari supports floppy disk images in the following "
-                "formats: ST, DIM, MSA, STX, IPF, RAW and CRT. The last "
-                "three require the caps library (capslib). ZIP is "
-                "supported, you don't need to uncompress the file."
-            ),
+            "help":
+            _("Hatari supports floppy disk images in the following "
+              "formats: ST, DIM, MSA, STX, IPF, RAW and CRT. The last "
+              "three require the caps library (capslib). ZIP is "
+              "supported, you don't need to uncompress the file."),
         },
     ]
 
-    joystick_choices = [(_("None"), "none"), (_("Keyboard"), "keys"), (_("Joystick"), "real")]
+    joystick_choices = [
+        (_("None"), "none"),
+        (_("Keyboard"), "keys"),
+        (_("Joystick"), "real"),
+    ]
 
     runner_options = [
         {
@@ -59,12 +62,11 @@ class hatari(Runner):
             "file",
             "label":
             _("Bios file (TOS)"),
-            "help": _(
-                "TOS is the operating system of the Atari ST "
-                "and is necessary to run applications with the best "
-                "fidelity, minimizing risks of issues.\n"
-                "TOS 1.02 is recommended for games."
-            ),
+            "help":
+            _("TOS is the operating system of the Atari ST "
+              "and is necessary to run applications with the best "
+              "fidelity, minimizing risks of issues.\n"
+              "TOS 1.02 is recommended for games."),
         },
         {
             "option": "fullscreen",
@@ -88,14 +90,13 @@ class hatari(Runner):
             _("Add borders to display"),
             "default":
             False,
-            "help": _(
-                "Useful for some games and demos using the overscan "
-                "technique. The Atari ST displayed borders around the "
-                "screen because it was not powerful enough to display "
-                "graphics in fullscreen. But people from the demo scene "
-                "were able to remove them and some games made use of "
-                "this technique."
-            ),
+            "help":
+            _("Useful for some games and demos using the overscan "
+              "technique. The Atari ST displayed borders around the "
+              "screen because it was not powerful enough to display "
+              "graphics in fullscreen. But people from the demo scene "
+              "were able to remove them and some games made use of "
+              "this technique."),
         },
         {
             "option":
@@ -106,11 +107,10 @@ class hatari(Runner):
             _("Display status bar"),
             "default":
             False,
-            "help": _(
-                "Displays a status bar with some useful information, "
-                "like green leds lighting up when the floppy disks are "
-                "read."
-            ),
+            "help":
+            _("Displays a status bar with some useful information, "
+              "like green leds lighting up when the floppy disks are "
+              "read."),
         },
         {
             "option": "joy0",
@@ -132,26 +132,29 @@ class hatari(Runner):
 
         def on_runner_installed(*args):
             bios_path = system.create_folder("~/.hatari/bios")
-            dlg = QuestionDialog(
-                {
-                    "question": _("Do you want to select an Atari ST BIOS file?"),
-                    "title": _("Use BIOS file?"),
-                }
-            )
+            dlg = QuestionDialog({
+                "question":
+                _("Do you want to select an Atari ST BIOS file?"),
+                "title":
+                _("Use BIOS file?"),
+            })
             if dlg.result == dlg.YES:
                 bios_dlg = FileDialog(_("Select a BIOS file"))
                 bios_filename = bios_dlg.filename
                 if not bios_filename:
                     return
                 shutil.copy(bios_filename, bios_path)
-                bios_path = os.path.join(bios_path, os.path.basename(bios_filename))
+                bios_path = os.path.join(bios_path,
+                                         os.path.basename(bios_filename))
                 config = LutrisConfig(runner_slug="hatari")
                 config.raw_runner_config.update({"bios_file": bios_path})
                 config.save()
             if callback:
                 callback()
 
-        super().install(version=version, downloader=downloader, callback=on_runner_installed)
+        super().install(version=version,
+                        downloader=downloader,
+                        callback=on_runner_installed)
 
     def play(self):  # pylint: disable=too-many-branches
         params = [self.get_executable()]

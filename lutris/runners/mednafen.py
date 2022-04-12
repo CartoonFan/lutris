@@ -2,12 +2,12 @@
 import subprocess
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.display import DISPLAY_MANAGER
 from lutris.util.joypad import get_controller_mappings
 from lutris.util.log import logger
+# Lutris Modules
 
 DEFAULT_MEDNAFEN_SCALER = "nn4x"
 
@@ -52,9 +52,12 @@ class mednafen(Runner):
     runner_executable = "mednafen/bin/mednafen"
     game_options = [
         {
-            "option": "main_file",
-            "type": "file",
-            "label": _("ROM file"),
+            "option":
+            "main_file",
+            "type":
+            "file",
+            "label":
+            _("ROM file"),
             "help":
             _("The game data, commonly called a ROM image. \n"
               "Mednafen supports GZIP and ZIP compressed ROMs."),
@@ -134,7 +137,7 @@ class mednafen(Runner):
                 ("hw:2", "hw:2,0"),
             ),
             "default":
-            "sexyal-literal-default"
+            "sexyal-literal-default",
         },
         {
             "option": "dont_map_controllers",
@@ -153,14 +156,14 @@ class mednafen(Runner):
         return ""
 
     def find_joysticks(self):
-        """ Detect connected joysticks and return their ids """
+        """Detect connected joysticks and return their ids"""
         joy_ids = []
         if not self.is_installed:
             return []
         with subprocess.Popen(
             [self.get_executable(), "dummy"],
-            stdout=subprocess.PIPE,
-            universal_newlines=True,
+                stdout=subprocess.PIPE,
+                universal_newlines=True,
         ) as mednafen_process:
             output = mednafen_process.communicate()[0].split("\n")
         found = False
@@ -182,7 +185,7 @@ class mednafen(Runner):
 
     @staticmethod
     def set_joystick_controls(joy_ids, machine):
-        """ Setup joystick mappings per machine """
+        """Setup joystick mappings per machine"""
 
         # Get the controller mappings
         controller_mappings = get_controller_mappings()
@@ -327,7 +330,8 @@ class mednafen(Runner):
 
         # Define which buttons to use for each machine
         layout = {
-            "nes": ["a", "b", "start", "select", "up", "down", "left", "right"],
+            "nes":
+            ["a", "b", "start", "select", "up", "down", "left", "right"],
             "gb": ["a", "b", "start", "select", "up", "down", "left", "right"],
             "gba": [
                 "a",
@@ -370,7 +374,8 @@ class mednafen(Runner):
                 "left",
                 "right",
             ],
-            "gg": ["button1", "button2", "start", "up", "down", "left", "right"],
+            "gg":
+            ["button1", "button2", "start", "up", "down", "left", "right"],
             "md": [
                 "a",
                 "b",
@@ -385,7 +390,8 @@ class mednafen(Runner):
                 "right",
             ],
             "sms": ["fire1", "fire2", "up", "down", "left", "right"],
-            "lynx": ["a", "b", "option_1", "option_2", "up", "down", "left", "right"],
+            "lynx":
+            ["a", "b", "option_1", "option_2", "up", "down", "left", "right"],
             "psx": [
                 "cross",
                 "circle",
@@ -485,7 +491,8 @@ class mednafen(Runner):
         # Construct the controlls options
         for button in layout[machine]:
             controls.append("-{}.input.{}.{}".format(machine, gamepad, button))
-            controls.append("joystick {} {}".format(joy_ids[0], map_code[button]))
+            controls.append("joystick {} {}".format(joy_ids[0],
+                                                    map_code[button]))
         return controls
 
     def play(self):

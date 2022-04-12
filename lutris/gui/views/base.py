@@ -1,4 +1,6 @@
-from gi.repository import Gdk, GObject, Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris.database.games import get_game_for_service
 from lutris.game import Game

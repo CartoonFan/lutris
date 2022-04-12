@@ -1,15 +1,13 @@
 """Automatically detects game executables in a folder"""
 import os
 
-from lutris.util import magic, system
+from lutris.util import magic
+from lutris.util import system
 from lutris.util.log import logger
 
 
 def is_excluded_elf(filename):
-    excluded = (
-        "xdg-open",
-        "uninstall"
-    )
+    excluded = ("xdg-open", "uninstall")
     _fn = filename.lower()
     return any(exclude in _fn for exclude in excluded)
 
@@ -38,13 +36,9 @@ def find_linux_game_executable(path, make_executable=False):
             if make_executable:
                 for candidate in candidates.values():
                     system.make_executable(candidate)
-            return (
-                candidates.get("shell")
-                or candidates.get("bash")
-                or candidates.get("posix")
-                or candidates.get("64bit")
-                or candidates.get("32bit")
-            )
+            return (candidates.get("shell") or candidates.get("bash")
+                    or candidates.get("posix") or candidates.get("64bit")
+                    or candidates.get("32bit"))
     logger.error("Couldn't find a Linux executable in %s", path)
     return ""
 
@@ -58,7 +52,7 @@ def is_excluded_dir(path):
         "windows",
         "ProgramData",
         "users",
-        "GameSpy Arcade"
+        "GameSpy Arcade",
     )
     return any(dir_name in excluded for dir_name in path.split("/"))
 
@@ -95,10 +89,7 @@ def find_windows_game_executable(path):
             elif "PE32 executable (GUI) Intel 80386" in file_type:
                 candidates["32bit"] = abspath
         if candidates:
-            return (
-                candidates.get("link")
-                or candidates.get("64bit")
-                or candidates.get("32bit")
-            )
+            return (candidates.get("link") or candidates.get("64bit")
+                    or candidates.get("32bit"))
     logger.error("Couldn't find a Windows executable in %s", path)
     return ""

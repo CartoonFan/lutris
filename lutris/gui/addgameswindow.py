@@ -1,15 +1,21 @@
 from gettext import gettext as _
 
-from gi.repository import Gio, GLib, Gtk
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import Gtk
 
 from lutris import api
 from lutris.gui.config.add_game import AddGameDialog
-from lutris.gui.dialogs import DirectoryDialog, ErrorDialog, FileDialog
+from lutris.gui.dialogs import DirectoryDialog
+from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import FileDialog
 from lutris.gui.widgets.window import BaseApplicationWindow
-from lutris.installer import AUTO_WIN32_EXE, get_installers
+from lutris.installer import AUTO_WIN32_EXE
+from lutris.installer import get_installers
 from lutris.scanners.lutris import scan_directory
 from lutris.util.jobs import AsyncCall
-from lutris.util.strings import gtk_safe, slugify
+from lutris.util.strings import gtk_safe
+from lutris.util.strings import slugify
 
 
 class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-methods
@@ -20,32 +26,32 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
             "system-search-symbolic",
             _("Search the Lutris website for installers"),
             _("Query our website for community installers"),
-            "search_installers"
+            "search_installers",
         ),
         (
             "folder-new-symbolic",
             _("Scan a folder for games"),
             _("Mass-import a folder of games"),
-            "scan_folder"
+            "scan_folder",
         ),
         (
             "media-optical-dvd-symbolic",
             _("Install a Windows game from media"),
             _("Launch a setup file from an optical drive or download"),
-            "install_from_setup"
+            "install_from_setup",
         ),
         (
             "x-office-document-symbolic",
             _("Install from a local install script"),
             _("Run a YAML install script"),
-            "install_from_script"
+            "install_from_script",
         ),
         (
             "list-add-symbolic",
             _("Add locally installed game"),
             _("Manually configure a game available locally"),
-            "add_local_game"
-        )
+            "add_local_game",
+        ),
     ]
 
     title_text = _("Add games to Lutris")
@@ -187,7 +193,8 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
         if self.search_timer_id:
             GLib.source_remove(self.search_timer_id)
         self.text_query = entry.get_text().strip()
-        self.search_timer_id = GLib.timeout_add(750, self.update_search_results)
+        self.search_timer_id = GLib.timeout_add(750,
+                                                self.update_search_results)
 
     def _on_game_selected(self, listbox, row):
         game_slug = row.api_info["slug"]
@@ -199,7 +206,8 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
     def update_search_results(self):
         # Don't start a search while another is going; defer it instead.
         if self.search_spinner.get_visible():
-            self.search_timer_id = GLib.timeout_add(750, self.update_search_results)
+            self.search_timer_id = GLib.timeout_add(750,
+                                                    self.update_search_results)
             return
 
         self.search_timer_id = None
@@ -207,7 +215,8 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
         if self.text_query:
             self.search_spinner.show()
             self.search_spinner.start()
-            AsyncCall(api.search_games, self.update_search_results_cb, self.text_query)
+            AsyncCall(api.search_games, self.update_search_results_cb,
+                      self.text_query)
 
     def update_search_results_cb(self, api_games, error):
         if error:
@@ -217,23 +226,27 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
         self.search_spinner.stop()
         self.search_spinner.hide()
         total_count = api_games.get("count", 0)
-        count = len(api_games.get('results', []))
+        count = len(api_games.get("results", []))
 
         if not count:
             self.result_label.set_markup(_("No results"))
         elif count == total_count:
             self.result_label.set_markup(_(f"Showing <b>{count}</b> results"))
         else:
-            self.result_label.set_markup(_(f"<b>{total_count}</b> results, only displaying first {count}"))
+            self.result_label.set_markup(
+                _(f"<b>{total_count}</b> results, only displaying first {count}"
+                  ))
         for row in self.listbox.get_children():
             row.destroy()
         for game in api_games.get("results", []):
-            platforms = ",".join(gtk_safe(platform["name"]) for platform in game["platforms"])
-            year = game['year'] or ""
+            platforms = ",".join(
+                gtk_safe(platform["name"]) for platform in game["platforms"])
+            year = game["year"] or ""
             if platforms and year:
                 platforms = ", " + platforms
 
-            row = self.build_row("", gtk_safe(game['name']), f"{year}{platforms}")
+            row = self.build_row("", gtk_safe(game["name"]),
+                                 f"{year}{platforms}")
             row.api_info = game
             self.listbox.add(row)
         self.listbox.show()
@@ -260,15 +273,19 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
             "runner": "wine",
             "script": {
                 "game": {
-                    "exe": AUTO_WIN32_EXE, "prefix": "$GAMEDIR"
+                    "exe": AUTO_WIN32_EXE,
+                    "prefix": "$GAMEDIR"
                 },
-                "files": [
-                    {"setupfile": "N/A:Select the setup file"}
-                ],
-                "installer": [
-                    {"task": {"name": "wineexec", "executable": "setupfile"}}
-                ]
-            }
+                "files": [{
+                    "setupfile": "N/A:Select the setup file"
+                }],
+                "installer": [{
+                    "task": {
+                        "name": "wineexec",
+                        "executable": "setupfile"
+                    }
+                }],
+            },
         }
         application = Gio.Application.get_default()
         application.show_installer_window([installer])

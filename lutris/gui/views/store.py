@@ -2,19 +2,31 @@
 # pylint: disable=not-an-iterable
 import time
 
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 from gi.repository.GdkPixbuf import Pixbuf
 
+from . import COL_ICON
+from . import COL_ID
+from . import COL_INSTALLED
+from . import COL_INSTALLED_AT
+from . import COL_INSTALLED_AT_TEXT
+from . import COL_LASTPLAYED
+from . import COL_LASTPLAYED_TEXT
+from . import COL_NAME
+from . import COL_PLATFORM
+from . import COL_PLAYTIME
+from . import COL_PLAYTIME_TEXT
+from . import COL_RUNNER
+from . import COL_RUNNER_HUMAN_NAME
+from . import COL_SLUG
+from . import COL_YEAR
 from lutris import settings
 from lutris.database import sql
 from lutris.database.games import get_games
 from lutris.gui.views.store_item import StoreItem
 from lutris.util.strings import gtk_safe
-
-from . import (
-    COL_ICON, COL_ID, COL_INSTALLED, COL_INSTALLED_AT, COL_INSTALLED_AT_TEXT, COL_LASTPLAYED, COL_LASTPLAYED_TEXT,
-    COL_NAME, COL_PLATFORM, COL_PLAYTIME, COL_PLAYTIME_TEXT, COL_RUNNER, COL_RUNNER_HUMAN_NAME, COL_SLUG, COL_YEAR
-)
 
 
 def try_lower(value):
@@ -90,7 +102,9 @@ class GameStore(GObject.Object):
         previous_access = self._installed_games_accessed or 0
         self._installed_games_accessed = time.time()
         if self._installed_games_accessed - previous_access > 1:
-            self._installed_games = [g["slug"] for g in get_games(filters={"installed": "1"})]
+            self._installed_games = [
+                g["slug"] for g in get_games(filters={"installed": "1"})
+            ]
         return self._installed_games
 
     def add_games(self, games):
@@ -153,25 +167,23 @@ class GameStore(GObject.Object):
     def add_game(self, db_game):
         """Add a PGA game to the store"""
         game = StoreItem(db_game, self.service_media)
-        self.store.append(
-            (
-                str(game.id),
-                game.slug,
-                game.name,
-                game.get_pixbuf() if settings.SHOW_MEDIA else None,
-                game.year,
-                game.runner,
-                game.runner_text,
-                gtk_safe(game.platform),
-                game.lastplayed,
-                game.lastplayed_text,
-                game.installed,
-                game.installed_at,
-                game.installed_at_text,
-                game.playtime,
-                game.playtime_text,
-            )
-        )
+        self.store.append((
+            str(game.id),
+            game.slug,
+            game.name,
+            game.get_pixbuf() if settings.SHOW_MEDIA else None,
+            game.year,
+            game.runner,
+            game.runner_text,
+            gtk_safe(game.platform),
+            game.lastplayed,
+            game.lastplayed_text,
+            game.installed,
+            game.installed_at,
+            game.installed_at_text,
+            game.playtime,
+            game.playtime_text,
+        ))
 
     def on_game_updated(self, game):
         if self.service:
@@ -181,16 +193,14 @@ class GameStore(GObject.Object):
                 filters=({
                     "service": self.service_media.service,
                     "appid": game.appid
-                })
+                }),
             )
         else:
-            db_games = sql.filtered_query(
-                settings.PGA_DB,
-                "games",
-                filters=({
-                    "id": game.id
-                })
-            )
+            db_games = sql.filtered_query(settings.PGA_DB,
+                                          "games",
+                                          filters=({
+                                              "id": game.id
+                                          }))
 
         for db_game in db_games:
             GLib.idle_add(self.update, db_game)

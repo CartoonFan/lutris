@@ -4,20 +4,25 @@
 import os
 from gettext import gettext as _
 
-# Third Party Libraries
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk
+from gi.repository import Gtk
 
-# Lutris Modules
-from lutris import settings, sysoptions
-from lutris.gui.widgets.common import EditableGrid, FileChooserEntry, Label, VBox
+from lutris import settings
+from lutris import sysoptions
+from lutris.gui.widgets.common import EditableGrid
+from lutris.gui.widgets.common import FileChooserEntry
+from lutris.gui.widgets.common import Label
+from lutris.gui.widgets.common import VBox
 from lutris.gui.widgets.searchable_combobox import SearchableCombobox
-from lutris.runners import InvalidRunner, import_runner
+from lutris.runners import import_runner
+from lutris.runners import InvalidRunner
 from lutris.util.jobs import AsyncCall
 from lutris.util.log import logger
+# Third Party Libraries
+# Lutris Modules
 
 
 class ConfigBox(VBox):
-
     """Dynamically generate a vbox built upon on a python dict."""
 
     def __init__(self, game=None):
@@ -39,7 +44,8 @@ class ConfigBox(VBox):
         help_box.set_margin_right(15)
         help_box.set_margin_bottom(5)
 
-        icon = Gtk.Image.new_from_icon_name("dialog-information", Gtk.IconSize.MENU)
+        icon = Gtk.Image.new_from_icon_name("dialog-information",
+                                            Gtk.IconSize.MENU)
         help_box.pack_start(icon, False, False, 5)
 
         title_label = Gtk.Label("<i>%s</i>" % text)
@@ -82,7 +88,8 @@ class ConfigBox(VBox):
             value = self.config.get(option_key)
             default = option.get("default")
 
-            if callable(option.get("choices")) and option["type"] != "choice_with_search":
+            if (callable(option.get("choices"))
+                    and option["type"] != "choice_with_search"):
                 option["choices"] = option["choices"]()
             if callable(option.get("condition")):
                 option["condition"] = option["condition"]()
@@ -93,16 +100,19 @@ class ConfigBox(VBox):
 
             # Set tooltip's "Default" part
             default = option.get("default")
-            self.tooltip_default = default if isinstance(default, str) else None
+            self.tooltip_default = default if isinstance(default,
+                                                         str) else None
 
             # Generate option widget
             self.option_widget = None
             self.call_widget_generator(option, option_key, value, default)
 
             # Reset button
-            reset_btn = Gtk.Button.new_from_icon_name("edit-clear", Gtk.IconSize.MENU)
+            reset_btn = Gtk.Button.new_from_icon_name("edit-clear",
+                                                      Gtk.IconSize.MENU)
             reset_btn.set_relief(Gtk.ReliefStyle.NONE)
-            reset_btn.set_tooltip_text(_("Reset option to global or default config"))
+            reset_btn.set_tooltip_text(
+                _("Reset option to global or default config"))
             reset_btn.connect(
                 "clicked",
                 self.on_reset_button_clicked,
@@ -126,13 +136,12 @@ class ConfigBox(VBox):
                 helptext += _("<b>Default</b>: ") + _(self.tooltip_default)
             if value != default and option_key not in self.raw_config:
                 helptext = helptext + "\n\n" if helptext else ""
-                helptext += _(
-                    "<i>(Italic indicates that this option is "
-                    "modified in a lower configuration level.)</i>"
-                )
+                helptext += _("<i>(Italic indicates that this option is "
+                              "modified in a lower configuration level.)</i>")
             if helptext:
                 self.wrapper.props.has_tooltip = True
-                self.wrapper.connect("query-tooltip", self.on_query_tooltip, helptext)
+                self.wrapper.connect("query-tooltip", self.on_query_tooltip,
+                                     helptext)
 
             hbox = Gtk.Box()
             hbox.set_margin_left(18)
@@ -150,7 +159,8 @@ class ConfigBox(VBox):
             hbox.pack_start(self.wrapper, True, True, 0)
             self.pack_start(hbox, False, False, 0)
 
-    def call_widget_generator(self, option, option_key, value, default):  # noqa: C901
+    def call_widget_generator(self, option, option_key, value,
+                              default):  # noqa: C901
         """Call the right generation method depending on option type."""
         # pylint: disable=too-many-branches
         option_type = option["type"]
@@ -162,7 +172,8 @@ class ConfigBox(VBox):
             self.set_style_property("font-style", "italic", self.wrapper)
 
         if option_type == "choice":
-            self.generate_combobox(option_key, option["choices"], option["label"], value, default)
+            self.generate_combobox(option_key, option["choices"],
+                                   option["label"], value, default)
 
         elif option_type == "choice_with_entry":
             self.generate_combobox(
@@ -189,21 +200,26 @@ class ConfigBox(VBox):
             self.generate_checkbox_with_callback(option, value)
             self.tooltip_default = "Enabled" if default else "Disabled"
         elif option_type == "range":
-            self.generate_range(option_key, option["min"], option["max"], option["label"], value)
+            self.generate_range(option_key, option["min"], option["max"],
+                                option["label"], value)
         elif option_type == "string":
             if "label" not in option:
                 raise ValueError("Option %s has no label" % option)
-            self.generate_entry(option_key, option["label"], value, option_size)
+            self.generate_entry(option_key, option["label"], value,
+                                option_size)
         elif option_type == "directory_chooser":
             self.generate_directory_chooser(option, value)
         elif option_type == "file":
             self.generate_file_chooser(option, value)
         elif option_type == "multiple":
-            self.generate_multiple_file_chooser(option_key, option["label"], value)
+            self.generate_multiple_file_chooser(option_key, option["label"],
+                                                value)
         elif option_type == "label":
             self.generate_label(option["label"])
         elif option_type == "mapping":
-            self.generate_editable_grid(option_key, label=option["label"], value=value)
+            self.generate_editable_grid(option_key,
+                                        label=option["label"],
+                                        value=value)
         else:
             raise ValueError("Unknown widget type %s" % option_type)
 
@@ -226,7 +242,8 @@ class ConfigBox(VBox):
         switch = Gtk.Switch()
         if value is True:
             switch.set_active(value)
-        switch.connect("notify::active", self.checkbox_toggle, option["option"])
+        switch.connect("notify::active", self.checkbox_toggle,
+                       option["option"])
         switch.set_valign(Gtk.Align.CENTER)
         self.wrapper.pack_start(switch, False, False, 0)
         self.option_widget = switch
@@ -243,7 +260,8 @@ class ConfigBox(VBox):
         if value is True:
             checkbox.set_active(value)
 
-        checkbox.connect("notify::active", self._on_toggle_with_callback, option)
+        checkbox.connect("notify::active", self._on_toggle_with_callback,
+                         option)
         checkbox.set_valign(Gtk.Align.CENTER)
         self.wrapper.pack_start(checkbox, False, False, 0)
         self.option_widget = checkbox
@@ -259,7 +277,8 @@ class ConfigBox(VBox):
         callback = option["callback"]
         callback_on = option.get("callback_on")
         if widget.get_active() == callback_on or callback_on is None:
-            AsyncCall(callback, self._on_callback_finished, widget, option, self.config)
+            AsyncCall(callback, self._on_callback_finished, widget, option,
+                      self.config)
         else:
             self.option_changed(widget, option_name, widget.get_active())
 
@@ -288,10 +307,12 @@ class ConfigBox(VBox):
         """Action triggered for entry 'changed' signal."""
         self.option_changed(entry, option_name, entry.get_text())
 
-    def generate_searchable_combobox(self, option_name, choice_func, label, value, default):
+    def generate_searchable_combobox(self, option_name, choice_func, label,
+                                     value, default):
         """Generate a searchable combo box"""
         combobox = SearchableCombobox(choice_func, value or default)
-        combobox.connect("changed", self.on_searchable_entry_changed, option_name)
+        combobox.connect("changed", self.on_searchable_entry_changed,
+                         option_name)
         self.wrapper.pack_start(Label(label), False, False, 0)
         self.wrapper.pack_start(combobox, True, True, 0)
         self.option_widget = combobox
@@ -310,7 +331,13 @@ class ConfigBox(VBox):
                 liststore.append(choice)
 
     # ComboBox
-    def generate_combobox(self, option_name, choices, label, value=None, default=None, has_entry=False):
+    def generate_combobox(self,
+                          option_name,
+                          choices,
+                          label,
+                          value=None,
+                          default=None,
+                          has_entry=False):
         """Generate a combobox (drop-down menu)."""
         liststore = Gtk.ListStore(str, str)
         self._populate_combobox_choices(liststore, choices, default)
@@ -365,12 +392,14 @@ class ConfigBox(VBox):
     # Range
     def generate_range(self, option_name, min_val, max_val, label, value=None):
         """Generate a ranged spin button."""
-        adjustment = Gtk.Adjustment(float(min_val), float(min_val), float(max_val), 1, 0, 0)
+        adjustment = Gtk.Adjustment(float(min_val), float(min_val),
+                                    float(max_val), 1, 0, 0)
         spin_button = Gtk.SpinButton()
         spin_button.set_adjustment(adjustment)
         if value:
             spin_button.set_value(value)
-        spin_button.connect("changed", self.on_spin_button_changed, option_name)
+        spin_button.connect("changed", self.on_spin_button_changed,
+                            option_name)
         label = Label(label)
         self.wrapper.pack_start(label, False, False, 0)
         self.wrapper.pack_start(spin_button, True, True, 0)
@@ -386,17 +415,19 @@ class ConfigBox(VBox):
         """Generate a file chooser button to select a file."""
         option_name = option["option"]
         label = Label(option["label"])
-        default_path = option.get("default_path") or (self.runner.default_path if self.runner else "")
+        default_path = option.get("default_path") or (self.runner.default_path
+                                                      if self.runner else "")
         file_chooser = FileChooserEntry(
             title=_("Select file"),
             action=Gtk.FileChooserAction.OPEN,
             path=path,
-            default_path=default_path
+            default_path=default_path,
         )
         # file_chooser.set_size_request(200, 30)
 
         if "default_path" in option:
-            default_path = self.lutris_config.system_config.get(option["default_path"])
+            default_path = self.lutris_config.system_config.get(
+                option["default_path"])
             if default_path and os.path.exists(default_path):
                 file_chooser.entry.set_text(default_path)
 
@@ -413,7 +444,8 @@ class ConfigBox(VBox):
         self.wrapper.pack_start(label, False, False, 0)
         self.wrapper.pack_start(file_chooser, True, True, 0)
         self.option_widget = file_chooser
-        file_chooser.entry.connect("changed", self._on_chooser_file_set, option_name)
+        file_chooser.entry.connect("changed", self._on_chooser_file_set,
+                                   option_name)
 
     def _on_chooser_file_set(self, entry, option):
         """Action triggered on file select dialog 'file-set' signal."""
@@ -430,9 +462,13 @@ class ConfigBox(VBox):
         if not path and self.game and self.game.runner:
             default_path = self.game.runner.working_dir
         directory_chooser = FileChooserEntry(
-            title=_("Select folder"), action=Gtk.FileChooserAction.SELECT_FOLDER, path=path, default_path=default_path
+            title=_("Select folder"),
+            action=Gtk.FileChooserAction.SELECT_FOLDER,
+            path=path,
+            default_path=default_path,
         )
-        directory_chooser.entry.connect("changed", self._on_chooser_dir_set, option_name)
+        directory_chooser.entry.connect("changed", self._on_chooser_dir_set,
+                                        option_name)
         directory_chooser.set_valign(Gtk.Align.CENTER)
         self.wrapper.pack_start(label, False, False, 0)
         self.wrapper.pack_start(directory_chooser, True, True, 0)
@@ -449,7 +485,8 @@ class ConfigBox(VBox):
         try:
             value = list(value.items())
         except AttributeError:
-            logger.error("Invalid value of type %s passed to grid widget: %s", type(value), value)
+            logger.error("Invalid value of type %s passed to grid widget: %s",
+                         type(value), value)
             value = {}
         label = Label(label)
 
@@ -471,7 +508,8 @@ class ConfigBox(VBox):
         label = Label(label + ":")
         label.set_halign(Gtk.Align.START)
         button = Gtk.Button(_("Add files"))
-        button.connect("clicked", self.on_add_files_clicked, option_name, value)
+        button.connect("clicked", self.on_add_files_clicked, option_name,
+                       value)
         button.set_margin_left(10)
         vbox.pack_start(label, False, False, 5)
         vbox.pack_end(button, False, False, 0)
@@ -490,12 +528,14 @@ class ConfigBox(VBox):
         files_treeview = Gtk.TreeView(self.files_list_store)
         files_column = Gtk.TreeViewColumn(_("Files"), cell_renderer, text=0)
         files_treeview.append_column(files_column)
-        files_treeview.connect("key-press-event", self.on_files_treeview_keypress, option_name)
+        files_treeview.connect("key-press-event",
+                               self.on_files_treeview_keypress, option_name)
         treeview_scroll = Gtk.ScrolledWindow()
         treeview_scroll.set_min_content_height(130)
         treeview_scroll.set_margin_left(10)
         treeview_scroll.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
-        treeview_scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        treeview_scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
         treeview_scroll.add(files_treeview)
 
         vbox.pack_start(treeview_scroll, True, True, 0)
@@ -514,9 +554,9 @@ class ConfigBox(VBox):
         dialog.set_select_multiple(True)
 
         first_file_dir = os.path.dirname(value[0]) if value else None
-        dialog.set_current_folder(
-            first_file_dir or self.game.directory or self.config.get("game_path") or os.path.expanduser("~")
-        )
+        dialog.set_current_folder(first_file_dir or self.game.directory
+                                  or self.config.get("game_path")
+                                  or os.path.expanduser("~"))
         response = dialog.run()
         if response == Gtk.ResponseType.ACCEPT:
             self.add_files_to_treeview(dialog, option_name, self.wrapper)
@@ -589,16 +629,19 @@ class ConfigBox(VBox):
         children = wrapper.get_children()
         for child in children:
             child.destroy()
-        self.call_widget_generator(option, option_key, reset_value, option.get("default"))
+        self.call_widget_generator(option, option_key, reset_value,
+                                   option.get("default"))
         self.wrapper.show_all()
 
     @staticmethod
     def set_style_property(property_, value, wrapper):
         """Add custom style."""
         style_provider = Gtk.CssProvider()
-        style_provider.load_from_data("GtkHBox {{{}: {};}}".format(property_, value).encode())
+        style_provider.load_from_data("GtkHBox {{{}: {};}}".format(
+            property_, value).encode())
         style_context = wrapper.get_style_context()
-        style_context.add_provider(style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        style_context.add_provider(style_provider,
+                                   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 
 class GameBox(ConfigBox):
@@ -622,7 +665,6 @@ class GameBox(ConfigBox):
 
 
 class RunnerBox(ConfigBox):
-
     """Configuration box for runner specific options"""
 
     def __init__(self, lutris_config, game=None):
@@ -636,10 +678,9 @@ class RunnerBox(ConfigBox):
             self.options = self.runner.get_runner_options()
 
         if lutris_config.level == "game":
-            self.generate_top_info_box(_(
-                "If modified, these options supersede the same options from "
-                "the base runner configuration."
-            ))
+            self.generate_top_info_box(
+                _("If modified, these options supersede the same options from "
+                  "the base runner configuration."))
         self.generate_widgets("runner")
 
 
@@ -657,15 +698,13 @@ class SystemBox(ConfigBox):
             self.options = sysoptions.system_options
 
         if lutris_config.game_config_id and runner_slug:
-            self.generate_top_info_box(_(
-                "If modified, these options supersede the same options from "
-                "the base runner configuration, which themselves supersede "
-                "the global preferences."
-            ))
+            self.generate_top_info_box(
+                _("If modified, these options supersede the same options from "
+                  "the base runner configuration, which themselves supersede "
+                  "the global preferences."))
         elif runner_slug:
-            self.generate_top_info_box(_(
-                "If modified, these options supersede the same options from "
-                "the global preferences."
-            ))
+            self.generate_top_info_box(
+                _("If modified, these options supersede the same options from "
+                  "the global preferences."))
 
         self.generate_widgets("system")

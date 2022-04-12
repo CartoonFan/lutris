@@ -30,7 +30,6 @@ DATA_TYPES = {
 
 
 class WindowsFileTime:
-
     """Utility class to deal with Windows FILETIME structures.
 
     See: https://msdn.microsoft.com/en-us/library/ms724284(v=vs.85).aspx
@@ -100,7 +99,7 @@ class WineRegistry:
         """Return an array of the unprocessed contents of a registry file"""
         if not system.path_exists(reg_filename):
             return []
-        with open(reg_filename, "r", encoding='utf-8') as reg_file:
+        with open(reg_filename, "r", encoding="utf-8") as reg_file:
 
             try:
                 registry_content = reg_file.readlines()
@@ -154,11 +153,10 @@ class WineRegistry:
             raise OSError("No filename provided")
         prefix_path = os.path.dirname(path)
         if not os.path.isdir(prefix_path):
-            raise OSError(
-                "Invalid Wine prefix path %s, make sure to "
-                "create the prefix before saving to a registry" % prefix_path
-            )
-        with open(path, "w", encoding='utf-8') as registry_file:
+            raise OSError("Invalid Wine prefix path %s, make sure to "
+                          "create the prefix before saving to a registry" %
+                          prefix_path)
+        with open(path, "w", encoding="utf-8") as registry_file:
             registry_file.write(self.render())
 
     def query(self, path, subkey):
@@ -230,7 +228,8 @@ class WineRegistryKey:
             self.metas["time"] = windows_timestamp.to_hex()
         else:
             # Existing key loaded from file
-            self.raw_name, self.raw_timestamp = re.split(re.compile(r"(?<=[^\\]\]) "), key_def, maxsplit=1)
+            self.raw_name, self.raw_timestamp = re.split(
+                re.compile(r"(?<=[^\\]\]) "), key_def, maxsplit=1)
             self.name = self.raw_name.replace("\\\\", "/").strip("[]")
 
         # Parse timestamp either as int or float
@@ -253,7 +252,9 @@ class WineRegistryKey:
             self.add_meta(line)
         elif line.startswith('"'):
             try:
-                key, value = re.split(re.compile(r"(?<![^\\]\\\")="), line, maxsplit=1)
+                key, value = re.split(re.compile(r"(?<![^\\]\\\")="),
+                                      line,
+                                      maxsplit=1)
             except ValueError as ex:
                 logger.error("Unable to parse line %s", line)
                 logger.exception(ex)
@@ -310,7 +311,8 @@ class WineRegistryKey:
             # The exception let us know if it worked or not
             for i in [0, 1, 2]:
                 try:
-                    out += ("\\u{}{}".format("0" * i, chunk).encode().decode("unicode_escape"))
+                    out += ("\\u{}{}".format(
+                        "0" * i, chunk).encode().decode("unicode_escape"))
                     break
                 except UnicodeDecodeError:
                     pass

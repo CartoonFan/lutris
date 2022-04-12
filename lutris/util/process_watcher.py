@@ -37,8 +37,8 @@ class ProcessWatcher:
             include_processes (str or list): list of process that should be forced to be monitored
         """
         self.unmonitored_processes = (
-            self.parse_process_list(exclude_processes) | SYSTEM_PROCESSES
-        ) - self.parse_process_list(include_processes)
+            self.parse_process_list(exclude_processes)
+            | SYSTEM_PROCESSES) - self.parse_process_list(include_processes)
 
     @staticmethod
     def parse_process_list(process_list):
@@ -60,7 +60,7 @@ class ProcessWatcher:
 
     def iterate_processes(self):
         for child in self.iterate_children():
-            if child.state == 'Z':
+            if child.state == "Z":
                 continue
 
             if child.name and child.name not in self.unmonitored_processes:

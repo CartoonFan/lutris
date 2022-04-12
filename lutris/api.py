@@ -9,7 +9,8 @@ import urllib.request
 import requests
 
 from lutris import settings
-from lutris.util import http, system
+from lutris.util import http
+from lutris.util import system
 from lutris.util.log import logger
 
 API_KEY_FILE_PATH = os.path.join(settings.CACHE_DIR, "auth-token")
@@ -21,7 +22,7 @@ def read_api_key():
     """Read the API token from disk"""
     if not system.path_exists(API_KEY_FILE_PATH):
         return None
-    with open(API_KEY_FILE_PATH, "r", encoding='utf-8') as token_file:
+    with open(API_KEY_FILE_PATH, "r", encoding="utf-8") as token_file:
         api_string = token_file.read()
     try:
         username, token = api_string.split(":")
@@ -41,12 +42,17 @@ def connect(username, password):
         json_dict = response.json()
         if "token" in json_dict:
             token = json_dict["token"]
-            with open(API_KEY_FILE_PATH, "w", encoding='utf-8') as token_file:
+            with open(API_KEY_FILE_PATH, "w", encoding="utf-8") as token_file:
                 token_file.write("%s:%s" % (username, token))
             get_user_info()
             return token
-    except (requests.RequestException, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects,
-            requests.Timeout) as ex:
+    except (
+            requests.RequestException,
+            requests.ConnectionError,
+            requests.HTTPError,
+            requests.TooManyRedirects,
+            requests.Timeout,
+    ) as ex:
         logger.error("Unable to connect to server (%s): %s", login_url, ex)
         return False
 
@@ -64,12 +70,14 @@ def get_user_info():
     if not credentials:
         return
     url = settings.SITE_URL + "/api/users/me"
-    request = http.Request(url, headers={"Authorization": "Token " + credentials["token"]})
+    request = http.Request(
+        url, headers={"Authorization": "Token " + credentials["token"]})
     response = request.get()
     account_info = response.json
     if not account_info:
-        logger.warning("Unable to fetch user info for %s", credentials["username"])
-    with open(USER_INFO_FILE_PATH, "w", encoding='utf-8') as token_file:
+        logger.warning("Unable to fetch user info for %s",
+                       credentials["username"])
+    with open(USER_INFO_FILE_PATH, "w", encoding="utf-8") as token_file:
         json.dump(account_info, token_file, indent=2)
 
 
@@ -138,7 +146,9 @@ def get_api_games(game_slugs=None, page=1, service=None):
             logger.error("No page found in %s", response_data["next"])
             break
         if service:
-            response_data = get_game_service_api_page(service, game_slugs, page=next_page)
+            response_data = get_game_service_api_page(service,
+                                                      game_slugs,
+                                                      page=next_page)
         else:
             response_data = get_game_api_page(game_slugs, page=next_page)
         if not response_data:
@@ -174,8 +184,12 @@ def search_games(query):
     if not query:
         return {}
     query = query.lower().strip()[:255]
-    url = "/api/games?%s" % urllib.parse.urlencode({"search": query, "with-installers": True})
-    response = http.Request(settings.SITE_URL + url, headers={"Content-Type": "application/json"})
+    url = "/api/games?%s" % urllib.parse.urlencode({
+        "search": query,
+        "with-installers": True
+    })
+    response = http.Request(settings.SITE_URL + url,
+                            headers={"Content-Type": "application/json"})
     try:
         response.get()
     except http.HTTPError as ex:
@@ -187,7 +201,8 @@ def search_games(query):
 def get_bundle(bundle):
     """Retrieve a lutris bundle from the API"""
     url = "/api/bundles/%s" % bundle
-    response = http.Request(settings.SITE_URL + url, headers={"Content-Type": "application/json"})
+    response = http.Request(settings.SITE_URL + url,
+                            headers={"Content-Type": "application/json"})
     try:
         response.get()
     except http.HTTPError as ex:
@@ -241,5 +256,5 @@ def parse_installer_url(url):
         "revision": revision,
         "action": action,
         "service": service,
-        "appid": appid
+        "appid": appid,
     }

@@ -4,8 +4,8 @@ import os
 import subprocess
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
+# Lutris Modules
 
 RESIDUALVM_CONFIG_FILE = os.path.join(os.path.expanduser("~"), ".residualvmrc")
 
@@ -24,7 +24,7 @@ class residualvm(Runner):
         {
             "option": "path",
             "type": "directory_chooser",
-            "label": _("Game files location")
+            "label": _("Game files location"),
         },
         {
             "option": "subtitles",
@@ -41,15 +41,19 @@ class residualvm(Runner):
             "default": False,
         },
         {
-            "option": "renderer",
-            "label": _("Renderer"),
-            "type": "choice",
+            "option":
+            "renderer",
+            "label":
+            _("Renderer"),
+            "type":
+            "choice",
             "choices": (
                 ("OpenGL", "opengl"),
                 (_("OpenGL shaders"), "opengl_shaders"),
                 (_("Software"), "software"),
             ),
-            "default": "opengl",
+            "default":
+            "opengl",
         },
         {
             "option": "show-fps",
@@ -103,8 +107,12 @@ class residualvm(Runner):
 
     def get_game_list(self):
         """Return the entire list of games supported by ResidualVM."""
-        with subprocess.Popen([self.get_executable(), "--list-games"],
-                              stdout=subprocess.PIPE, encoding="utf-8", universal_newlines=True) as residualvm_process:
+        with subprocess.Popen(
+            [self.get_executable(), "--list-games"],
+                stdout=subprocess.PIPE,
+                encoding="utf-8",
+                universal_newlines=True,
+        ) as residualvm_process:
             residual_output = residualvm_process.communicate()[0]
             game_list = str.split(residual_output, "\n")
         game_array = []
