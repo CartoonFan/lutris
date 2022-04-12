@@ -102,12 +102,15 @@ class StoreItem:
                 else:
                     service_game = None
                 if service_game:
-                    image_path = self.service_media.get_absolute_path(service_game["slug"])
+                    image_path = self.service_media.get_absolute_path(
+                        service_game["slug"]
+                    )
         if system.path_exists(image_path):
-            return get_pixbuf(image_path, self.service_media.size, is_installed=self.installed)
+            return get_pixbuf(
+                image_path, self.service_media.size, is_installed=self.installed
+            )
         return self.service_media.get_pixbuf_for_game(
-            self._game_data["slug"],
-            self.installed
+            self._game_data["slug"], self.installed
         )
 
     @property
@@ -119,8 +122,9 @@ class StoreItem:
     def installed_at_text(self):
         """Date of install (textual representation)"""
         return gtk_safe(
-            time.strftime("%X %x", time.localtime(self.installed_at)) if
-            self.installed_at else ""
+            time.strftime("%X %x", time.localtime(self.installed_at))
+            if self.installed_at
+            else ""
         )
 
     @property
@@ -132,10 +136,9 @@ class StoreItem:
     def lastplayed_text(self):
         """Date of last play (textual representation)"""
         return gtk_safe(
-            time.strftime(
-                "%X %x",
-                time.localtime(self.lastplayed)
-            ) if self.lastplayed else ""
+            time.strftime("%X %x", time.localtime(self.lastplayed))
+            if self.lastplayed
+            else ""
         )
 
     @property

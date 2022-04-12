@@ -54,9 +54,11 @@ def set_child_subreaper():
     Some init(1) frameworks (e.g., systemd(1)) employ a subreaper
     process for similar reasons.
     """
-    result = ctypes.CDLL(find_library('c')).prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0, 0)
+    result = ctypes.CDLL(find_library("c")).prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0, 0)
     if result == -1:
-        print("PR_SET_CHILD_SUBREAPER is not supported by your kernel (Linux 3.4 and above)")
+        print(
+            "PR_SET_CHILD_SUBREAPER is not supported by your kernel (Linux 3.4 and above)"
+        )
 
 
 def log(log_message):
@@ -128,7 +130,10 @@ def main():
     try:
         process_pid = subprocess.Popen(args).pid
     except FileNotFoundError:
-        log("Failed to execute process '%s'. Check that the file exists" % " ".join(args))
+        log(
+            "Failed to execute process '%s'. Check that the file exists"
+            % " ".join(args)
+        )
         return
     log("Started initial process %d from %s" % (process_pid, " ".join(args)))
 
@@ -152,7 +157,9 @@ def main():
                 raise NoMoreChildren from None  # No processes remain.
             if child_pid == process_pid:
                 if returncode:
-                    log("Reassigning returncode, which is very weird but you'll have to deal with it.")
+                    log(
+                        "Reassigning returncode, which is very weird but you'll have to deal with it."
+                    )
                 returncode = child_returncode
                 log("Initial process has exited (return code: %s)" % child_returncode)
 
@@ -184,7 +191,9 @@ def main():
     else:
         log("Exit with return code %s" % returncode)
     if "LUTRIS_GAME_UUID" in os.environ:
-        with open("/tmp/lutris-%s" % os.environ["LUTRIS_GAME_UUID"], "w") as status_file:
+        with open(
+            "/tmp/lutris-%s" % os.environ["LUTRIS_GAME_UUID"], "w"
+        ) as status_file:
             status_file.write("%s" % returncode)
     sys.exit(returncode)
 
@@ -194,7 +203,7 @@ if __name__ == "__main__":
     if os.path.isdir(os.path.join(LAUNCH_PATH, "../lutris")):
         logger.setLevel(logging.DEBUG)
         sys.dont_write_bytecode = True
-        SOURCE_PATH = os.path.normpath(os.path.join(LAUNCH_PATH, '..'))
+        SOURCE_PATH = os.path.normpath(os.path.join(LAUNCH_PATH, ".."))
         sys.path.insert(0, SOURCE_PATH)
     else:
         sys.path.insert(0, os.path.normpath(os.path.join(LAUNCH_PATH, "../lib/lutris")))

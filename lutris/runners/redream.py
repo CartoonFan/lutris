@@ -34,7 +34,11 @@ class redream(Runner):
             "option": "region",
             "type": "choice",
             "label": _("Region"),
-            "choices": [(_("USA"), "usa"), (_("Europe"), "europe"), (_("Japan"), "japan")],
+            "choices": [
+                (_("USA"), "usa"),
+                (_("Europe"), "europe"),
+                (_("Japan"), "japan"),
+            ],
             "default": "usa",
         },
         {

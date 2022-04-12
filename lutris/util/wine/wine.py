@@ -80,7 +80,7 @@ def detect_prefix_arch(prefix_path=None):
         # No prefix_path exists or invalid prefix
         logger.debug("Prefix not found: %s", prefix_path)
         return None
-    with open(registry_path, "r", encoding='utf-8') as registry:
+    with open(registry_path, "r", encoding="utf-8") as registry:
         for _line_no in range(5):
             line = registry.readline()
             if "win64" in line:
@@ -143,7 +143,8 @@ def is_installed_systemwide():
             # if wine64 is installed but not wine32, don't consider it
             # a system-wide installation.
             if (
-                build == "wine" and system.path_exists("/usr/lib/wine/wine64")
+                build == "wine"
+                and system.path_exists("/usr/lib/wine/wine64")
                 and not system.path_exists("/usr/lib/wine/wine")
             ):
                 logger.warning("wine32 is missing from system")
@@ -190,7 +191,7 @@ def get_pol_wine_versions():
     if not POL_PATH:
         return []
     versions = []
-    for arch in ['x86', 'amd64']:
+    for arch in ["x86", "amd64"]:
         builds_path = os.path.join(POL_PATH, "wine/linux-%s" % arch)
         if not system.path_exists(builds_path):
             continue
@@ -363,19 +364,23 @@ def display_vulkan_error(on_launch):
 
 
 def esync_display_limit_warning():
-    ErrorDialog(_(
-        "Your limits are not set correctly."
-        " Please increase them as described here:"
-        " <a href='https://github.com/lutris/docs/blob/master/HowToEsync.md'>"
-        "How-to:-Esync (https://github.com/lutris/docs/blob/master/HowToEsync.md)</a>"
-    ))
+    ErrorDialog(
+        _(
+            "Your limits are not set correctly."
+            " Please increase them as described here:"
+            " <a href='https://github.com/lutris/docs/blob/master/HowToEsync.md'>"
+            "How-to:-Esync (https://github.com/lutris/docs/blob/master/HowToEsync.md)</a>"
+        )
+    )
 
 
 def fsync_display_support_warning():
-    ErrorDialog(_(
-        "Your kernel is not patched for fsync."
-        " Please get a patched kernel to use fsync."
-    ))
+    ErrorDialog(
+        _(
+            "Your kernel is not patched for fsync."
+            " Please get a patched kernel to use fsync."
+        )
+    )
 
 
 def esync_display_version_warning(on_launch=False):
@@ -423,11 +428,11 @@ def get_overrides_env(overrides):
     Output a string of dll overrides usable with WINEDLLOVERRIDES
     See: https://wiki.winehq.org/Wine_User%27s_Guide#WINEDLLOVERRIDES.3DDLL_Overrides
     """
-    default_overrides = {
-        "winemenubuilder": ""
-    }
+    default_overrides = {"winemenubuilder": ""}
     overrides.update(default_overrides)
-    override_buckets = OrderedDict([("n,b", []), ("b,n", []), ("b", []), ("n", []), ("d", []), ("", [])])
+    override_buckets = OrderedDict(
+        [("n,b", []), ("b,n", []), ("b", []), ("n", []), ("d", []), ("", [])]
+    )
     for dll, value in overrides.items():
         if not value:
             value = ""

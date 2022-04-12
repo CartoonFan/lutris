@@ -26,15 +26,15 @@ class DolphinService(BaseService):
     icon = "dolphin"
     name = _("Dolphin")
     local = True
-    medias = {
-        "icon": DolphinBanner
-    }
+    medias = {"icon": DolphinBanner}
 
     def load(self):
         if not system.path_exists(DOLPHIN_GAME_CACHE_FILE):
             return
         cache_reader = DolphinCacheReader()
-        dolphin_games = [DolphinGame.new_from_cache(game) for game in cache_reader.get_games()]
+        dolphin_games = [
+            DolphinGame.new_from_cache(game) for game in cache_reader.get_games()
+        ]
         for game in dolphin_games:
             game.save()
         return dolphin_games
@@ -48,11 +48,8 @@ class DolphinService(BaseService):
             "game_slug": slugify(db_game["name"]),
             "runner": "dolphin",
             "script": {
-                "game": {
-                    "main_file": details["path"],
-                    "platform": details["platform"]
-                },
-            }
+                "game": {"main_file": details["path"], "platform": details["platform"]},
+            },
         }
 
     def get_game_directory(self, installer):
@@ -76,10 +73,9 @@ class DolphinGame(ServiceGame):
         service_game.slug = slugify(cache_entry["internal_name"])
         service_game.icon = service_game.get_banner(cache_entry)
 
-        service_game.details = json.dumps({
-            "path": cache_entry["file_path"],
-            "platform": cache_entry["platform"][:-1]
-        })
+        service_game.details = json.dumps(
+            {"path": cache_entry["file_path"], "platform": cache_entry["platform"][:-1]}
+        )
         return service_game
 
     @staticmethod

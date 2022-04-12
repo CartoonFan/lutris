@@ -55,9 +55,10 @@ class mednafen(Runner):
             "option": "main_file",
             "type": "file",
             "label": _("ROM file"),
-            "help":
-            _("The game data, commonly called a ROM image. \n"
-              "Mednafen supports GZIP and ZIP compressed ROMs."),
+            "help": _(
+                "The game data, commonly called a ROM image. \n"
+                "Mednafen supports GZIP and ZIP compressed ROMs."
+            ),
         },
         {
             "option": "machine",
@@ -68,19 +69,11 @@ class mednafen(Runner):
         },
     ]
     runner_options = [
+        {"option": "fs", "type": "bool", "label": _("Fullscreen"), "default": False},
         {
-            "option": "fs",
-            "type": "bool",
-            "label": _("Fullscreen"),
-            "default": False
-        },
-        {
-            "option":
-            "stretch",
-            "type":
-            "choice",
-            "label":
-            _("Aspect ratio"),
+            "option": "stretch",
+            "type": "choice",
+            "label": _("Aspect ratio"),
             "choices": (
                 (_("Disabled"), "0"),
                 (_("Stretched"), "full"),
@@ -88,16 +81,12 @@ class mednafen(Runner):
                 (_("Integer scale"), "aspect_int"),
                 (_("Multiple of 2 scale"), "aspect_mult2"),
             ),
-            "default":
-            "aspect_int",
+            "default": "aspect_int",
         },
         {
-            "option":
-            "scaler",
-            "type":
-            "choice",
-            "label":
-            _("Video scaler"),
+            "option": "scaler",
+            "type": "choice",
+            "label": _("Video scaler"),
             "choices": (
                 ("none", "none"),
                 ("hq2x", "hq2x"),
@@ -116,16 +105,12 @@ class mednafen(Runner):
                 ("nny3x", "nny3x"),
                 ("nny4x", "nny4x"),
             ),
-            "default":
-            DEFAULT_MEDNAFEN_SCALER,
+            "default": DEFAULT_MEDNAFEN_SCALER,
         },
         {
-            "option":
-            "sound_device",
-            "type":
-            "choice",
-            "label":
-            _("Sound device"),
+            "option": "sound_device",
+            "type": "choice",
+            "label": _("Sound device"),
             "choices": (
                 (_("Mednafen default"), "default"),
                 (_("ALSA default"), "sexyal-literal-default"),
@@ -133,8 +118,7 @@ class mednafen(Runner):
                 ("hw:1", "hw:1,0"),
                 ("hw:2", "hw:2,0"),
             ),
-            "default":
-            "sexyal-literal-default"
+            "default": "sexyal-literal-default",
         },
         {
             "option": "dont_map_controllers",
@@ -153,7 +137,7 @@ class mednafen(Runner):
         return ""
 
     def find_joysticks(self):
-        """ Detect connected joysticks and return their ids """
+        """Detect connected joysticks and return their ids"""
         joy_ids = []
         if not self.is_installed:
             return []
@@ -175,14 +159,14 @@ class mednafen(Runner):
 
         for joy in joy_list:
             index = joy.find("Unique ID:")
-            joy_id = joy[index + 11:]
+            joy_id = joy[index + 11 :]
             logger.debug("Joystick found id %s ", joy_id)
             joy_ids.append(joy_id)
         return joy_ids
 
     @staticmethod
     def set_joystick_controls(joy_ids, machine):
-        """ Setup joystick mappings per machine """
+        """Setup joystick mappings per machine"""
 
         # Get the controller mappings
         controller_mappings = get_controller_mappings()

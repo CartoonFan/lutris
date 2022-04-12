@@ -27,6 +27,7 @@ from lutris.util.wine.prefix import WinePrefixManager
 
 class UbisoftCover(ServiceMedia):
     """Ubisoft connect cover art"""
+
     service = "ubisoft"
     size = (160, 186)
     dest_path = os.path.join(settings.CACHE_DIR, "ubisoft/covers")
@@ -51,7 +52,7 @@ class UbisoftCover(ServiceMedia):
         asset_file = os.path.join(
             base_dir,
             "drive_c/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/cache/assets",
-            url
+            url,
         )
         cache_path = os.path.join(self.dest_path, self.get_filename(slug))
         if os.path.exists(asset_file):
@@ -62,6 +63,7 @@ class UbisoftCover(ServiceMedia):
 
 class UbisoftGame(ServiceGame):
     """Service game for games from Ubisoft connect"""
+
     service = "ubisoft"
 
     @classmethod
@@ -77,6 +79,7 @@ class UbisoftGame(ServiceGame):
 
 class UbisoftConnectService(OnlineService):
     """Service class for Ubisoft Connect"""
+
     id = "ubisoft"
     name = _("Ubisoft Connect")
     icon = "ubisoft"
@@ -95,7 +98,7 @@ class UbisoftConnectService(OnlineService):
         "https://connect.ubisoft.com/change_domain/": (
             'window.location.replace(localStorage.getItem("PRODloginData") +","+ '
             'localStorage.getItem("PRODrememberMe") +"," + localStorage.getItem("PRODlastProfile"));'
-        )
+        ),
     }
     medias = {
         "cover": UbisoftCover,
@@ -112,13 +115,13 @@ class UbisoftConnectService(OnlineService):
 
     def login_callback(self, credentials):
         """Called after the user has logged in successfully"""
-        url = credentials[len("https://connect.ubisoft.com/change_domain/"):]
+        url = credentials[len("https://connect.ubisoft.com/change_domain/") :]
         unquoted_url = unquote(url)
         storage_jsons = json.loads("[" + unquoted_url + "]")
         user_data = self.client.authorise_with_local_storage(storage_jsons)
         self.client.set_auth_lost_callback(self.auth_lost)
         self.emit("service-login")
-        return (user_data['userId'], user_data['username'])
+        return (user_data["userId"], user_data["username"])
 
     def run(self):
         db_game = get_game_by_field(self.client_installer, "slug")
@@ -139,7 +142,7 @@ class UbisoftConnectService(OnlineService):
         configurations_path = os.path.join(
             base_dir,
             "drive_c/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/"
-            "cache/configuration/configurations"
+            "cache/configuration/configurations",
         )
         with open(configurations_path, "rb") as config_file:
             content = config_file.read()
@@ -149,7 +152,7 @@ class UbisoftConnectService(OnlineService):
         self.is_loading = True
         self.client.authorise_with_stored_credentials(self.load_credentials())
         response = self.client.get_club_titles()
-        games = response['data']['viewer']['ownedGames'].get('nodes', [])
+        games = response["data"]["viewer"]["ownedGames"].get("nodes", [])
         ubi_games = []
         for game in games:
             if "ownedPlatformGroups" in game:
@@ -174,7 +177,7 @@ class UbisoftConnectService(OnlineService):
         return ubi_games
 
     def store_credentials(self, credentials):
-        with open(self.token_path, "w", encoding='utf-8') as auth_file:
+        with open(self.token_path, "w", encoding="utf-8") as auth_file:
             auth_file.write(json.dumps(credentials, indent=2))
 
     def load_credentials(self):
@@ -191,7 +194,9 @@ class UbisoftConnectService(OnlineService):
             logger.debug("Ubisoft Connect game %s is already installed", app_name)
             return
         logger.debug("Installing Ubisoft Connect game %s", app_name)
-        game_config = LutrisConfig(game_config_id=ubisoft_connect["configpath"]).game_level
+        game_config = LutrisConfig(
+            game_config_id=ubisoft_connect["configpath"]
+        ).game_level
         game_config["game"]["args"] = f"uplay://launch/{game['appid']}"
         configpath = write_game_config(lutris_game_id, game_config)
         game_id = add_game(
@@ -239,18 +244,21 @@ class UbisoftConnectService(OnlineService):
                     "args": f"uplay://launch/{db_game['appid']}",
                 },
                 "installer": [
-                    {"task": {
-                        "name": "wineexec",
-                        "executable": uc_exe,
-                        "args": f"uplay://install/{db_game['appid']}",
-                        "prefix": ubisoft_connect.config.game_config["prefix"],
-                        "description": (
-                            "Ubisoft will now open and install %s. "
-                            "Close Ubisoft Connect to complete the install process."
-                        ) % db_game["name"]
-                    }}
-                ]
-            }
+                    {
+                        "task": {
+                            "name": "wineexec",
+                            "executable": uc_exe,
+                            "args": f"uplay://install/{db_game['appid']}",
+                            "prefix": ubisoft_connect.config.game_config["prefix"],
+                            "description": (
+                                "Ubisoft will now open and install %s. "
+                                "Close Ubisoft Connect to complete the install process."
+                            )
+                            % db_game["name"],
+                        }
+                    }
+                ],
+            },
         }
 
     def install(self, db_game):
@@ -265,5 +273,5 @@ class UbisoftConnectService(OnlineService):
             application.show_installer_window(
                 [self.generate_installer(db_game, ubisoft_connect)],
                 service=self,
-                appid=db_game["appid"]
+                appid=db_game["appid"],
             )

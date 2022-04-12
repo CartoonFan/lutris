@@ -10,7 +10,6 @@ from lutris.util import datapath
 
 
 class LogWindow(GObject.Object):
-
     def __init__(self, title=None, buffer=None, application=None):
         super().__init__()
         ui_filename = os.path.join(datapath.get(), "ui/log-window.ui")
@@ -39,7 +38,7 @@ class LogWindow(GObject.Object):
         window.show_all()
 
     def on_key_press_event(self, widget, event):
-        shift = (event.state & Gdk.ModifierType.SHIFT_MASK)
+        shift = event.state & Gdk.ModifierType.SHIFT_MASK
         if event.keyval == Gdk.KEY_Return:
             if shift:
                 self.search_entry.emit("previous-match")
@@ -53,16 +52,14 @@ class LogWindow(GObject.Object):
         file_dialog = FileDialog(
             message="Save the logs to...",
             default_path=os.path.expanduser("~/%s" % log_filename),
-            mode="save"
+            mode="save",
         )
         log_path = file_dialog.filename
         if not log_path:
             return
 
         text = self.buffer.get_text(
-            self.buffer.get_start_iter(),
-            self.buffer.get_end_iter(),
-            True
+            self.buffer.get_start_iter(), self.buffer.get_end_iter(), True
         )
-        with open(log_path, "w", encoding='utf-8') as log_file:
+        with open(log_path, "w", encoding="utf-8") as log_file:
             log_file.write(text)

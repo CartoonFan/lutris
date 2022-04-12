@@ -43,7 +43,12 @@ class ServiceMedia:
 
     def get_pixbuf_for_game(self, slug, is_installed=True):
         image_abspath = self.get_absolute_path(slug)
-        return get_pixbuf(image_abspath, self.size, fallback=get_default_icon(self.size), is_installed=is_installed)
+        return get_pixbuf(
+            image_abspath,
+            self.size,
+            fallback=get_default_icon(self.size),
+            is_installed=is_installed,
+        )
 
     def get_media_url(self, details):
         if self.api_field not in details:
@@ -79,7 +84,9 @@ class ServiceMedia:
         if system.path_exists(cache_path):
             cache_stats = os.stat(cache_path)
             # Empty files have a life time between 1 and 2 weeks, retry them after
-            if time.time() - cache_stats.st_mtime < 3600 * 24 * random.choice(range(7, 15)):
+            if time.time() - cache_stats.st_mtime < 3600 * 24 * random.choice(
+                range(7, 15)
+            ):
                 return cache_path
             os.unlink(cache_path)
         try:

@@ -17,8 +17,9 @@ DEFAULT_DLL_OVERRIDES = {
 
 def is_prefix(path):
     """Return True if the path is prefix"""
-    return os.path.isdir(os.path.join(path, "drive_c")) \
-        and os.path.exists(os.path.join(path, "user.reg"))
+    return os.path.isdir(os.path.join(path, "drive_c")) and os.path.exists(
+        os.path.join(path, "user.reg")
+    )
 
 
 def find_prefix(path):
@@ -51,7 +52,7 @@ class WinePrefixManager:
     @property
     def user_dir(self):
         """Returns the directory that contains the current user's profile in the WINE prefix."""
-        user = os.getenv("USER") or 'lutrisuser'
+        user = os.getenv("USER") or "lutrisuser"
         return os.path.join(self.path, "drive_c/users/", user)
 
     @property
@@ -59,11 +60,14 @@ class WinePrefixManager:
         """Returns the app-data directory for the user; this depends on a registry key."""
         user_dir = self.user_dir
         folder = self.get_registry_key(
-            self.hkcu_prefix + "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
+            self.hkcu_prefix
+            + "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
             "AppData",
         )
         if folder is None:
-            logger.warning("Get Registry Key function returned NoneType to variable folder.")
+            logger.warning(
+                "Get Registry Key function returned NoneType to variable folder."
+            )
         else:
             # Don't try to resolve the Windows path we get- there's
             # just two options, the Vista-and later option and the
@@ -79,7 +83,9 @@ class WinePrefixManager:
         try:
             self.desktop_integration()
         except OSError as ex:
-            logger.error("Failed to setup desktop integration, the prefix may not be valid.")
+            logger.error(
+                "Failed to setup desktop integration, the prefix may not be valid."
+            )
             logger.exception(ex)
 
     def get_registry_path(self, key):
@@ -96,8 +102,10 @@ class WinePrefixManager:
     def get_key_path(self, key):
         for prefix in (self.hkcu_prefix, self.hklm_prefix):
             if key.startswith(prefix):
-                return key[len(prefix) + 1:]
-        raise ValueError("The key {} is currently not supported by WinePrefixManager".format(key))
+                return key[len(prefix) + 1 :]
+        raise ValueError(
+            "The key {} is currently not supported by WinePrefixManager".format(key)
+        )
 
     def get_registry_key(self, key, subkey):
         registry = WineRegistry(self.get_registry_path(key))
@@ -132,13 +140,14 @@ class WinePrefixManager:
         desktop_folders = []
         for key in DESKTOP_KEYS:
             folder = self.get_registry_key(
-                self.hkcu_prefix + "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
+                self.hkcu_prefix
+                + "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
                 key,
             )
             if not folder:
                 logger.warning("Couldn't load shell folder name for %s", key)
                 continue
-            desktop_folders.append(folder[folder.rfind("\\") + 1:])
+            desktop_folders.append(folder[folder.rfind("\\") + 1 :])
         return desktop_folders or DEFAULT_DESKTOP_FOLDERS
 
     def desktop_integration(self, desktop_dir=None, restore=False):  # noqa: C901
@@ -173,7 +182,10 @@ class WinePrefixManager:
                 if restore and not os.path.isdir(path):
                     src_path = get_xdg_entry(DESKTOP_XDG[i])
                     if not src_path:
-                        logger.error("No XDG entry found for %s, launcher not created", DESKTOP_XDG[i])
+                        logger.error(
+                            "No XDG entry found for %s, launcher not created",
+                            DESKTOP_XDG[i],
+                        )
                     else:
                         os.symlink(src_path, path)
                     # We don't need all the others process of the loop
@@ -186,7 +198,10 @@ class WinePrefixManager:
                         # There is supposedly a None value in there
                         # The current code shouldn't allow that
                         # Just raise a exception with the values
-                        raise RuntimeError("Missing value desktop_dir=%s or item=%s" % (desktop_dir, item)) from ex
+                        raise RuntimeError(
+                            "Missing value desktop_dir=%s or item=%s"
+                            % (desktop_dir, item)
+                        ) from ex
 
                     os.makedirs(src_path, exist_ok=True)
                     os.symlink(src_path, path)
@@ -236,8 +251,12 @@ class WinePrefixManager:
 
     def set_dpi(self, dpi):
         """Sets the DPI for WINE to use. 96 DPI is effectively unscaled."""
-        self.set_registry_key(self.hkcu_prefix + "/Software/Wine/Fonts", "LogPixels", dpi)
-        self.set_registry_key(self.hkcu_prefix + "/Control Panel/Desktop", "LogPixels", dpi)
+        self.set_registry_key(
+            self.hkcu_prefix + "/Software/Wine/Fonts", "LogPixels", dpi
+        )
+        self.set_registry_key(
+            self.hkcu_prefix + "/Control Panel/Desktop", "LogPixels", dpi
+        )
 
     def configure_joypads(self):
         """Disables some joypad devices"""

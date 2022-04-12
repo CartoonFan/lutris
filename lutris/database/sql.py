@@ -1,4 +1,3 @@
-
 import sqlite3
 import threading
 
@@ -9,7 +8,6 @@ DB_LOCK = threading.RLock()
 
 
 class db_cursor(object):
-
     def __init__(self, db_path):
         self.db_path = db_path
         self.db_conn = None
@@ -52,7 +50,7 @@ def db_insert(db_path, table, fields):
 
 def db_update(db_path, table, updated_fields, conditions):
     """Update `table` with the values given in the dict `values` on the
-       condition given with the `row` tuple.
+    condition given with the `row` tuple.
     """
     columns = "=?, ".join(list(updated_fields.keys())) + "=?"
     field_values = tuple(updated_fields.values())
@@ -68,7 +66,9 @@ def db_update(db_path, table, updated_fields, conditions):
 
 def db_delete(db_path, table, field, value):
     with db_cursor(db_path) as cursor:
-        cursor_execute(cursor, "delete from {0} where {1}=?".format(table, field), (value, ))
+        cursor_execute(
+            cursor, "delete from {0} where {1}=?".format(table, field), (value,)
+        )
 
 
 def db_select(db_path, table, fields=None, condition=None):
@@ -85,7 +85,7 @@ def db_select(db_path, table, fields=None, condition=None):
                 placeholders = ", ".join("?" * len(condition_value))
                 where_condition = " where {} in (" + placeholders + ")"
             else:
-                condition_value = (condition_value, )
+                condition_value = (condition_value,)
                 where_condition = " where {}=?"
             query = query + where_condition
             query = query.format(columns, table, condition_field)
@@ -130,12 +130,7 @@ def add_field(db_path, tablename, field):
 
 
 def filtered_query(
-    db_path,
-    table,
-    searches=None,
-    filters=None,
-    excludes=None,
-    sorts=None
+    db_path, table, searches=None, filters=None, excludes=None, sorts=None
 ):
     query = "select * from %s" % table
     params = []

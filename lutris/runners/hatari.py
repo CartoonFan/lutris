@@ -20,12 +20,9 @@ class hatari(Runner):
 
     game_options = [
         {
-            "option":
-            "disk-a",
-            "type":
-            "file",
-            "label":
-            _("Floppy Disk A"),
+            "option": "disk-a",
+            "type": "file",
+            "label": _("Floppy Disk A"),
             "help": _(
                 "Hatari supports floppy disk images in the following "
                 "formats: ST, DIM, MSA, STX, IPF, RAW and CRT. The last "
@@ -34,12 +31,9 @@ class hatari(Runner):
             ),
         },
         {
-            "option":
-            "disk-b",
-            "type":
-            "file",
-            "label":
-            _("Floppy Disk B"),
+            "option": "disk-b",
+            "type": "file",
+            "label": _("Floppy Disk B"),
             "help": _(
                 "Hatari supports floppy disk images in the following "
                 "formats: ST, DIM, MSA, STX, IPF, RAW and CRT. The last "
@@ -49,16 +43,17 @@ class hatari(Runner):
         },
     ]
 
-    joystick_choices = [(_("None"), "none"), (_("Keyboard"), "keys"), (_("Joystick"), "real")]
+    joystick_choices = [
+        (_("None"), "none"),
+        (_("Keyboard"), "keys"),
+        (_("Joystick"), "real"),
+    ]
 
     runner_options = [
         {
-            "option":
-            "bios_file",
-            "type":
-            "file",
-            "label":
-            _("Bios file (TOS)"),
+            "option": "bios_file",
+            "type": "file",
+            "label": _("Bios file (TOS)"),
             "help": _(
                 "TOS is the operating system of the Atari ST "
                 "and is necessary to run applications with the best "
@@ -80,14 +75,10 @@ class hatari(Runner):
             "help": _("Double the screen size in windowed mode."),
         },
         {
-            "option":
-            "borders",
-            "type":
-            "bool",
-            "label":
-            _("Add borders to display"),
-            "default":
-            False,
+            "option": "borders",
+            "type": "bool",
+            "label": _("Add borders to display"),
+            "default": False,
             "help": _(
                 "Useful for some games and demos using the overscan "
                 "technique. The Atari ST displayed borders around the "
@@ -98,14 +89,10 @@ class hatari(Runner):
             ),
         },
         {
-            "option":
-            "status",
-            "type":
-            "bool",
-            "label":
-            _("Display status bar"),
-            "default":
-            False,
+            "option": "status",
+            "type": "bool",
+            "label": _("Display status bar"),
+            "default": False,
             "help": _(
                 "Displays a status bar with some useful information, "
                 "like green leds lighting up when the floppy disks are "
@@ -129,7 +116,6 @@ class hatari(Runner):
     ]
 
     def install(self, version=None, downloader=None, callback=None):
-
         def on_runner_installed(*args):
             bios_path = system.create_folder("~/.hatari/bios")
             dlg = QuestionDialog(
@@ -151,7 +137,9 @@ class hatari(Runner):
             if callback:
                 callback()
 
-        super().install(version=version, downloader=downloader, callback=on_runner_installed)
+        super().install(
+            version=version, downloader=downloader, callback=on_runner_installed
+        )
 
     def play(self):  # pylint: disable=too-many-branches
         params = [self.get_executable()]

@@ -21,17 +21,23 @@ class CabInstaller:
         self.tmpdir = tempfile.mkdtemp()
         self.wine_path = wine_path
 
-        self.register_dlls = False  # Whether to register DLLs, I don't the purpose of that
+        self.register_dlls = (
+            False  # Whether to register DLLs, I don't the purpose of that
+        )
         self.strip_dlls = False  # When registering, strip the full path
 
     @staticmethod
     def process_key(key):
         """I have no clue why"""
-        return key.strip("\\").replace("HKEY_CLASSES_ROOT", "HKEY_LOCAL_MACHINE\\Software\\Classes")
+        return key.strip("\\").replace(
+            "HKEY_CLASSES_ROOT", "HKEY_LOCAL_MACHINE\\Software\\Classes"
+        )
 
     @staticmethod
     def get_arch_from_manifest(root):
-        registry_keys = root.findall("{urn:schemas-microsoft-com:asm.v3}assemblyIdentity")
+        registry_keys = root.findall(
+            "{urn:schemas-microsoft-com:asm.v3}assemblyIdentity"
+        )
         arch = registry_keys[0].attrib["processorArchitecture"]
         arch_map = {"amd64": "win64", "x86": "win32", "wow64": "wow64"}
         return arch_map[arch]
@@ -59,10 +65,19 @@ class CabInstaller:
             value = value.replace("$(runtime.inf)", "C:\\windows\\inf")
             value = value.replace("$(runtime.wbem)", "C:\\windows\\wbem")
             value = value.replace("$(runtime.windows)", "C:\\windows")
-            value = value.replace("$(runtime.ProgramFiles)", "C:\\windows\\Program Files")
-            value = value.replace("$(runtime.programFiles)", "C:\\windows\\Program Files")
-            value = value.replace("$(runtime.programFilesX86)", "C:\\windows\\Program Files (x86)")
-            value = value.replace("$(runtime.system32)", "C:\\windows\\%s" % self.get_system32_realdir(arch))
+            value = value.replace(
+                "$(runtime.ProgramFiles)", "C:\\windows\\Program Files"
+            )
+            value = value.replace(
+                "$(runtime.programFiles)", "C:\\windows\\Program Files"
+            )
+            value = value.replace(
+                "$(runtime.programFilesX86)", "C:\\windows\\Program Files (x86)"
+            )
+            value = value.replace(
+                "$(runtime.system32)",
+                "C:\\windows\\%s" % self.get_system32_realdir(arch),
+            )
             value = value.replace(
                 "$(runtime.drivers)",
                 "C:\\windows\\%s\\drivers" % self.get_system32_realdir(arch),
@@ -97,7 +112,10 @@ class CabInstaller:
             value = value.replace("%WinDir%", "C:\\windows")
             value = value.replace("%ResourceDir%", "C:\\windows")
             value = value.replace("%Public%", "C:\\users\\Public")
-            value = value.replace("%LocalAppData%", "C:\\windows\\Public\\Local Settings\\Application Data")
+            value = value.replace(
+                "%LocalAppData%",
+                "C:\\windows\\Public\\Local Settings\\Application Data",
+            )
             value = value.replace("%AllUsersProfile%", "C:\\windows")
             value = value.replace("%UserProfile%", "C:\\windows")
             value = value.replace("%ProgramData%", "C:\\ProgramData")
@@ -124,7 +142,9 @@ class CabInstaller:
             for registry_key in list(registry_keys[0]):
                 key = self.process_key(registry_key.attrib["keyName"])
                 out += "[%s]\n" % key
-                for reg_value in registry_key.findall("{urn:schemas-microsoft-com:asm.v3}registryValue"):
+                for reg_value in registry_key.findall(
+                    "{urn:schemas-microsoft-com:asm.v3}registryValue"
+                ):
                     name, value = self.process_value(reg_value, arch)
                     if value is not None:
                         out += "%s=%s\n" % (name, value)
@@ -132,7 +152,9 @@ class CabInstaller:
         return (out, arch)
 
     def get_wineprefix_arch(self):
-        with open(os.path.join(self.prefix, "system.reg"), encoding='utf-8') as reg_file:
+        with open(
+            os.path.join(self.prefix, "system.reg"), encoding="utf-8"
+        ) as reg_file:
             for line in reg_file.readlines():
                 if line.startswith("#arch=win32"):
                     return "win32"
@@ -163,7 +185,9 @@ class CabInstaller:
         if not self.register_dlls:
             return
         arch = self.get_arch_from_dll(dest_dll_path)
-        subprocess.call([self.get_winebin(arch), "regsvr32", os.path.basename(dest_dll_path)])
+        subprocess.call(
+            [self.get_winebin(arch), "regsvr32", os.path.basename(dest_dll_path)]
+        )
 
     def get_registry_files(self, output_files):
         reg_files = []
@@ -173,7 +197,11 @@ class CabInstaller:
                 outdata, arch = self.get_registry_from_manifest(file_path)
                 if outdata:
                     out += outdata
-                    with open(os.path.join(self.tmpdir, file_path + ".reg"), "w", encoding='utf-8') as reg_file:
+                    with open(
+                        os.path.join(self.tmpdir, file_path + ".reg"),
+                        "w",
+                        encoding="utf-8",
+                    ) as reg_file:
                         reg_file.write(out)
                     reg_files.append((file_path + ".reg", arch))
             if file_path.endswith(".dll"):
@@ -182,7 +210,9 @@ class CabInstaller:
 
     def apply_to_registry(self, file_path, arch):
         logger.info("Applying %s to registry", file_path)
-        subprocess.call([self.get_winebin(arch), "regedit", os.path.join(self.tmpdir, file_path)])
+        subprocess.call(
+            [self.get_winebin(arch), "regedit", os.path.join(self.tmpdir, file_path)]
+        )
 
     def extract_from_cab(self, cabfile, component):
         """Extracts files matching a `component` name from a `cabfile`
@@ -201,7 +231,9 @@ class CabInstaller:
         """Install `component` from `cabfile`"""
         logger.info("Installing %s from %s", component, cabfile)
 
-        for file_path, arch in self.get_registry_files(self.extract_from_cab(cabfile, component)):
+        for file_path, arch in self.get_registry_files(
+            self.extract_from_cab(cabfile, component)
+        ):
             self.apply_to_registry(file_path, arch)
 
         self.cleanup()

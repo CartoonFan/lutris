@@ -12,7 +12,7 @@ from unittest import TestCase
 
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 
 
 # from lutris import settings
@@ -68,24 +68,24 @@ class TestGameDialog(TestCase):
 
     def test_changing_runner_sets_new_config(self):
         label = self.get_notebook().get_children()[1]
-        self.assertIn('Select a runner', label.get_text())
+        self.assertIn("Select a runner", label.get_text())
 
         buttons = self.get_buttons().get_children()
-        self.assertEqual(buttons[0].get_label(), 'Cancel')
-        self.assertEqual(buttons[1].get_label(), 'Save')
+        self.assertEqual(buttons[0].get_label(), "Cancel")
+        self.assertEqual(buttons[1].get_label(), "Save")
 
-        self.dlg.runner_dropdown.set_active_id('linux')
-        self.assertEqual(self.dlg.lutris_config.runner_slug, 'linux')
+        self.dlg.runner_dropdown.set_active_id("linux")
+        self.assertEqual(self.dlg.lutris_config.runner_slug, "linux")
         game_box = self.get_game_box()
-        self.assertEqual(game_box.game.runner_name, 'linux')
+        self.assertEqual(game_box.game.runner_name, "linux")
         exe_box = game_box.get_children()[0].get_children()[0]
         exe_field = exe_box.get_children()[1]
-        self.assertEqual(exe_field.__class__.__name__, 'FileChooserEntry')
+        self.assertEqual(exe_field.__class__.__name__, "FileChooserEntry")
 
     def test_can_add_game(self):
         name_entry = self.dlg.name_entry
         name_entry.set_text("Test game")
-        self.dlg.runner_dropdown.set_active_id('linux')
+        self.dlg.runner_dropdown.set_active_id("linux")
 
         game_box = self.get_game_box()
         exe_box = game_box.get_children()[0].get_children()[0]
@@ -99,10 +99,10 @@ class TestGameDialog(TestCase):
         add_button = self.get_buttons().get_children()[1]
         add_button.clicked()
 
-        pga_game = games_db.get_game_by_field('test-game', 'slug')
+        pga_game = games_db.get_game_by_field("test-game", "slug")
         self.assertTrue(pga_game)
-        game = Game(pga_game['id'])
-        self.assertEqual(game.name, 'Test game')
+        game = Game(pga_game["id"])
+        self.assertEqual(game.name, "Test game")
         game.remove()
 
 
@@ -119,44 +119,44 @@ class TestSort(TestCase):
             self.cols = coldict
 
     def test_sort_strings_with_caps(self):
-        row1 = self.FakeRow({'name': 'Abc'})
-        row2 = self.FakeRow({'name': 'Def'})
+        row1 = self.FakeRow({"name": "Abc"})
+        row2 = self.FakeRow({"name": "Def"})
         model = self.FakeModel([row1, row2])
-        assert sort_func(model, 0, 1, 'name') == -1
+        assert sort_func(model, 0, 1, "name") == -1
 
     def test_sort_strings_with_one_caps(self):
-        row1 = self.FakeRow({'name': 'abc'})
-        row2 = self.FakeRow({'name': 'Def'})
+        row1 = self.FakeRow({"name": "abc"})
+        row2 = self.FakeRow({"name": "Def"})
         model = self.FakeModel([row1, row2])
-        assert sort_func(model, 0, 1, 'name') == -1
+        assert sort_func(model, 0, 1, "name") == -1
 
     def test_sort_strings_with_no_caps(self):
-        row1 = self.FakeRow({'name': 'abc'})
-        row2 = self.FakeRow({'name': 'def'})
+        row1 = self.FakeRow({"name": "abc"})
+        row2 = self.FakeRow({"name": "def"})
         model = self.FakeModel([row1, row2])
-        assert sort_func(model, 0, 1, 'name') == -1
+        assert sort_func(model, 0, 1, "name") == -1
 
     def test_sort_int(self):
-        row1 = self.FakeRow({'name': 1})
-        row2 = self.FakeRow({'name': 2})
+        row1 = self.FakeRow({"name": 1})
+        row2 = self.FakeRow({"name": 2})
         model = self.FakeModel([row1, row2])
-        assert sort_func(model, 0, 1, 'name') == -1
+        assert sort_func(model, 0, 1, "name") == -1
 
     def test_sort_mismatched_types(self):
-        row1 = self.FakeRow({'name': 'abc'})
-        row2 = self.FakeRow({'name': 1})
+        row1 = self.FakeRow({"name": "abc"})
+        row2 = self.FakeRow({"name": 1})
         model = self.FakeModel([row1, row2])
         with self.assertRaises(TypeError):
-            assert sort_func(model, 0, 1, 'name') == -1
+            assert sort_func(model, 0, 1, "name") == -1
 
     def test_both_none(self):
         row1 = self.FakeRow({})
         row2 = self.FakeRow({})
         model = self.FakeModel([row1, row2])
-        assert sort_func(model, 0, 1, 'name') == 0
+        assert sort_func(model, 0, 1, "name") == 0
 
     def test_one_none(self):
         row1 = self.FakeRow({})
-        row2 = self.FakeRow({'name': 'abc'})
+        row2 = self.FakeRow({"name": "abc"})
         model = self.FakeModel([row1, row2])
-        assert sort_func(model, 0, 1, 'name') == -1
+        assert sort_func(model, 0, 1, "name") == -1

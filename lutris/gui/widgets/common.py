@@ -14,7 +14,6 @@ from lutris.util.log import logger
 
 
 class SlugEntry(Gtk.Entry, Gtk.Editable):
-
     def do_insert_text(self, new_text, length, position):
         """Filter inserted characters to only accept alphanumeric and dashes"""
         new_text = "".join([c for c in new_text if c.isalnum() or c == "-"]).lower()
@@ -24,7 +23,6 @@ class SlugEntry(Gtk.Entry, Gtk.Editable):
 
 
 class NumberEntry(Gtk.Entry, Gtk.Editable):
-
     def do_insert_text(self, new_text, length, position):
         """Filter inserted characters to only accept numbers"""
         new_text = "".join([c for c in new_text if c.isnumeric()])
@@ -38,7 +36,9 @@ class FileChooserEntry(Gtk.Box):
 
     """Editable entry with a file picker button"""
 
-    max_completion_items = 15  # Maximum number of items to display in the autocompletion dropdown.
+    max_completion_items = (
+        15  # Maximum number of items to display in the autocompletion dropdown.
+    )
 
     def __init__(
         self,
@@ -47,13 +47,9 @@ class FileChooserEntry(Gtk.Box):
         path=None,
         default_path=None,
         warn_if_non_empty=False,
-        warn_if_ntfs=False
+        warn_if_ntfs=False,
     ):
-        super().__init__(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=0,
-            visible=True
-        )
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=0, visible=True)
         self.title = title
         self.action = action
         self.path = os.path.expanduser(path) if path else None
@@ -95,7 +91,9 @@ class FileChooserEntry(Gtk.Box):
 
     def get_filechooser_dialog(self):
         """Return an instance of a FileChooserNative configured for this widget"""
-        dialog = Gtk.FileChooserNative.new(self.title, None, self.action, _("_OK"), _("_Cancel"))
+        dialog = Gtk.FileChooserNative.new(
+            self.title, None, self.action, _("_OK"), _("_Cancel")
+        )
         dialog.set_create_folders(True)
         dialog.set_current_folder(self.get_default_folder())
         dialog.connect("response", self.on_select_file, dialog)
@@ -132,26 +130,32 @@ class FileChooserEntry(Gtk.Box):
             warning_image.set_from_pixbuf(get_stock_icon("dialog-warning", 32))
             ntfs_box.add(warning_image)
             ntfs_label = Gtk.Label(visible=True)
-            ntfs_label.set_markup(_(
-                "<b>Warning!</b> The selected path is located on a drive formatted by Windows.\n"
-                "Games and programs installed on Windows drives usually <b>don't work</b>."
-            ))
+            ntfs_label.set_markup(
+                _(
+                    "<b>Warning!</b> The selected path is located on a drive formatted by Windows.\n"
+                    "Games and programs installed on Windows drives usually <b>don't work</b>."
+                )
+            )
             ntfs_box.add(ntfs_label)
             self.pack_end(ntfs_box, False, False, 10)
         if self.warn_if_non_empty and os.path.exists(path) and os.listdir(path):
             non_empty_label = Gtk.Label(visible=True)
-            non_empty_label.set_markup(_(
-                "<b>Warning!</b> The selected path "
-                "contains files. Installation might not work properly."
-            ))
+            non_empty_label.set_markup(
+                _(
+                    "<b>Warning!</b> The selected path "
+                    "contains files. Installation might not work properly."
+                )
+            )
             self.pack_end(non_empty_label, False, False, 10)
         parent = system.get_existing_parent(path)
         if parent is not None and not os.access(parent, os.W_OK):
             non_writable_destination_label = Gtk.Label(visible=True)
-            non_writable_destination_label.set_markup(_(
-                "<b>Warning</b> The destination folder "
-                "is not writable by the current user."
-            ))
+            non_writable_destination_label.set_markup(
+                _(
+                    "<b>Warning</b> The destination folder "
+                    "is not writable by the current user."
+                )
+            )
             self.pack_end(non_writable_destination_label, False, False, 10)
 
     def on_select_file(self, dialog, response, _dialog):
@@ -282,8 +286,12 @@ class EditableGrid(Gtk.Grid):
         self.liststore.remove(iteration)
         self.emit("changed")
 
-    def on_text_edited(self, widget, path, text, field):  # pylint: disable=unused-argument
-        self.liststore[path][field] = text.strip()  # pylint: disable=unsubscriptable-object
+    def on_text_edited(
+        self, widget, path, text, field
+    ):  # pylint: disable=unused-argument
+        self.liststore[path][
+            field
+        ] = text.strip()  # pylint: disable=unsubscriptable-object
         self.emit("changed")
 
     def get_data(self):  # pylint: disable=arguments-differ

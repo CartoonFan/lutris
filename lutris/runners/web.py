@@ -22,7 +22,9 @@ class web(Runner):
             "option": "main_file",
             "type": "string",
             "label": _("Full URL or HTML file path"),
-            "help": _("The full address of the game's web page or path to a HTML file."),
+            "help": _(
+                "The full address of the game's web page or path to a HTML file."
+            ),
         }
     ]
     runner_options = [
@@ -74,8 +76,10 @@ class web(Runner):
             "label": _("Disable menu bar and default shortcuts"),
             "type": "bool",
             "default": False,
-            "help": _("This also disables default keyboard shortcuts, "
-                      "like copy/paste and fullscreen toggling."),
+            "help": _(
+                "This also disables default keyboard shortcuts, "
+                "like copy/paste and fullscreen toggling."
+            ),
         },
         {
             "option": "disable_scrolling",
@@ -89,18 +93,16 @@ class web(Runner):
             "label": _("Hide mouse cursor"),
             "type": "bool",
             "default": False,
-            "help": _("Prevents the mouse cursor from showing "
-                      "when hovering above the window."),
+            "help": _(
+                "Prevents the mouse cursor from showing "
+                "when hovering above the window."
+            ),
         },
         {
-            "option":
-            "open_links",
-            "label":
-            _("Open links in game window"),
-            "type":
-            "bool",
-            "default":
-            False,
+            "option": "open_links",
+            "label": _("Open links in game window"),
+            "type": "bool",
+            "default": False,
             "help": _(
                 "Enable this option if you want clicked links to open inside the "
                 "game window. By default all links open in your default web browser."
@@ -111,8 +113,10 @@ class web(Runner):
             "label": _("Remove default <body> margin & padding"),
             "type": "bool",
             "default": False,
-            "help": _("Sets margin and padding to zero "
-                      "on &lt;html&gt; and &lt;body&gt; elements."),
+            "help": _(
+                "Sets margin and padding to zero "
+                "on &lt;html&gt; and &lt;body&gt; elements."
+            ),
         },
         {
             "option": "enable_flash",
@@ -145,26 +149,19 @@ class web(Runner):
             "help": _("Launch the game in a web browser."),
         },
         {
-            "option":
-            "custom_browser_executable",
-            "label":
-            _("Custom web browser executable"),
-            "type":
-            "file",
+            "option": "custom_browser_executable",
+            "label": _("Custom web browser executable"),
+            "type": "file",
             "help": _(
                 "Select the executable of a browser on your system.\n"
                 "If left blank, Lutris will launch your default browser (xdg-open)."
             ),
         },
         {
-            "option":
-            "custom_browser_args",
-            "label":
-            _("Web browser arguments"),
-            "type":
-            "string",
-            "default":
-            '"$GAME"',
+            "option": "custom_browser_args",
+            "label": _("Web browser arguments"),
+            "type": "string",
+            "default": '"$GAME"',
             "help": _(
                 "Command line arguments to pass to the executable.\n"
                 "$GAME or $URL inserts the game url.\n\n"
@@ -188,8 +185,9 @@ class web(Runner):
         if not url:
             return {
                 "error": "CUSTOM",
-                "text": _("The web address is empty, \n"
-                          "verify the game's configuration."),
+                "text": _(
+                    "The web address is empty, \n" "verify the game's configuration."
+                ),
             }
 
         # check if it's an url or a file
@@ -199,8 +197,11 @@ class web(Runner):
             if not system.path_exists(url):
                 return {
                     "error": "CUSTOM",
-                    "text": _("The file %s does not exist, \n"
-                              "verify the game's configuration.") % url,
+                    "text": _(
+                        "The file %s does not exist, \n"
+                        "verify the game's configuration."
+                    )
+                    % url,
                 }
             url = "file://" + url
 

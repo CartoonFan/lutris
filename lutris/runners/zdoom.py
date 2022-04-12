@@ -31,8 +31,10 @@ class zdoom(Runner):
             "option": "files",
             "type": "multiple",
             "label": _("PWAD files"),
-            "help": _("Used to load one or more PWAD files which generally contain "
-                      "user-created levels."),
+            "help": _(
+                "Used to load one or more PWAD files which generally contain "
+                "user-created levels."
+            ),
         },
         {
             "option": "warp",
@@ -48,17 +50,12 @@ class zdoom(Runner):
         },
     ]
     runner_options = [
-        {
-            "option": "2",
-            "label": _("Pixel Doubling"),
-            "type": "bool",
-            "default": False
-        },
+        {"option": "2", "label": _("Pixel Doubling"), "type": "bool", "default": False},
         {
             "option": "4",
             "label": _("Pixel Quadrupling"),
             "type": "bool",
-            "default": False
+            "default": False,
         },
         {
             "option": "nostartup",
@@ -81,12 +78,9 @@ class zdoom(Runner):
             },
         },
         {
-            "option":
-            "config",
-            "label":
-            _("Config file"),
-            "type":
-            "file",
+            "option": "config",
+            "label": _("Config file"),
+            "type": "file",
             "help": _(
                 "Used to load a user-created configuration file. If specified, "
                 "the file must contain the wad directory list or launch will fail."
@@ -172,7 +166,9 @@ class zdoom(Runner):
 
         # Append the pwad files to load, if provided.
         files = self.game_config.get("files") or []
-        pwads = [f for f in files if f.lower().endswith(".wad") or f.lower().endswith(".pk3")]
+        pwads = [
+            f for f in files if f.lower().endswith(".wad") or f.lower().endswith(".pk3")
+        ]
         deh = [f for f in files if f.lower().endswith(".deh")]
         bex = [f for f in files if f.lower().endswith(".bex")]
         if deh:

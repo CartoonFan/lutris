@@ -24,7 +24,7 @@ def download_media(media_urls, service_media):
             try:
                 path = future.result()
             except Exception as ex:  # pylint: disable=broad-except
-                logger.exception('%r failed: %s', slug, ex)
+                logger.exception("%r failed: %s", slug, ex)
                 path = None
             if system.path_exists(path):
                 icons[slug] = path

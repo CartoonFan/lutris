@@ -26,26 +26,26 @@ class AuthTokenExpired(Exception):
 
 
 class LutrisBanner(ServiceMedia):
-    service = 'lutris'
+    service = "lutris"
     size = (184, 69)
     dest_path = settings.BANNER_PATH
     file_pattern = "%s.jpg"
-    api_field = 'banner_url'
+    api_field = "banner_url"
 
 
 class LutrisIcon(LutrisBanner):
     size = (32, 32)
     dest_path = settings.ICON_PATH
     file_pattern = "lutris_%s.png"
-    api_field = 'icon_url'
+    api_field = "icon_url"
 
 
 class LutrisCoverart(ServiceMedia):
-    service = 'lutris'
+    service = "lutris"
     size = (264, 352)
     file_pattern = "%s.jpg"
     dest_path = settings.COVERART_PATH
-    api_field = 'coverart'
+    api_field = "coverart"
 
 
 class LutrisCoverartMedium(LutrisCoverart):
@@ -54,6 +54,7 @@ class LutrisCoverartMedium(LutrisCoverart):
 
 class BaseService(GObject.Object):
     """Base class for local services"""
+
     id = NotImplemented
     _matcher = None
     has_extras = False
@@ -62,7 +63,9 @@ class BaseService(GObject.Object):
     online = False
     local = False
     drm_free = False  # DRM free games can be added to Lutris from an existing install
-    client_installer = None  # ID of a script needed to install the client used by the service
+    client_installer = (
+        None  # ID of a script needed to install the client used by the service
+    )
     scripts = {}  # Mapping of Javascript snippets to handle redirections during auth
     medias = {}
     extra_medias = {}
@@ -136,12 +139,12 @@ class BaseService(GObject.Object):
             PGA_DB,
             "service_games",
             {"lutris_slug": api_game["slug"]},
-            conditions={"appid": service_game["appid"], "service": self.id}
+            conditions={"appid": service_game["appid"], "service": self.id},
         )
         unmatched_lutris_games = get_games(
             searches={"installer_slug": self.matcher},
             filters={"slug": api_game["slug"]},
-            excludes={"service": self.id}
+            excludes={"service": self.id},
         )
         for game in unmatched_lutris_games:
             logger.debug("Updating unmatched game %s", game)
@@ -149,13 +152,14 @@ class BaseService(GObject.Object):
                 PGA_DB,
                 "games",
                 {"service": self.id, "service_id": service_game["appid"]},
-                conditions={"id": game["id"]}
+                conditions={"id": game["id"]},
             )
 
     def match_games(self):
         """Matching of service games to lutris games"""
         service_games = {
-            str(game["appid"]): game for game in ServiceGameCollection.get_for_service(self.id)
+            str(game["appid"]): game
+            for game in ServiceGameCollection.get_for_service(self.id)
         }
         lutris_games = api.get_api_games(list(service_games.keys()), service=self.id)
         for lutris_game in lutris_games:
@@ -163,8 +167,12 @@ class BaseService(GObject.Object):
                 if provider_game["service"] != self.id:
                     continue
                 self.match_game(service_games.get(provider_game["slug"]), lutris_game)
-        unmatched_service_games = get_games(searches={"installer_slug": self.matcher}, excludes={"service": self.id})
-        for lutris_game in api.get_api_games(game_slugs=[g["slug"] for g in unmatched_service_games]):
+        unmatched_service_games = get_games(
+            searches={"installer_slug": self.matcher}, excludes={"service": self.id}
+        )
+        for lutris_game in api.get_api_games(
+            game_slugs=[g["slug"] for g in unmatched_service_games]
+        ):
             for provider_game in lutris_game["provider_games"]:
                 if provider_game["service"] != self.id:
                     continue
@@ -179,7 +187,12 @@ class BaseService(GObject.Object):
             game.service = self.id
             game.save()
             service_game = ServiceGameCollection.get_game(self.id, appid)
-            sql.db_update(PGA_DB, "service_games", {"lutris_slug": game.slug}, {"id": service_game["id"]})
+            sql.db_update(
+                PGA_DB,
+                "service_games",
+                {"lutris_slug": game.slug},
+                {"id": service_game["id"]},
+            )
             return game
 
     def get_installers_from_api(self, appid):
@@ -220,8 +233,13 @@ class BaseService(GObject.Object):
         # Check if the game is not already installed
         for service_installer in service_installers:
             existing_game = self.match_existing_game(
-                get_games(filters={"installer_slug": service_installer["slug"], "installed": "1"}),
-                appid
+                get_games(
+                    filters={
+                        "installer_slug": service_installer["slug"],
+                        "installed": "1",
+                    }
+                ),
+                appid,
             )
             if existing_game:
                 logger.debug("Found existing game, aborting install")
@@ -315,7 +333,9 @@ class OnlineService(BaseService):
     def load_cookies(self):
         """Load cookies from disk"""
         if not system.path_exists(self.cookies_path):
-            logger.warning("No cookies found in %s, please authenticate first", self.cookies_path)
+            logger.warning(
+                "No cookies found in %s, please authenticate first", self.cookies_path
+            )
             return
         cookiejar = WebkitCookieJar(self.cookies_path)
         cookiejar.load()

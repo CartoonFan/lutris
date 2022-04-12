@@ -15,15 +15,11 @@ class scummvm(Runner):
     runnable_alone = True
     runner_executable = "scummvm/bin/scummvm"
     game_options = [
-        {
-            "option": "game_id",
-            "type": "string",
-            "label": _("Game identifier")
-        },
+        {"option": "game_id", "type": "string", "label": _("Game identifier")},
         {
             "option": "path",
             "type": "directory_chooser",
-            "label": _("Game files location")
+            "label": _("Game files location"),
         },
         {
             "option": "args",
@@ -66,9 +62,7 @@ class scummvm(Runner):
         "debug-flags": "--debug-flags=%s",
     }
 
-    option_empty_map = {
-        "fullscreen": "--no-fullscreen"
-    }
+    option_empty_map = {"fullscreen": "--no-fullscreen"}
 
     runner_options = [
         {
@@ -115,9 +109,10 @@ class scummvm(Runner):
                 ("tv2x", "tv2x"),
                 ("dotmatrix", "dotmatrix"),
             ],
-            "help":
-            _("The algorithm used to scale up the game's base "
-              "resolution, resulting in different visual styles. "),
+            "help": _(
+                "The algorithm used to scale up the game's base "
+                "resolution, resulting in different visual styles. "
+            ),
         },
         # {
         #    "option": "scale-factor",
@@ -160,8 +155,10 @@ class scummvm(Runner):
             "option": "filtering",
             "label": _("Filtering"),
             "type": "bool",
-            "help": _("Uses bilinear interpolation instead of nearest neighbor "
-                      "resampling for the aspect ratio correction and stretch mode."),
+            "help": _(
+                "Uses bilinear interpolation instead of nearest neighbor "
+                "resampling for the aspect ratio correction and stretch mode."
+            ),
             "default": False,
             "advanced": True,
         },
@@ -176,8 +173,10 @@ class scummvm(Runner):
             "option": "platform",
             "type": "string",
             "label": _("Platform"),
-            "help": _("Specifes platform of game. Allowed values: 2gs, 3do, acorn, amiga, atari, c64, "
-                      "fmtowns, nes, mac, pc pc98, pce, segacd, wii, windows"),
+            "help": _(
+                "Specifes platform of game. Allowed values: 2gs, 3do, acorn, amiga, atari, c64, "
+                "fmtowns, nes, mac, pc pc98, pce, segacd, wii, windows"
+            ),
             "advanced": True,
         },
         {
@@ -191,15 +190,19 @@ class scummvm(Runner):
             "option": "language",
             "type": "string",
             "label": _("Language"),
-            "help": _("Selects language (en, de, fr, it, pt, es, jp, zh, kr, se, gb, hb, ru, cz)"),
+            "help": _(
+                "Selects language (en, de, fr, it, pt, es, jp, zh, kr, se, gb, hb, ru, cz)"
+            ),
             "advanced": True,
         },
         {
             "option": "engine-speed",
             "type": "string",
             "label": _("Engine speed"),
-            "help": _("Sets frames per second limit (0 - 100) for Grim Fandango "
-                      "or Escape from Monkey Island (default: 60)."),
+            "help": _(
+                "Sets frames per second limit (0 - 100) for Grim Fandango "
+                "or Escape from Monkey Island (default: 60)."
+            ),
             "advanced": True,
         },
         {
@@ -213,14 +216,18 @@ class scummvm(Runner):
             "option": "music-tempo",
             "type": "string",
             "label": _("Music tempo"),
-            "help": _("Sets music tempo (in percent, 50-200) for SCUMM games (default: 100)"),
+            "help": _(
+                "Sets music tempo (in percent, 50-200) for SCUMM games (default: 100)"
+            ),
             "advanced": True,
         },
         {
             "option": "dimuse-tempo",
             "type": "string",
             "label": _("Digital iMuse tempo"),
-            "help": _("Sets internal Digital iMuse tempo (10 - 100) per second (default: 10)"),
+            "help": _(
+                "Sets internal Digital iMuse tempo (10 - 100) per second (default: 10)"
+            ),
             "advanced": True,
         },
         {
@@ -270,8 +277,10 @@ class scummvm(Runner):
                 ("op3lpt", "op3lpt"),
                 ("rwopl3", "rwopl3"),
             ],
-            "help": _("Chooses which emulator is used by ScummVM when the AdLib emulator "
-                      "is chosen as the Preferred device."),
+            "help": _(
+                "Chooses which emulator is used by ScummVM when the AdLib emulator "
+                "is chosen as the Preferred device."
+            ),
             "advanced": True,
         },
         {
@@ -322,8 +331,10 @@ class scummvm(Runner):
             "label": _("True Roland MT-32"),
             "type": "bool",
             "default": False,
-            "help": _("Tells ScummVM that the MIDI device is an actual Roland MT-32, "
-                      "LAPC-I, CM-64, CM-32L, CM-500 or other MT-32 device."),
+            "help": _(
+                "Tells ScummVM that the MIDI device is an actual Roland MT-32, "
+                "LAPC-I, CM-64, CM-32L, CM-500 or other MT-32 device."
+            ),
             "advanced": True,
         },
         {
@@ -331,8 +342,10 @@ class scummvm(Runner):
             "label": _("Enable Roland GS"),
             "type": "bool",
             "default": False,
-            "help": _("Tells ScummVM that the MIDI device is a GS device that has "
-                      "an MT-32 map, such as an SC-55, SC-88 or SC-8820."),
+            "help": _(
+                "Tells ScummVM that the MIDI device is a GS device that has "
+                "an MT-32 map, such as an SC-55, SC-88 or SC-8820."
+            ),
             "advanced": True,
         },
         {
@@ -399,9 +412,9 @@ class scummvm(Runner):
 
     def get_run_data(self):
         env = self.get_env()
-        env["LD_LIBRARY_PATH"] = os.pathsep.join(filter(None, [
-            self.libs_dir,
-            env.get("LD_LIBRARY_PATH")]))
+        env["LD_LIBRARY_PATH"] = os.pathsep.join(
+            filter(None, [self.libs_dir, env.get("LD_LIBRARY_PATH")])
+        )
         return {"env": env, "command": self.get_command()}
 
     def inject_runner_option(self, command, key, cmdline, cmdline_empty=None):
@@ -417,7 +430,9 @@ class scummvm(Runner):
     def play(self):
         command = self.get_command()
         for option, cmdline in self.option_map.items():
-            self.inject_runner_option(command, option, cmdline, self.option_empty_map.get(option))
+            self.inject_runner_option(
+                command, option, cmdline, self.option_empty_map.get(option)
+            )
         command.append("--path=%s" % self.game_path)
         args = self.game_config.get("args") or ""
         for arg in split_arguments(args):
@@ -427,8 +442,12 @@ class scummvm(Runner):
 
     def get_game_list(self):
         """Return the entire list of games supported by ScummVM."""
-        with subprocess.Popen([self.get_executable(), "--list-games"],
-                              stdout=subprocess.PIPE, encoding="utf-8", universal_newlines=True) as scummvm_process:
+        with subprocess.Popen(
+            [self.get_executable(), "--list-games"],
+            stdout=subprocess.PIPE,
+            encoding="utf-8",
+            universal_newlines=True,
+        ) as scummvm_process:
             scumm_output = scummvm_process.communicate()[0]
             game_list = str.split(scumm_output, "\n")
         game_array = []
@@ -441,7 +460,7 @@ class scummvm(Runner):
                     dir_limit = None
                 if dir_limit is not None:
                     game_dir = game[0:dir_limit]
-                    game_name = game[dir_limit + 1:len(game)].strip()
+                    game_name = game[dir_limit + 1 : len(game)].strip()
                     game_array.append([game_dir, game_name])
             # The actual list is below a separator
             if game.startswith("-----"):

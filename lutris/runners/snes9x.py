@@ -34,17 +34,13 @@ class snes9x(Runner):
             "option": "fullscreen",
             "type": "bool",
             "label": _("Fullscreen"),
-            "default": "1"
+            "default": "1",
         },
         {
-            "option":
-            "maintain_aspect_ratio",
-            "type":
-            "bool",
-            "label":
-            _("Maintain aspect ratio (4:3)"),
-            "default":
-            "1",
+            "option": "maintain_aspect_ratio",
+            "type": "bool",
+            "label": _("Maintain aspect ratio (4:3)"),
+            "default": "1",
             "help": _(
                 "Super Nintendo games were made for 4:3 "
                 "screens with rectangular pixels, but modern screens "

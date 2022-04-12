@@ -29,7 +29,7 @@ class OriginLauncher:
         self.prefix_path = prefix_path
 
     def iter_manifests(self):
-        manifests_path = os.path.join(self.prefix_path, 'drive_c', self.manifests_paths)
+        manifests_path = os.path.join(self.prefix_path, "drive_c", self.manifests_paths)
         if not os.path.exists(manifests_path):
             logger.warning("No directory in %s", manifests_path)
             return
@@ -37,7 +37,10 @@ class OriginLauncher:
             for manifest in os.listdir(os.path.join(manifests_path, game_folder)):
                 if not manifest.endswith(".mfst"):
                     continue
-                with open(os.path.join(manifests_path, game_folder, manifest), encoding="utf-8") as manifest_file:
+                with open(
+                    os.path.join(manifests_path, game_folder, manifest),
+                    encoding="utf-8",
+                ) as manifest_file:
                     manifest_content = manifest_file.read()
                 parsed_url = urllib.parse.urlparse(manifest_content)
                 parsed_data = dict(urllib.parse.parse_qsl(parsed_url.query))
@@ -136,7 +139,7 @@ class OriginService(OnlineService):
         token_data = self.get_access_token()
         if not token_data:
             raise RuntimeError("Failed to get access token")
-        with open(self.token_path, "w", encoding='utf-8') as token_file:
+        with open(self.token_path, "w", encoding="utf-8") as token_file:
             token_file.write(json.dumps(token_data, indent=2))
         self.access_token = self.load_access_token()
 
@@ -155,9 +158,9 @@ class OriginService(OnlineService):
                 "client_id": "ORIGIN_JS_SDK",
                 "response_type": "token",
                 "redirect_uri": "nucleus:rest",
-                "prompt": "none"
+                "prompt": "none",
             },
-            cookies=self.load_cookies()
+            cookies=self.load_cookies(),
         )
         response.raise_for_status()
         token_data = response.json()
@@ -167,23 +170,24 @@ class OriginService(OnlineService):
         response = self.session.get(
             "https://gateway.ea.com/proxy/identity/pids/me",
             cookies=self.load_cookies(),
-            headers=self.get_auth_headers()
+            headers=self.get_auth_headers(),
         )
         return response.json()
 
     def get_identity(self):
         """Request the user info"""
         identity_data = self._request_identity()
-        if identity_data.get('error') == "invalid_access_token":
+        if identity_data.get("error") == "invalid_access_token":
             logger.warning("Refreshing Origin access token")
             self.fetch_access_token()
             identity_data = self._request_identity()
         elif identity_data.get("error"):
             raise RuntimeError(
-                "%s (Error code: %s)" % (identity_data["error"], identity_data["error_number"])
+                "%s (Error code: %s)"
+                % (identity_data["error"], identity_data["error_number"])
             )
 
-        if 'error' in identity_data:
+        if "error" in identity_data:
             raise RuntimeError(identity_data["error"])
         try:
             user_id = identity_data["pid"]["pidId"]
@@ -193,7 +197,7 @@ class OriginService(OnlineService):
 
         persona_id_response = self.session.get(
             "{}/atom/users?userIds={}".format(self.api_url, user_id),
-            headers=self.get_auth_headers()
+            headers=self.get_auth_headers(),
         )
         content = persona_id_response.text
         origin_account_info = ElementTree.fromstring(content)
@@ -230,7 +234,9 @@ class OriginService(OnlineService):
 
     def get_offer(self, offer_id):
         """Load offer details from Origin"""
-        url = "{}/ecommerce2/public/supercat/{}/{}".format(self.api_url, offer_id, "en_US")
+        url = "{}/ecommerce2/public/supercat/{}/{}".format(
+            self.api_url, offer_id, "en_US"
+        )
         response = self.session.get(url, headers=self.get_auth_headers())
         return response.json()
 
@@ -238,7 +244,7 @@ class OriginService(OnlineService):
         """Request the user's entitlements"""
         url = "%s/ecommerce2/consolidatedentitlements/%s?machine_hash=1" % (
             self.api_url,
-            user_id
+            user_id,
         )
         headers = self.get_auth_headers()
         headers["Accept"] = "application/vnd.origin.v3+json; x-cache/force-write"
@@ -253,7 +259,7 @@ class OriginService(OnlineService):
         return {
             "Authorization": "Bearer %s" % self.access_token,
             "AuthToken": self.access_token,
-            "X-AuthToken": self.access_token
+            "X-AuthToken": self.access_token,
         }
 
     def add_installed_games(self):
@@ -276,7 +282,9 @@ class OriginService(OnlineService):
         logger.debug("Installing Origin game %s", offer_id)
         service_game = ServiceGameCollection.get_game("origin", offer_id)
         if not service_game:
-            logger.error("Aborting install, %s is not present in the game library.", offer_id)
+            logger.error(
+                "Aborting install, %s is not present in the game library.", offer_id
+            )
             return
         lutris_game_id = slugify(service_game["name"]) + "-" + self.id
         existing_game = get_game_by_field(lutris_game_id, "installer_slug")
@@ -302,7 +310,9 @@ class OriginService(OnlineService):
         origin_game = Game(origin_db_game["id"])
         origin_exe = origin_game.config.game_config["exe"]
         if not os.path.isabs(origin_exe):
-            origin_exe = os.path.join(origin_game.config.game_config["prefix"], origin_exe)
+            origin_exe = os.path.join(
+                origin_game.config.game_config["prefix"], origin_exe
+            )
         return {
             "name": db_game["name"],
             "version": self.name,
@@ -316,17 +326,19 @@ class OriginService(OnlineService):
                     "args": get_launch_arguments(db_game["appid"]),
                 },
                 "installer": [
-                    {"task": {
-                        "name": "wineexec",
-                        "executable": origin_exe,
-                        "args": get_launch_arguments(db_game["appid"], "download"),
-                        "prefix": origin_game.config.game_config["prefix"],
-                        "description": (
-                            "Origin will now open and install %s." % db_game["name"]
-                        )
-                    }}
-                ]
-            }
+                    {
+                        "task": {
+                            "name": "wineexec",
+                            "executable": origin_exe,
+                            "args": get_launch_arguments(db_game["appid"], "download"),
+                            "prefix": origin_game.config.game_config["prefix"],
+                            "description": (
+                                "Origin will now open and install %s." % db_game["name"]
+                            ),
+                        }
+                    }
+                ],
+            },
         }
 
     def install(self, db_game):
@@ -340,7 +352,7 @@ class OriginService(OnlineService):
             application.show_installer_window(
                 [self.generate_installer(db_game, origin_game)],
                 service=self,
-                appid=db_game["appid"]
+                appid=db_game["appid"],
             )
 
 

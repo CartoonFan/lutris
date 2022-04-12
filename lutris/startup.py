@@ -54,7 +54,9 @@ def check_driver():
     if drivers.is_nvidia():
         driver_info = drivers.get_nvidia_driver_info()
         # pylint: disable=logging-format-interpolation
-        logger.info("Using {vendor} drivers {version} for {arch}".format(**driver_info["nvrm"]))
+        logger.info(
+            "Using {vendor} drivers {version} for {arch}".format(**driver_info["nvrm"])
+        )
         gpus = drivers.get_nvidia_gpu_ids()
         for gpu_id in gpus:
             gpu_info = drivers.get_nvidia_gpu_info(gpu_id)
@@ -69,12 +71,18 @@ def check_driver():
                 LINUX_SYSTEM.glxinfo.GLX_MESA_query_renderer.device,
             )
     else:
-        logger.warning("glxinfo is not available on your system, unable to detect driver version")
+        logger.warning(
+            "glxinfo is not available on your system, unable to detect driver version"
+        )
 
     for card in drivers.get_gpus():
         # pylint: disable=logging-format-interpolation
         try:
-            logger.info("GPU: {PCI_ID} {PCI_SUBSYS_ID} ({DRIVER} drivers)".format(**drivers.get_gpu_info(card)))
+            logger.info(
+                "GPU: {PCI_ID} {PCI_SUBSYS_ID} ({DRIVER} drivers)".format(
+                    **drivers.get_gpu_info(card)
+                )
+            )
         except KeyError:
             logger.error("Unable to get GPU information from '%s'", card)
 
@@ -89,10 +97,11 @@ def check_driver():
                     "fully support all features for Vulkan and DXVK games.\n"
                     "Please upgrade your driver as described in our "
                     "<a href='%s'>installation guide</a>"
-                ) % (
+                )
+                % (
                     driver_info["nvrm"]["version"],
                     settings.DRIVER_HOWTO_URL,
-                )
+                ),
             )
 
 
@@ -123,10 +132,11 @@ def check_libs(all_components=False):
                     "This will prevent many games and programs from working.\n"
                     "To install it, please use the following guide: "
                     "<a href='%s'>Installing Graphics Drivers</a>"
-                ) % (
+                )
+                % (
                     _(" and ").join(missing_vulkan_libs),
                     settings.DRIVER_HOWTO_URL,
-                )
+                ),
             )
 
 
@@ -180,8 +190,8 @@ def init_lutris():
         syncdb()
     except sqlite3.DatabaseError as err:
         raise RuntimeError(
-            "Failed to open database file in %s. Try renaming this file and relaunch Lutris" %
-            settings.PGA_DB
+            "Failed to open database file in %s. Try renaming this file and relaunch Lutris"
+            % settings.PGA_DB
         ) from err
     for service in DEFAULT_SERVICES:
         if not settings.read_setting(service, section="services"):
@@ -199,7 +209,13 @@ def update_runtime(force=False):
             while runtime_updater.current_updates:
                 time.sleep(0.3)
         update_cache.write_date_to_cache("runtime")
-    for dll_manager_class in (DXVKManager, DXVKNVAPIManager, VKD3DManager, D3DExtrasManager, dgvoodoo2Manager):
+    for dll_manager_class in (
+        DXVKManager,
+        DXVKNVAPIManager,
+        VKD3DManager,
+        D3DExtrasManager,
+        dgvoodoo2Manager,
+    ):
         key = dll_manager_class.__name__
         key_call = update_cache.get_last_call(key)
         if force or not key_call or key_call > 3600 * 6:

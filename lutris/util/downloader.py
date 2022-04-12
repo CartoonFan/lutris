@@ -23,13 +23,7 @@ class Downloader:
     Stop with cancel().
     """
 
-    (
-        INIT,
-        DOWNLOADING,
-        CANCELLED,
-        ERROR,
-        COMPLETED
-    ) = list(range(5))
+    (INIT, DOWNLOADING, CANCELLED, ERROR, COMPLETED) = list(range(5))
 
     def __init__(self, url, dest, overwrite=False, referer=None, callback=None):
         self.url = url

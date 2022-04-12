@@ -35,7 +35,7 @@ class Process:
     def _read_content(self, file_path):
         """Return the contents from a file in /proc"""
         try:
-            with open(file_path, encoding='utf-8') as proc_file:
+            with open(file_path, encoding="utf-8") as proc_file:
                 content = proc_file.read()
         except (ProcessLookupError, FileNotFoundError, PermissionError):
             return ""
@@ -44,12 +44,12 @@ class Process:
     def get_stat(self, parsed=True):
         stat_filename = "/proc/{}/stat".format(self.pid)
         try:
-            with open(stat_filename, encoding='utf-8') as stat_file:
+            with open(stat_filename, encoding="utf-8") as stat_file:
                 _stat = stat_file.readline()
         except (ProcessLookupError, FileNotFoundError):
             return None
         if parsed:
-            return _stat[_stat.rfind(")") + 1:].split()
+            return _stat[_stat.rfind(")") + 1 :].split()
         return _stat
 
     def get_thread_ids(self):
@@ -67,7 +67,7 @@ class Process:
         """Return pids of child processes opened by thread `tid` of process."""
         children_path = "/proc/{}/task/{}/children".format(self.pid, tid)
         try:
-            with open(children_path, encoding='utf-8') as children_file:
+            with open(children_path, encoding="utf-8") as children_file:
                 children_content = children_file.read()
         except (FileNotFoundError, ProcessLookupError):
             children_content = ""
@@ -78,7 +78,7 @@ class Process:
         """Filename of the executable."""
         _stat = self.get_stat(parsed=False)
         if _stat:
-            return _stat[_stat.find("(") + 1:_stat.rfind(")")]
+            return _stat[_stat.find("(") + 1 : _stat.rfind(")")]
         return None
 
     @property
@@ -115,7 +115,9 @@ class Process:
         if not _environ_text:
             return {}
         try:
-            return dict([line.split("=", 1) for line in _environ_text.split("\x00") if line])
+            return dict(
+                [line.split("=", 1) for line in _environ_text.split("\x00") if line]
+            )
         except ValueError:
             if environ_path not in self.error_cache:
                 logger.error("Failed to parse environment variables: %s", _environ_text)

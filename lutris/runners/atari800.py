@@ -13,7 +13,10 @@ from lutris.util import display, extract, system
 
 def get_resolutions():
     try:
-        screen_resolutions = [(resolution, resolution) for resolution in display.DISPLAY_MANAGER.get_resolutions()]
+        screen_resolutions = [
+            (resolution, resolution)
+            for resolution in display.DISPLAY_MANAGER.get_resolutions()
+        ]
     except OSError:
         screen_resolutions = []
     screen_resolutions.insert(0, (_("Desktop resolution"), "desktop"))
@@ -23,7 +26,9 @@ def get_resolutions():
 # pylint: disable=C0103
 class atari800(Runner):
     human_name = _("Atari800")
-    platforms = [_("Atari 8bit computers")]  # FIXME try to determine the actual computer used
+    platforms = [
+        _("Atari 8bit computers")
+    ]  # FIXME try to determine the actual computer used
     runner_executable = "atari800/bin/atari800"
     bios_url = "http://kent.dl.sourceforge.net/project/atari800/ROM/Original%20XL%20ROM/xf25.zip"
     description = _("Atari 400, 800 and XL emulator")
@@ -49,12 +54,9 @@ class atari800(Runner):
 
     runner_options = [
         {
-            "option":
-            "bios_path",
-            "type":
-            "directory_chooser",
-            "label":
-            _("BIOS location"),
+            "option": "bios_path",
+            "type": "directory_chooser",
+            "label": _("BIOS location"),
             "help": _(
                 "A folder containing the Atari 800 BIOS files.\n"
                 "They are provided by Lutris so you shouldn't have to "
@@ -62,10 +64,8 @@ class atari800(Runner):
             ),
         },
         {
-            "option":
-            "machine",
-            "type":
-            "choice",
+            "option": "machine",
+            "type": "choice",
             "choices": [
                 (_("Emulate Atari 800"), "atari"),
                 (_("Emulate Atari 800 XL"), "xl"),
@@ -73,10 +73,8 @@ class atari800(Runner):
                 (_("Emulate Atari 320 XE (Rambo)"), "rambo"),
                 (_("Emulate Atari 5200"), "5200"),
             ],
-            "default":
-            "atari",
-            "label":
-            _("Machine"),
+            "default": "atari",
+            "label": _("Machine"),
         },
         {
             "option": "fullscreen",
@@ -94,7 +92,6 @@ class atari800(Runner):
     ]
 
     def install(self, version=None, downloader=None, callback=None):
-
         def on_runner_installed(*args):  # pylint: disable=unused-argument
             config_path = system.create_folder("~/.atari800")
             bios_archive = os.path.join(config_path, "atari800-bioses.zip")
@@ -114,7 +111,7 @@ class atari800(Runner):
         super().install(version, downloader, on_runner_installed)
 
     def find_good_bioses(self, bios_path):
-        """ Check for correct bios files """
+        """Check for correct bios files"""
         good_bios = {}
         for filename in os.listdir(bios_path):
             real_hash = system.get_md5_hash(os.path.join(bios_path, filename))

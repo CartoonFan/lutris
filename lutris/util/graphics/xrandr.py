@@ -7,7 +7,9 @@ from lutris.util.linux import LINUX_SYSTEM
 from lutris.util.log import logger
 from lutris.util.system import read_process_output
 
-Output = namedtuple("Output", ("name", "mode", "position", "rotation", "primary", "rate"))
+Output = namedtuple(
+    "Output", ("name", "mode", "position", "rotation", "primary", "rate")
+)
 
 
 def _get_vidmodes():
@@ -41,7 +43,9 @@ def get_outputs():  # pylint: disable=too-many-locals
             except ValueError as ex:
                 logger.error(
                     "Unhandled xrandr line %s, error: %s. "
-                    "Please send your xrandr output to the dev team", line, ex
+                    "Please send your xrandr output to the dev team",
+                    line,
+                    ex,
                 )
                 continue
             if geometry.startswith("("):  # Screen turned off, no geometry
@@ -77,7 +81,9 @@ def turn_off_except(display):
     for output in get_outputs():
         if output.name != display:
             logger.info("Turning off %s", output[0])
-            with subprocess.Popen([LINUX_SYSTEM.get("xrandr"), "--output", output.name, "--off"]) as xrandr:
+            with subprocess.Popen(
+                [LINUX_SYSTEM.get("xrandr"), "--output", output.name, "--off"]
+            ) as xrandr:
                 xrandr.communicate()
 
 
@@ -94,7 +100,9 @@ def get_resolutions():
 
 def get_unique_resolutions():
     """Return available resolutions, without duplicates and ordered with highest resolution first"""
-    return sorted(set(get_resolutions()), key=lambda x: int(x.split("x")[0]), reverse=True)
+    return sorted(
+        set(get_resolutions()), key=lambda x: int(x.split("x")[0]), reverse=True
+    )
 
 
 def change_resolution(resolution):
@@ -113,7 +121,9 @@ def change_resolution(resolution):
             logger.warning("Resolution %s doesn't exist.", resolution)
         else:
             logger.info("Changing resolution to %s", resolution)
-            with subprocess.Popen([LINUX_SYSTEM.get("xrandr"), "-s", resolution]) as xrandr:
+            with subprocess.Popen(
+                [LINUX_SYSTEM.get("xrandr"), "-s", resolution]
+            ) as xrandr:
                 xrandr.communicate()
 
     else:

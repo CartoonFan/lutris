@@ -11,7 +11,9 @@ class WebkitCookieJar(MozillaCookieJar):
     compatibility with HttpOnly cookies (See http://bugs.python.org/issue2190)
     """
 
-    def _really_load(self, f, filename, ignore_discard, ignore_expires):  # pylint: disable=too-many-locals
+    def _really_load(
+        self, f, filename, ignore_discard, ignore_expires
+    ):  # pylint: disable=too-many-locals
         now = time.time()
         try:
             while 1:
@@ -30,7 +32,16 @@ class WebkitCookieJar(MozillaCookieJar):
                 elif sline.startswith("#") or sline == "":
                     continue
 
-                domain, domain_specified, path, secure, expires, name, value, *_extra = line.split("\t")
+                (
+                    domain,
+                    domain_specified,
+                    path,
+                    secure,
+                    expires,
+                    name,
+                    value,
+                    *_extra,
+                ) = line.split("\t")
                 secure = secure == "TRUE"
                 domain_specified = domain_specified == "TRUE"
                 if name == "":
@@ -77,4 +88,6 @@ class WebkitCookieJar(MozillaCookieJar):
             raise
         except Exception as err:
             _warn_unhandled_exception()
-            raise OSError("invalid Netscape format cookies file %r: %r" % (filename, line)) from err
+            raise OSError(
+                "invalid Netscape format cookies file %r: %r" % (filename, line)
+            ) from err

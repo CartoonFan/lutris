@@ -17,16 +17,16 @@ def get_nvidia_driver_info():
     version_file_path = "/proc/driver/nvidia/version"
     if not os.path.exists(version_file_path):
         return
-    with open(version_file_path, encoding='utf-8') as version_file:
+    with open(version_file_path, encoding="utf-8") as version_file:
         content = version_file.readlines()
-        nvrm_version = content[0].split(': ')[1].strip().split()
+        nvrm_version = content[0].split(": ")[1].strip().split()
         return {
-            'nvrm': {
-                'vendor': nvrm_version[0],
-                'platform': nvrm_version[1],
-                'arch': nvrm_version[2],
-                'version': nvrm_version[5],
-                'date': ' '.join(nvrm_version[6:])
+            "nvrm": {
+                "vendor": nvrm_version[0],
+                "platform": nvrm_version[1],
+                "arch": nvrm_version[2],
+                "version": nvrm_version[5],
+                "date": " ".join(nvrm_version[6:]),
             }
         }
     return
@@ -39,7 +39,9 @@ def get_nvidia_gpu_ids():
 
 def get_nvidia_gpu_info(gpu_id):
     """Return details about a GPU"""
-    with open("/proc/driver/nvidia/gpus/%s/information" % gpu_id, encoding='utf-8') as info_file:
+    with open(
+        "/proc/driver/nvidia/gpus/%s/information" % gpu_id, encoding="utf-8"
+    ) as info_file:
         content = info_file.readlines()
     infos = {}
     for line in content:
@@ -67,7 +69,9 @@ def get_gpu_info(card):
     """Return information about a GPU"""
     infos = {"DRIVER": "", "PCI_ID": "", "PCI_SUBSYS_ID": ""}
     try:
-        with open("/sys/class/drm/%s/device/uevent" % card, encoding='utf-8') as card_uevent:
+        with open(
+            "/sys/class/drm/%s/device/uevent" % card, encoding="utf-8"
+        ) as card_uevent:
             content = card_uevent.readlines()
     except FileNotFoundError:
         logger.error("Unable to read driver information for card %s", card)
@@ -91,14 +95,20 @@ def check_driver():
     if is_nvidia():
         driver_info = get_nvidia_driver_info()
         # pylint: disable=logging-format-interpolation
-        logger.info("Using {vendor} drivers {version} for {arch}".format(**driver_info["nvrm"]))
+        logger.info(
+            "Using {vendor} drivers {version} for {arch}".format(**driver_info["nvrm"])
+        )
         gpus = get_nvidia_gpu_ids()
         for gpu_id in gpus:
             gpu_info = get_nvidia_gpu_info(gpu_id)
             logger.info("GPU: %s", gpu_info.get("Model"))
     for card in get_gpus():
         # pylint: disable=logging-format-interpolation
-        logger.info("GPU: {PCI_ID} {PCI_SUBSYS_ID} using {DRIVER} driver".format(**get_gpu_info(card)))
+        logger.info(
+            "GPU: {PCI_ID} {PCI_SUBSYS_ID} using {DRIVER} driver".format(
+                **get_gpu_info(card)
+            )
+        )
 
 
 def is_outdated():

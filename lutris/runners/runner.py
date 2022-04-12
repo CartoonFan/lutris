@@ -173,7 +173,7 @@ class Runner:  # pylint: disable=too-many-public-methods
         if sdl_gamecontrollerconfig:
             path = os.path.expanduser(sdl_gamecontrollerconfig)
             if system.path_exists(path):
-                with open(path, "r", encoding='utf-8') as controllerdb_file:
+                with open(path, "r", encoding="utf-8") as controllerdb_file:
                     sdl_gamecontrollerconfig = controllerdb_file.read()
             env["SDL_GAMECONTROLLERCONFIG"] = sdl_gamecontrollerconfig
 
@@ -210,8 +210,9 @@ class Runner:  # pylint: disable=too-many-public-methods
 
         if runtime_ld_library_path:
             ld_library_path = env.get("LD_LIBRARY_PATH")
-            env["LD_LIBRARY_PATH"] = os.pathsep.join(filter(None, [
-                runtime_ld_library_path, ld_library_path]))
+            env["LD_LIBRARY_PATH"] = os.pathsep.join(
+                filter(None, [runtime_ld_library_path, ld_library_path])
+            )
 
         # Apply user overrides at the end
         env.update(self.system_config.get("env") or {})
@@ -228,7 +229,9 @@ class Runner:  # pylint: disable=too-many-public-methods
             dict
 
         """
-        return runtime.get_env(prefer_system_libs=self.system_config.get("prefer_system_libs", True))
+        return runtime.get_env(
+            prefer_system_libs=self.system_config.get("prefer_system_libs", True)
+        )
 
     def prelaunch(self):
         """Run actions before running the game, override this method in runners"""
@@ -236,7 +239,9 @@ class Runner:  # pylint: disable=too-many-public-methods
         for lib in set(self.require_libs):
             if lib in LINUX_SYSTEM.shared_libraries:
                 if self.arch:
-                    if self.arch in [_lib.arch for _lib in LINUX_SYSTEM.shared_libraries[lib]]:
+                    if self.arch in [
+                        _lib.arch for _lib in LINUX_SYSTEM.shared_libraries[lib]
+                    ]:
                         available_libs.add(lib)
                 else:
                     available_libs.add(lib)
@@ -286,8 +291,10 @@ class Runner:  # pylint: disable=too-many-public-methods
         """
         dialog = dialogs.QuestionDialog(
             {
-                "question": _("The required runner is not installed.\n"
-                              "Do you wish to install it now?"),
+                "question": _(
+                    "The required runner is not installed.\n"
+                    "Do you wish to install it now?"
+                ),
                 "title": _("Required runner unavailable"),
             }
         )
@@ -295,9 +302,12 @@ class Runner:  # pylint: disable=too-many-public-methods
 
             from lutris.gui.dialogs import ErrorDialog
             from lutris.gui.dialogs.download import simple_downloader
+
             try:
                 if hasattr(self, "get_version"):
-                    version = self.get_version(use_default=False)  # pylint: disable=no-member
+                    version = self.get_version(
+                        use_default=False
+                    )  # pylint: disable=no-member
                     self.install(downloader=simple_downloader, version=version)
                 else:
                     self.install(downloader=simple_downloader)
@@ -379,14 +389,18 @@ class Runner:  # pylint: disable=too-many-public-methods
             return self.download_and_extract(self.download_url, **opts)
         runner = self.get_runner_version(version)
         if not runner:
-            raise RunnerInstallationError("Failed to retrieve {} ({}) information".format(self.name, version))
+            raise RunnerInstallationError(
+                "Failed to retrieve {} ({}) information".format(self.name, version)
+            )
         if not downloader:
             raise RuntimeError("Missing mandatory downloader for runner %s" % self)
 
         if "wine" in self.name:
             opts["merge_single"] = True
             opts["dest"] = os.path.join(
-                settings.RUNNER_DIR, self.name, "{}-{}".format(runner["version"], runner["architecture"])
+                settings.RUNNER_DIR,
+                self.name,
+                "{}-{}".format(runner["version"], runner["architecture"]),
             )
 
         if self.name == "libretro" and version:
@@ -403,12 +417,15 @@ class Runner:  # pylint: disable=too-many-public-methods
         if not dest:
             dest = settings.RUNNER_DIR
         downloader(
-            url, runner_archive, self.extract, {
+            url,
+            runner_archive,
+            self.extract,
+            {
                 "archive": runner_archive,
                 "dest": dest,
                 "merge_single": merge_single,
                 "callback": callback,
-            }
+            },
         )
 
     def extract(self, archive=None, dest=None, merge_single=None, callback=None):
@@ -417,17 +434,24 @@ class Runner:  # pylint: disable=too-many-public-methods
         try:
             extract_archive(archive, dest, merge_single=merge_single)
         except ExtractFailure as ex:
-            logger.error("Failed to extract the archive %s file may be corrupt", archive)
-            raise RunnerInstallationError("Failed to extract {}: {}".format(archive, ex)) from ex
+            logger.error(
+                "Failed to extract the archive %s file may be corrupt", archive
+            )
+            raise RunnerInstallationError(
+                "Failed to extract {}: {}".format(archive, ex)
+            ) from ex
         os.remove(archive)
 
         if self.name == "wine":
             logger.debug("Clearing wine version cache")
             from lutris.util.wine.wine import get_wine_versions
+
             get_wine_versions.cache_clear()
 
         if self.runner_executable:
-            runner_executable = os.path.join(settings.RUNNER_DIR, self.runner_executable)
+            runner_executable = os.path.join(
+                settings.RUNNER_DIR, self.runner_executable
+            )
             if os.path.isfile(runner_executable):
                 system.make_executable(runner_executable)
 
@@ -449,7 +473,7 @@ class Runner:  # pylint: disable=too-many-public-methods
 
     def find_option(self, options_group, option_name):
         """Retrieve an option dict if it exists in the group"""
-        if options_group not in ['game_options', 'runner_options']:
+        if options_group not in ["game_options", "runner_options"]:
             return None
         output = None
         for item in getattr(self, options_group):

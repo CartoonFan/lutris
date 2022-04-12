@@ -17,8 +17,8 @@ class SteamInstaller(GObject.Object):
     """Handles installation of Steam games"""
 
     __gsignals__ = {
-        "steam-game-installed": (GObject.SIGNAL_RUN_FIRST, None, (str, )),
-        "steam-state-changed": (GObject.SIGNAL_RUN_FIRST, None, (str, )),
+        "steam-game-installed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        "steam-state-changed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     def __init__(self, steam_uri, file_id):
@@ -44,7 +44,9 @@ class SteamInstaller(GObject.Object):
         try:
             _steam, appid, path = self.steam_uri.split(":", 2)
         except ValueError as err:
-            raise ScriptingError(_("Malformed steam path: %s") % self.steam_uri) from err
+            raise ScriptingError(
+                _("Malformed steam path: %s") % self.steam_uri
+            ) from err
 
         self.appid = appid
         self.path = path
@@ -75,7 +77,9 @@ class SteamInstaller(GObject.Object):
         else:
             logger.debug("Installing steam game %s", self.appid)
             self.runner.config = LutrisConfig(runner_slug=self.runner.name)
-            AsyncCall(self.runner.install_game, self.on_steam_game_installed, self.appid)
+            AsyncCall(
+                self.runner.install_game, self.on_steam_game_installed, self.appid
+            )
             self.install_start_time = time.localtime()
             self.steam_poll = GLib.timeout_add(2000, self._monitor_steam_game_install)
             self.stop_func = lambda: self.runner.remove_game_data(appid=self.appid)
@@ -86,9 +90,7 @@ class SteamInstaller(GObject.Object):
         if not data_path or not os.path.exists(data_path):
             logger.info("No path found for Steam game %s", self.appid)
             return ""
-        return os.path.abspath(
-            os.path.join(data_path, self.steam_rel_path)
-        )
+        return os.path.abspath(os.path.join(data_path, self.steam_rel_path))
 
     def _monitor_steam_game_install(self):
         if self.cancelled:
@@ -99,7 +101,9 @@ class SteamInstaller(GObject.Object):
         if states and states != self.prev_states:
             self.state = states[-1].split(",")[-1]
             logger.debug("Steam installation status: %s", states)
-            self.emit("steam-state-changed", self.state)  # Broadcast new state to listeners
+            self.emit(
+                "steam-state-changed", self.state
+            )  # Broadcast new state to listeners
 
         self.prev_states = states
         logger.debug(self.state)

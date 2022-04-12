@@ -27,8 +27,7 @@ class reicast(Runner):
             "option": "iso",
             "type": "file",
             "label": _("Disc image file"),
-            "help": _("The game data.\n"
-                      "Supported formats: ISO, CDI"),
+            "help": _("The game data.\n" "Supported formats: ISO, CDI"),
         }
     ]
 
@@ -73,7 +72,6 @@ class reicast(Runner):
         ]
 
     def install(self, version=None, downloader=None, callback=None):
-
         def on_runner_installed(*args):
             mapping_path = system.create_folder("~/.reicast/mappings")
             mapping_source = os.path.join(settings.RUNNER_DIR, "reicast/mappings")
@@ -81,7 +79,9 @@ class reicast(Runner):
                 shutil.copy(os.path.join(mapping_source, mapping_file), mapping_path)
 
             system.create_folder("~/.reicast/data")
-            NoticeDialog(_("You have to copy valid BIOS files to ~/.reicast/data before playing"))
+            NoticeDialog(
+                _("You have to copy valid BIOS files to ~/.reicast/data before playing")
+            )
 
         super().install(version, downloader, on_runner_installed)
 
@@ -119,7 +119,7 @@ class reicast(Runner):
 
         config_path = os.path.expanduser("~/.reicast/emu.cfg")
         if system.path_exists(config_path):
-            with open(config_path, "r", encoding='utf-8') as config_file:
+            with open(config_path, "r", encoding="utf-8") as config_file:
                 parser.read_file(config_file)
 
         for section in config:
@@ -128,19 +128,15 @@ class reicast(Runner):
             for (key, value) in config[section].items():
                 parser.set(section, key, str(value))
 
-        with open(config_path, "w", encoding='utf-8') as config_file:
+        with open(config_path, "w", encoding="utf-8") as config_file:
             parser.write(config_file)
 
     def play(self):
         fullscreen = "1" if self.runner_config.get("fullscreen") else "0"
         reicast_config = {
-            "x11": {
-                "fullscreen": fullscreen
-            },
+            "x11": {"fullscreen": fullscreen},
             "input": {},
-            "players": {
-                "nb": "1"
-            },
+            "players": {"nb": "1"},
         }
         players = 1
         reicast_config["input"] = {}

@@ -80,8 +80,10 @@ class o2em(Runner):
             "type": "bool",
             "label": _("Scanlines display style"),
             "default": False,
-            "help": _("Activates a display filter adding scanlines to imitate "
-                      "the displays of yesteryear."),
+            "help": _(
+                "Activates a display filter adding scanlines to imitate "
+                "the displays of yesteryear."
+            ),
         },
     ]
 
@@ -94,7 +96,6 @@ class o2em(Runner):
         return ""
 
     def install(self, version=None, downloader=None, callback=None):
-
         def on_runner_installed(*args):
             if not system.path_exists(self.bios_path):
                 os.makedirs(self.bios_path)

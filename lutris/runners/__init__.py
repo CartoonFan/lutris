@@ -47,21 +47,18 @@ RUNNER_PLATFORMS = {}
 
 
 class InvalidRunner(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
 
 
 class RunnerInstallationError(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
 
 
 class NonInstallableRunnerError(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -70,7 +67,9 @@ class NonInstallableRunnerError(Exception):
 def get_runner_module(runner_name):
     if runner_name not in __all__:
         raise InvalidRunner("Invalid runner name '%s'" % runner_name)
-    return __import__("lutris.runners.%s" % runner_name, globals(), locals(), [runner_name], 0)
+    return __import__(
+        "lutris.runners.%s" % runner_name, globals(), locals(), [runner_name], 0
+    )
 
 
 def import_runner(runner_name):
@@ -109,9 +108,7 @@ def inject_runners(runners):
 
 
 def get_runner_names():
-    return {
-        runner: import_runner(runner)().human_name for runner in __all__
-    }
+    return {runner: import_runner(runner)().human_name for runner in __all__}
 
 
 def get_platforms():

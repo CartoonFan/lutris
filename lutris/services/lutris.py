@@ -11,7 +11,13 @@ from lutris.database.games import get_games
 from lutris.database.services import ServiceGameCollection
 from lutris.gui import dialogs
 from lutris.gui.views.media_loader import download_media
-from lutris.services.base import LutrisBanner, LutrisCoverart, LutrisCoverartMedium, LutrisIcon, OnlineService
+from lutris.services.base import (
+    LutrisBanner,
+    LutrisCoverart,
+    LutrisCoverartMedium,
+    LutrisIcon,
+    OnlineService,
+)
 from lutris.services.service_game import ServiceGame
 from lutris.util import http
 from lutris.util.log import logger
@@ -19,15 +25,16 @@ from lutris.util.log import logger
 
 class LutrisGame(ServiceGame):
     """Service game created from the Lutris API"""
+
     service = "lutris"
 
     @classmethod
     def new_from_api(cls, api_payload):
         """Create an instance of LutrisGame from the API response"""
         service_game = LutrisGame()
-        service_game.appid = api_payload['slug']
-        service_game.slug = api_payload['slug']
-        service_game.name = api_payload['name']
+        service_game.appid = api_payload["slug"]
+        service_game.slug = api_payload["slug"]
+        service_game.name = api_payload["name"]
         service_game.details = json.dumps(api_payload)
         return service_game
 
@@ -62,7 +69,8 @@ class LutrisService(OnlineService):
     def match_games(self):
         """Matching lutris games is much simpler... No API call needed."""
         service_games = {
-            str(game["appid"]): game for game in ServiceGameCollection.get_for_service(self.id)
+            str(game["appid"]): game
+            for game in ServiceGameCollection.get_for_service(self.id)
         }
         for lutris_game in get_games():
             self.match_game(service_games.get(lutris_game["slug"]), lutris_game)
@@ -85,8 +93,12 @@ class LutrisService(OnlineService):
         credentials = read_api_key()
         if not credentials:
             return []
-        url = settings.SITE_URL + "/api/games/library/%s" % urllib.parse.quote(credentials["username"])
-        request = http.Request(url, headers={"Authorization": "Token " + credentials["token"]})
+        url = settings.SITE_URL + "/api/games/library/%s" % urllib.parse.quote(
+            credentials["username"]
+        )
+        request = http.Request(
+            url, headers={"Authorization": "Token " + credentials["token"]}
+        )
         try:
             response = request.get()
         except http.HTTPError as ex:
@@ -158,7 +170,9 @@ def sync_media():
         if fn.startswith("lutris_")
     }
     covers_available = {fn.split(".")[0] for fn in os.listdir(settings.COVERART_PATH)}
-    complete_games = banners_available.intersection(icons_available).intersection(covers_available)
+    complete_games = banners_available.intersection(icons_available).intersection(
+        covers_available
+    )
     all_slugs = {game["slug"] for game in get_games()}
     slugs = all_slugs - complete_games
     if not slugs:
@@ -196,7 +210,9 @@ def sync_media():
     }
     logger.debug(
         "Syncing %s banners, %s icons and %s covers",
-        len(banner_urls), len(icon_urls), len(cover_urls)
+        len(banner_urls),
+        len(icon_urls),
+        len(cover_urls),
     )
     download_media(banner_urls, LutrisBanner())
     download_media(icon_urls, LutrisIcon())

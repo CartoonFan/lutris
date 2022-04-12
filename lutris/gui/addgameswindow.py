@@ -20,32 +20,32 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
             "system-search-symbolic",
             _("Search the Lutris website for installers"),
             _("Query our website for community installers"),
-            "search_installers"
+            "search_installers",
         ),
         (
             "folder-new-symbolic",
             _("Scan a folder for games"),
             _("Mass-import a folder of games"),
-            "scan_folder"
+            "scan_folder",
         ),
         (
             "media-optical-dvd-symbolic",
             _("Install a Windows game from media"),
             _("Launch a setup file from an optical drive or download"),
-            "install_from_setup"
+            "install_from_setup",
         ),
         (
             "x-office-document-symbolic",
             _("Install from a local install script"),
             _("Run a YAML install script"),
-            "install_from_script"
+            "install_from_script",
         ),
         (
             "list-add-symbolic",
             _("Add locally installed game"),
             _("Manually configure a game available locally"),
-            "add_local_game"
-        )
+            "add_local_game",
+        ),
     ]
 
     title_text = _("Add games to Lutris")
@@ -217,23 +217,27 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
         self.search_spinner.stop()
         self.search_spinner.hide()
         total_count = api_games.get("count", 0)
-        count = len(api_games.get('results', []))
+        count = len(api_games.get("results", []))
 
         if not count:
             self.result_label.set_markup(_("No results"))
         elif count == total_count:
             self.result_label.set_markup(_(f"Showing <b>{count}</b> results"))
         else:
-            self.result_label.set_markup(_(f"<b>{total_count}</b> results, only displaying first {count}"))
+            self.result_label.set_markup(
+                _(f"<b>{total_count}</b> results, only displaying first {count}")
+            )
         for row in self.listbox.get_children():
             row.destroy()
         for game in api_games.get("results", []):
-            platforms = ",".join(gtk_safe(platform["name"]) for platform in game["platforms"])
-            year = game['year'] or ""
+            platforms = ",".join(
+                gtk_safe(platform["name"]) for platform in game["platforms"]
+            )
+            year = game["year"] or ""
             if platforms and year:
                 platforms = ", " + platforms
 
-            row = self.build_row("", gtk_safe(game['name']), f"{year}{platforms}")
+            row = self.build_row("", gtk_safe(game["name"]), f"{year}{platforms}")
             row.api_info = game
             self.listbox.add(row)
         self.listbox.show()
@@ -259,16 +263,12 @@ class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-
             "game_slug": slugify(name),
             "runner": "wine",
             "script": {
-                "game": {
-                    "exe": AUTO_WIN32_EXE, "prefix": "$GAMEDIR"
-                },
-                "files": [
-                    {"setupfile": "N/A:Select the setup file"}
-                ],
+                "game": {"exe": AUTO_WIN32_EXE, "prefix": "$GAMEDIR"},
+                "files": [{"setupfile": "N/A:Select the setup file"}],
                 "installer": [
                     {"task": {"name": "wineexec", "executable": "setupfile"}}
-                ]
-            }
+                ],
+            },
         }
         application = Gio.Application.get_default()
         application.show_installer_window([installer])

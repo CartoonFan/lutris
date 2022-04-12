@@ -31,15 +31,11 @@ ROM_FLAGS = [
     "F",
     "U",
     "E",
-    "UE"
-    "W",
-    "M3"
+    "UE" "W",
+    "M3",
 ]
 
-EXTRA_FLAGS = [
-    "!",
-    "S"
-]
+EXTRA_FLAGS = ["!", "S"]
 
 
 def clean_rom_name(name):
@@ -74,7 +70,7 @@ def scan_directory(dirname):
         config = {
             "game": {
                 "core": core_matches[ext],
-                "main_file": os.path.join(dirname, filename)
+                "main_file": os.path.join(dirname, filename),
             }
         }
         installer_slug = "%s-libretro-%s" % (slug, core)
@@ -90,7 +86,7 @@ def scan_directory(dirname):
             directory=dirname,
             installed=1,
             installer_slug=installer_slug,
-            configpath=configpath
+            configpath=configpath,
         )
         added_games.append(game_id)
     return added_games

@@ -6,10 +6,7 @@ from lutris.util.log import logger
 
 
 def is_excluded_elf(filename):
-    excluded = (
-        "xdg-open",
-        "uninstall"
-    )
+    excluded = ("xdg-open", "uninstall")
     _fn = filename.lower()
     return any(exclude in _fn for exclude in excluded)
 
@@ -58,7 +55,7 @@ def is_excluded_dir(path):
         "windows",
         "ProgramData",
         "users",
-        "GameSpy Arcade"
+        "GameSpy Arcade",
     )
     return any(dir_name in excluded for dir_name in path.split("/"))
 

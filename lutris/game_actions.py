@@ -67,7 +67,11 @@ class GameActions:
             ("duplicate", _("Duplicate"), self.on_game_duplicate),
             ("configure", _("Configure"), self.on_edit_game_configuration),
             ("favorite", _("Add to favorites"), self.on_add_favorite_game),
-            ("deletefavorite", _("Remove from favorites"), self.on_delete_favorite_game),
+            (
+                "deletefavorite",
+                _("Remove from favorites"),
+                self.on_delete_favorite_game,
+            ),
             ("execute-script", _("Execute script"), self.on_execute_script_clicked),
             ("browse", _("Browse files"), self.on_browse_files),
             (
@@ -124,12 +128,15 @@ class GameActions:
             "deletefavorite": self.game.is_favorite,
             "install_more": not self.game.service and self.game.is_installed,
             "execute-script": bool(
-                self.game.is_installed and self.game.runner
+                self.game.is_installed
+                and self.game.runner
                 and self.game.runner.system_config.get("manual_command")
             ),
             "desktop-shortcut": (
                 self.game.is_installed
-                and not xdgshortcuts.desktop_launcher_exists(self.game.slug, self.game.id)
+                and not xdgshortcuts.desktop_launcher_exists(
+                    self.game.slug, self.game.id
+                )
             ),
             "menu-shortcut": (
                 self.game.is_installed
@@ -186,7 +193,7 @@ class GameActions:
         return LogWindow(
             title=_("Log for {}").format(self.game),
             buffer=_buffer,
-            application=self.application
+            application=self.application,
         )
 
     def on_install_clicked(self, *_args):
@@ -221,7 +228,8 @@ class GameActions:
                 "question": _(
                     "Do you wish to duplicate %s?\nThe configuration will be duplicated, "
                     "but the games files will <b>not be duplicated</b>."
-                ) % gtk_safe(self.game.name),
+                )
+                % gtk_safe(self.game.name),
                 "title": _("Duplicate game?"),
             }
         )
@@ -250,7 +258,9 @@ class GameActions:
 
     def on_edit_game_configuration(self, _widget):
         """Edit game preferences"""
-        self.application.show_window(EditGameConfigDialog, game=self.game, parent=self.window)
+        self.application.show_window(
+            EditGameConfigDialog, game=self.game, parent=self.window
+        )
 
     def on_add_favorite_game(self, _widget):
         """Add to favorite Games list"""
@@ -291,7 +301,9 @@ class GameActions:
 
     def on_create_menu_shortcut(self, *_args):
         """Add the selected game to the system's Games menu."""
-        xdgshortcuts.create_launcher(self.game.slug, self.game.id, self.game.name, menu=True)
+        xdgshortcuts.create_launcher(
+            self.game.slug, self.game.id, self.game.name, menu=True
+        )
 
     def on_create_steam_shortcut(self, *_args):
         """Add the selected game to steam as a nonsteam-game."""
@@ -299,7 +311,9 @@ class GameActions:
 
     def on_create_desktop_shortcut(self, *_args):
         """Create a desktop launcher for the selected game."""
-        xdgshortcuts.create_launcher(self.game.slug, self.game.id, self.game.name, desktop=True)
+        xdgshortcuts.create_launcher(
+            self.game.slug, self.game.id, self.game.name, desktop=True
+        )
 
     def on_remove_menu_shortcut(self, *_args):
         """Remove an XDG menu shortcut"""

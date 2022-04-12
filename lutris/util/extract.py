@@ -242,13 +242,19 @@ def extract_gog(path, dest):
 
 def get_innoextract_path():
     """Return the path where innoextract is installed"""
-    inno_dirs = [path for path in os.listdir(settings.RUNTIME_DIR) if path.startswith("innoextract")]
+    inno_dirs = [
+        path
+        for path in os.listdir(settings.RUNTIME_DIR)
+        if path.startswith("innoextract")
+    ]
     if inno_dirs:
         inno_path = os.path.join(settings.RUNTIME_DIR, inno_dirs[0], "innoextract")
     else:
         inno_path = system.find_executable("innoextract")
         if inno_path:
-            logger.warning("innoextract not available in the runtime folder, using some random version")
+            logger.warning(
+                "innoextract not available in the runtime folder, using some random version"
+            )
     if system.path_exists(inno_path):
         return inno_path
 
@@ -257,7 +263,9 @@ def check_inno_exe(path):
     """Check if a path in a compatible innosetup archive"""
     _innoextract_path = get_innoextract_path()
     if not _innoextract_path:
-        logger.warning("Innoextract not found, can't determine type of archive %s", path)
+        logger.warning(
+            "Innoextract not found, can't determine type of archive %s", path
+        )
         return False
     command = [_innoextract_path, "-i", path]
     return_code = subprocess.call(command)
@@ -275,7 +283,9 @@ def decompress_gog(file_path, destination_path):
     if not innoextract_path:
         raise OSError("innoextract is not found in the lutris runtime or on the system")
     system.create_folder(destination_path)  # innoextract cannot do mkdir -p
-    return_code = subprocess.call([innoextract_path, "-m", "-g", "-d", destination_path, "-e", file_path])
+    return_code = subprocess.call(
+        [innoextract_path, "-m", "-g", "-d", destination_path, "-e", file_path]
+    )
     if return_code != 0:
         raise RuntimeError("innoextract failed to extract GOG setup file")
 

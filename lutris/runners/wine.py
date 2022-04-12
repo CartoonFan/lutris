@@ -7,8 +7,17 @@ from gettext import gettext as _
 from lutris import runtime, settings
 from lutris.gui.dialogs import FileDialog
 from lutris.runners.commands.wine import (  # noqa: F401 pylint: disable=unused-import
-    create_prefix, delete_registry_key, eject_disc, install_cab_component, open_wine_terminal, set_regedit,
-    set_regedit_file, winecfg, wineexec, winekill, winetricks
+    create_prefix,
+    delete_registry_key,
+    eject_disc,
+    install_cab_component,
+    open_wine_terminal,
+    set_regedit,
+    set_regedit_file,
+    winecfg,
+    wineexec,
+    winekill,
+    winetricks,
 )
 from lutris.runners.runner import Runner
 from lutris.util import system
@@ -21,13 +30,33 @@ from lutris.util.wine.d3d_extras import D3DExtrasManager
 from lutris.util.wine.dgvoodoo2 import dgvoodoo2Manager
 from lutris.util.wine.dxvk import DXVKManager
 from lutris.util.wine.dxvk_nvapi import DXVKNVAPIManager
-from lutris.util.wine.prefix import DEFAULT_DLL_OVERRIDES, WinePrefixManager, find_prefix
+from lutris.util.wine.prefix import (
+    DEFAULT_DLL_OVERRIDES,
+    WinePrefixManager,
+    find_prefix,
+)
 from lutris.util.wine.vkd3d import VKD3DManager
 from lutris.util.wine.wine import (
-    POL_PATH, WINE_DIR, WINE_PATHS, detect_arch, display_vulkan_error, esync_display_limit_warning,
-    esync_display_version_warning, fsync_display_support_warning, fsync_display_version_warning, get_default_version,
-    get_overrides_env, get_proton_paths, get_real_executable, get_wine_version, get_wine_versions, is_esync_limit_set,
-    is_fsync_supported, is_gstreamer_build, is_version_esync, is_version_fsync
+    POL_PATH,
+    WINE_DIR,
+    WINE_PATHS,
+    detect_arch,
+    display_vulkan_error,
+    esync_display_limit_warning,
+    esync_display_version_warning,
+    fsync_display_support_warning,
+    fsync_display_version_warning,
+    get_default_version,
+    get_overrides_env,
+    get_proton_paths,
+    get_real_executable,
+    get_wine_version,
+    get_wine_versions,
+    is_esync_limit_set,
+    is_fsync_supported,
+    is_gstreamer_build,
+    is_version_esync,
+    is_version_fsync,
 )
 
 DEFAULT_WINE_PREFIX = "~/.wine"
@@ -53,7 +82,7 @@ class wine(Runner):
             "type": "string",
             "label": _("Arguments"),
             "help": _("Windows command line arguments used when launching the game"),
-            "validator": shlex.split
+            "validator": shlex.split,
         },
         {
             "option": "working_dir",
@@ -70,7 +99,7 @@ class wine(Runner):
             "type": "directory_chooser",
             "label": _("Wine prefix"),
             "help": _(
-                'The prefix used by Wine.\n'
+                "The prefix used by Wine.\n"
                 "It's a directory containing a set of files and "
                 "folders making up a confined Windows environment."
             ),
@@ -79,7 +108,11 @@ class wine(Runner):
             "option": "arch",
             "type": "choice",
             "label": _("Prefix architecture"),
-            "choices": [(_("Auto"), "auto"), (_("32-bit"), "win32"), (_("64-bit"), "win64")],
+            "choices": [
+                (_("Auto"), "auto"),
+                (_("32-bit"), "win32"),
+                (_("64-bit"), "win64"),
+            ],
             "default": "auto",
             "help": _("The architecture of the Windows environment"),
         },
@@ -91,7 +124,7 @@ class wine(Runner):
         "MouseWarpOverride": r"%s/DirectInput" % reg_prefix,
         "Desktop": "MANAGED",
         "WineDesktop": "MANAGED",
-        "ShowCrashDialog": "MANAGED"
+        "ShowCrashDialog": "MANAGED",
     }
 
     core_processes = (
@@ -106,7 +139,9 @@ class wine(Runner):
 
     def __init__(self, config=None):  # noqa: C901
         super().__init__(config)
-        self.dll_overrides = DEFAULT_DLL_OVERRIDES.copy()  # we'll modify this, so we better copy it
+        self.dll_overrides = (
+            DEFAULT_DLL_OVERRIDES.copy()
+        )  # we'll modify this, so we better copy it
 
         def get_wine_version_choices():
             version_choices = [(_("Custom (select executable below)"), "custom")]
@@ -181,8 +216,10 @@ class wine(Runner):
                 "label": _("Custom Wine executable"),
                 "type": "file",
                 "advanced": True,
-                "help": _("The Wine executable to be used if you have "
-                          'selected "Custom" as the Wine version.'),
+                "help": _(
+                    "The Wine executable to be used if you have "
+                    'selected "Custom" as the Wine version.'
+                ),
             },
             {
                 "option": "system_winetricks",
@@ -203,7 +240,8 @@ class wine(Runner):
                 "help": _(
                     "Use DXVK to "
                     "increase compatibility and performance in Direct3D 11, 10 "
-                    "and 9 applications by translating their calls to Vulkan."),
+                    "and 9 applications by translating their calls to Vulkan."
+                ),
             },
             {
                 "option": "dxvk_version",
@@ -213,7 +251,6 @@ class wine(Runner):
                 "choices": DXVKManager().version_choices,
                 "default": DXVKManager().version,
             },
-
             {
                 "option": "vkd3d",
                 "label": _("Enable VKD3D"),
@@ -224,7 +261,8 @@ class wine(Runner):
                 "active": True,
                 "help": _(
                     "Use VKD3D to enable support for Direct3D 12 "
-                    "applications by translating their calls to Vulkan."),
+                    "applications by translating their calls to Vulkan."
+                ),
             },
             {
                 "option": "vkd3d_version",
@@ -444,8 +482,10 @@ class wine(Runner):
                     (_("Full (CAUTION: Will cause MASSIVE slowdown)"), "+all"),
                 ],
                 "default": "-all",
-                "help": _("Output debugging information in the game log "
-                          "(might affect performance)"),
+                "help": _(
+                    "Output debugging information in the game log "
+                    "(might affect performance)"
+                ),
             },
             {
                 "option": "ShowCrashDialog",
@@ -460,9 +500,10 @@ class wine(Runner):
                 "label": _("Autoconfigure joypads"),
                 "advanced": True,
                 "default": False,
-                "help":
-                _("Automatically disables one of Wine's detected joypad "
-                  "to avoid having 2 controllers detected"),
+                "help": _(
+                    "Automatically disables one of Wine's detected joypad "
+                    "to avoid having 2 controllers detected"
+                ),
             },
             {
                 "option": "sandbox",
@@ -488,7 +529,9 @@ class wine(Runner):
     @property
     def context_menu_entries(self):
         """Return the contexual menu entries for wine"""
-        menu_entries = [("wineexec", _("Run EXE inside Wine prefix"), self.run_wineexec)]
+        menu_entries = [
+            ("wineexec", _("Run EXE inside Wine prefix"), self.run_wineexec)
+        ]
         if "Proton" not in self.get_version():
             menu_entries.append(("winecfg", _("Wine configuration"), self.run_winecfg))
         menu_entries += [
@@ -503,8 +546,7 @@ class wine(Runner):
     @property
     def prefix_path(self):
         """Return the absolute path of the Wine prefix"""
-        _prefix_path = self.game_config.get("prefix") \
-            or os.environ.get("WINEPREFIX")
+        _prefix_path = self.game_config.get("prefix") or os.environ.get("WINEPREFIX")
         if not _prefix_path and self.game_config.get("exe"):
             # Find prefix from game if we have one
             _prefix_path = find_prefix(self.game_exe)
@@ -692,14 +734,18 @@ class wine(Runner):
             terminal=terminal,
             wine_path=self.get_executable(),
             prefix=self.prefix_path,
-            env=self.get_env(os_env=True)
+            env=self.get_env(os_env=True),
         )
 
     def run_winetricks(self, *args):
         """Run winetricks in the current context"""
         self.prelaunch()
         winetricks(
-            "", prefix=self.prefix_path, wine_path=self.get_executable(), config=self, env=self.get_env(os_env=True)
+            "",
+            prefix=self.prefix_path,
+            wine_path=self.get_executable(),
+            config=self,
+            env=self.get_env(os_env=True),
         )
 
     def run_winecpl(self, *args):
@@ -789,8 +835,12 @@ class wine(Runner):
 
     def prelaunch(self):
         if not system.path_exists(os.path.join(self.prefix_path, "user.reg")):
-            logger.warning("No valid prefix detected in %s, creating one...", self.prefix_path)
-            create_prefix(self.prefix_path, wine_path=self.get_executable(), arch=self.wine_arch)
+            logger.warning(
+                "No valid prefix detected in %s, creating one...", self.prefix_path
+            )
+            create_prefix(
+                self.prefix_path, wine_path=self.get_executable(), arch=self.wine_arch
+            )
 
         prefix_manager = WinePrefixManager(self.prefix_path)
         if self.runner_config.get("autoconf_joypad", False):
@@ -801,27 +851,27 @@ class wine(Runner):
         self.setup_dlls(
             DXVKManager,
             bool(self.runner_config.get("dxvk")),
-            self.runner_config.get("dxvk_version")
+            self.runner_config.get("dxvk_version"),
         )
         self.setup_dlls(
             VKD3DManager,
             bool(self.runner_config.get("vkd3d")),
-            self.runner_config.get("vkd3d_version")
+            self.runner_config.get("vkd3d_version"),
         )
         self.setup_dlls(
             DXVKNVAPIManager,
             bool(self.runner_config.get("dxvk_nvapi")),
-            self.runner_config.get("dxvk_nvapi_version")
+            self.runner_config.get("dxvk_nvapi_version"),
         )
         self.setup_dlls(
             D3DExtrasManager,
             bool(self.runner_config.get("d3d_extras")),
-            self.runner_config.get("d3d_extras_version")
+            self.runner_config.get("d3d_extras_version"),
         )
         self.setup_dlls(
             dgvoodoo2Manager,
             bool(self.runner_config.get("dgvoodoo2")),
-            self.runner_config.get("dgvoodoo2_version")
+            self.runner_config.get("dgvoodoo2_version"),
         )
         return True
 
@@ -852,7 +902,9 @@ class wine(Runner):
         env["WINEARCH"] = self.wine_arch
         env["WINE"] = self.get_executable()
         env["WINE_MONO_CACHE_DIR"] = os.path.join(WINE_DIR, self.get_version(), "mono")
-        env["WINE_GECKO_CACHE_DIR"] = os.path.join(WINE_DIR, self.get_version(), "gecko")
+        env["WINE_GECKO_CACHE_DIR"] = os.path.join(
+            WINE_DIR, self.get_version(), "gecko"
+        )
         if is_gstreamer_build(self.get_executable()):
             path_64 = os.path.join(WINE_DIR, self.get_version(), "lib64/gstreamer-1.0/")
             path_32 = os.path.join(WINE_DIR, self.get_version(), "lib/gstreamer-1.0/")
@@ -875,10 +927,14 @@ class wine(Runner):
             env["DXVK_ENABLE_NVAPI"] = "1"
 
         if self.runner_config.get("battleye"):
-            env["PROTON_BATTLEYE_RUNTIME"] = os.path.join(settings.RUNTIME_DIR, "battleye_runtime")
+            env["PROTON_BATTLEYE_RUNTIME"] = os.path.join(
+                settings.RUNTIME_DIR, "battleye_runtime"
+            )
 
         if self.runner_config.get("eac"):
-            env["PROTON_EAC_RUNTIME"] = os.path.join(settings.RUNTIME_DIR, "eac_runtime")
+            env["PROTON_EAC_RUNTIME"] = os.path.join(
+                settings.RUNTIME_DIR, "eac_runtime"
+            )
 
         overrides = self.get_dll_overrides()
         if overrides:
@@ -916,12 +972,16 @@ class wine(Runner):
         # Add wineserver PIDs to the mix (at least one occurence of fuser not
         # picking the games's PID from wine/wine64 but from wineserver for some
         # unknown reason.
-        pids = pids | system.get_pids_using_file(os.path.join(os.path.dirname(exe), "wineserver"))
+        pids = pids | system.get_pids_using_file(
+            os.path.join(os.path.dirname(exe), "wineserver")
+        )
         return pids
 
     def sandbox(self, wine_prefix):
         if self.runner_config.get("sandbox", True):
-            wine_prefix.desktop_integration(desktop_dir=self.runner_config.get("sandbox_dir"))
+            wine_prefix.desktop_integration(
+                desktop_dir=self.runner_config.get("sandbox_dir")
+            )
         else:
             wine_prefix.desktop_integration(restore=True)
 

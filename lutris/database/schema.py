@@ -4,134 +4,39 @@ from lutris.util.log import logger
 
 DATABASE = {
     "games": [
-        {
-            "name": "id",
-            "type": "INTEGER",
-            "indexed": True
-        },
-        {
-            "name": "name",
-            "type": "TEXT"
-        },
-        {
-            "name": "slug",
-            "type": "TEXT"
-        },
-        {
-            "name": "installer_slug",
-            "type": "TEXT"
-        },
-        {
-            "name": "parent_slug",
-            "type": "TEXT"
-        },
-        {
-            "name": "platform",
-            "type": "TEXT"
-        },
-        {
-            "name": "runner",
-            "type": "TEXT"
-        },
-        {
-            "name": "executable",
-            "type": "TEXT"
-        },
-        {
-            "name": "directory",
-            "type": "TEXT"
-        },
-        {
-            "name": "updated",
-            "type": "DATETIME"
-        },
-        {
-            "name": "lastplayed",
-            "type": "INTEGER"
-        },
-        {
-            "name": "installed",
-            "type": "INTEGER"
-        },
-        {
-            "name": "installed_at",
-            "type": "INTEGER"
-        },
-        {
-            "name": "year",
-            "type": "INTEGER"
-        },
-        {
-            "name": "configpath",
-            "type": "TEXT"
-        },
-        {
-            "name": "has_custom_banner",
-            "type": "INTEGER"
-        },
-        {
-            "name": "has_custom_icon",
-            "type": "INTEGER"
-        },
-        {
-            "name": "playtime",
-            "type": "REAL"
-        },
-        {
-            "name": "hidden",
-            "type": "INTEGER"
-        },
-        {
-            "name": "service",
-            "type": "TEXT"
-        },
-        {
-            "name": "service_id",
-            "type": "TEXT"
-        }
+        {"name": "id", "type": "INTEGER", "indexed": True},
+        {"name": "name", "type": "TEXT"},
+        {"name": "slug", "type": "TEXT"},
+        {"name": "installer_slug", "type": "TEXT"},
+        {"name": "parent_slug", "type": "TEXT"},
+        {"name": "platform", "type": "TEXT"},
+        {"name": "runner", "type": "TEXT"},
+        {"name": "executable", "type": "TEXT"},
+        {"name": "directory", "type": "TEXT"},
+        {"name": "updated", "type": "DATETIME"},
+        {"name": "lastplayed", "type": "INTEGER"},
+        {"name": "installed", "type": "INTEGER"},
+        {"name": "installed_at", "type": "INTEGER"},
+        {"name": "year", "type": "INTEGER"},
+        {"name": "configpath", "type": "TEXT"},
+        {"name": "has_custom_banner", "type": "INTEGER"},
+        {"name": "has_custom_icon", "type": "INTEGER"},
+        {"name": "playtime", "type": "REAL"},
+        {"name": "hidden", "type": "INTEGER"},
+        {"name": "service", "type": "TEXT"},
+        {"name": "service_id", "type": "TEXT"},
     ],
     "service_games": [
-        {
-            "name": "id",
-            "type": "INTEGER",
-            "indexed": True
-        },
-        {
-            "name": "service",
-            "type": "TEXT"
-        },
-        {
-            "name": "appid",
-            "type": "TEXT"
-        },
-        {
-            "name": "name",
-            "type": "TEXT"
-        },
-        {
-            "name": "slug",
-            "type": "TEXT"
-        },
-        {
-            "name": "icon",
-            "type": "TEXT"
-        },
-        {
-            "name": "logo",
-            "type": "TEXT"
-        },
-        {
-            "name": "url",
-            "type": "TEXT"
-        },
-        {
-            "name": "details",
-            "type": "TEXT"
-        },
-        {
-            "name": "lutris_slug",
-            "type": "TEXT"
-        },
+        {"name": "id", "type": "INTEGER", "indexed": True},
+        {"name": "service", "type": "TEXT"},
+        {"name": "appid", "type": "TEXT"},
+        {"name": "name", "type": "TEXT"},
+        {"name": "slug", "type": "TEXT"},
+        {"name": "icon", "type": "TEXT"},
+        {"name": "logo", "type": "TEXT"},
+        {"name": "url", "type": "TEXT"},
+        {"name": "details", "type": "TEXT"},
+        {"name": "lutris_slug", "type": "TEXT"},
     ],
     "sources": [
         {"name": "id", "type": "INTEGER", "indexed": True},
@@ -144,7 +49,7 @@ DATABASE = {
     "games_categories": [
         {"name": "game_id", "type": "INTEGER", "indexed": False},
         {"name": "category_id", "type": "INTEGER", "indexed": False},
-    ]
+    ],
 }
 
 
@@ -173,7 +78,9 @@ def get_schema(tablename):
     return tables
 
 
-def field_to_string(name="", type="", indexed=False, unique=False):  # pylint: disable=redefined-builtin
+def field_to_string(
+    name="", type="", indexed=False, unique=False
+):  # pylint: disable=redefined-builtin
     """Converts a python based table definition to it's SQL statement"""
     field_query = "%s %s" % (name, type)
     if indexed:

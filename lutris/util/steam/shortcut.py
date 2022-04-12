@@ -30,11 +30,8 @@ def vdf_file_exists():
 
 def shortcut_exists(game, shortcut_path):
     with open(shortcut_path, "rb") as shortcut_file:
-        shortcuts = vdf.binary_loads(shortcut_file.read())['shortcuts'].values()
-    shortcut_found = [
-        s for s in shortcuts
-        if matches_appname(s, game)
-    ]
+        shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
+    shortcut_found = [s for s in shortcuts if matches_appname(s, game)]
     if not shortcut_found:
         return False
     return True
@@ -49,11 +46,8 @@ def all_shortcuts_set(game):
         shortcuts_found = 0
         for shortcut_path in paths_shortcut:
             with open(shortcut_path, "rb") as shortcut_file:
-                shortcuts = vdf.binary_loads(shortcut_file.read())['shortcuts'].values()
-            shortcut_found = [
-                s for s in shortcuts
-                if matches_appname(s, game)
-            ]
+                shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
+            shortcut_found = [s for s in shortcuts if matches_appname(s, game)]
             shortcuts_found += len(shortcut_found)
 
         if len(paths_shortcut) == shortcuts_found:
@@ -65,7 +59,7 @@ def all_shortcuts_set(game):
 
 
 def has_steamtype_runner(game):
-    steamtype_runners = ['steam', 'winesteam']
+    steamtype_runners = ["steam", "winesteam"]
     for runner in steamtype_runners:
         if runner == game.runner_name:
             return True
@@ -87,12 +81,13 @@ def remove_all_shortcuts(game):
 
 def create_shortcut(game, shortcut_path):
     with open(shortcut_path, "rb") as shortcut_file:
-        shortcuts = vdf.binary_loads(shortcut_file.read())['shortcuts'].values()
+        shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
     existing_shortcuts = list(shortcuts)
     add_shortcut = [generate_shortcut(game)]
     updated_shortcuts = {
-        'shortcuts': {
-            str(index): elem for index, elem in enumerate(existing_shortcuts + add_shortcut)
+        "shortcuts": {
+            str(index): elem
+            for index, elem in enumerate(existing_shortcuts + add_shortcut)
         }
     }
     with open(shortcut_path, "wb") as shortcut_file:
@@ -102,23 +97,15 @@ def create_shortcut(game, shortcut_path):
 
 def remove_shortcut(game, shortcut_path):
     with open(shortcut_path, "rb") as shortcut_file:
-        shortcuts = vdf.binary_loads(shortcut_file.read())['shortcuts'].values()
-    shortcut_found = [
-        s for s in shortcuts
-        if matches_appname(s, game)
-    ]
+        shortcuts = vdf.binary_loads(shortcut_file.read())["shortcuts"].values()
+    shortcut_found = [s for s in shortcuts if matches_appname(s, game)]
 
     if not shortcut_found:
         return
 
-    other_shortcuts = [
-        s for s in shortcuts
-        if not matches_appname(s, game)
-    ]
+    other_shortcuts = [s for s in shortcuts if not matches_appname(s, game)]
     updated_shortcuts = {
-        'shortcuts': {
-            str(index): elem for index, elem in enumerate(other_shortcuts)
-        }
+        "shortcuts": {str(index): elem for index, elem in enumerate(other_shortcuts)}
     }
     with open(shortcut_path, "wb") as shortcut_file:
         shortcut_file.write(vdf.binary_dumps(updated_shortcuts))
@@ -130,36 +117,36 @@ def generate_shortcut(game):
     gameId = game.id
     icon = resources.get_icon_path(slug)
     lutris_binary = shutil.which("lutris")
-    launch_options = f'lutris:rungameid/{gameId}'
+    launch_options = f"lutris:rungameid/{gameId}"
     if lutris_binary == "/app/bin/lutris":
         lutris_binary = "flatpak"
         launch_options = "run net.lutris.Lutris " + launch_options
     start_dir = os.path.dirname(lutris_binary)
 
     return {
-        'appid': "lutris-{}".format(slug),
-        'AllowDesktopConfig': 1,
-        'AllowOverlay': 1,
-        'AppName': name,
-        'Devkit': 0,
-        'DevkitGameID': '',
-        'Exe': f'"{lutris_binary}"',
-        'IsHidden': 0,
-        'LastPlayTime': 0,
-        'LaunchOptions': launch_options,
-        'OpenVR': 0,
-        'ShortcutPath': '',
-        'StartDir': f'"{start_dir}"',
-        'icon': icon,
-        'tags': {  # has been replaced by "collections" in steam. Tags are not visible in the UI anymore.
-            '0': "Lutris"   # to identify generated shortcuts
-        }
+        "appid": "lutris-{}".format(slug),
+        "AllowDesktopConfig": 1,
+        "AllowOverlay": 1,
+        "AppName": name,
+        "Devkit": 0,
+        "DevkitGameID": "",
+        "Exe": f'"{lutris_binary}"',
+        "IsHidden": 0,
+        "LastPlayTime": 0,
+        "LaunchOptions": launch_options,
+        "OpenVR": 0,
+        "ShortcutPath": "",
+        "StartDir": f'"{start_dir}"',
+        "icon": icon,
+        "tags": {  # has been replaced by "collections" in steam. Tags are not visible in the UI anymore.
+            "0": "Lutris"  # to identify generated shortcuts
+        },
     }
 
 
 def matches_appname(shortcut, game):
     """Test if the game seems to be the one a shortcut refers to."""
-    appname = shortcut.get('AppName') or shortcut.get('appname')
+    appname = shortcut.get("AppName") or shortcut.get("appname")
     return appname and game.name in appname
 
 
@@ -167,7 +154,7 @@ def get_steam_shortcut_id(game):
     lutris_binary = shutil.which("lutris")
     exe = f'"{lutris_binary}"'
     appname = "{} ({})".format(game.name, game.runner_name)
-    unique_id = ''.join([exe, appname])
+    unique_id = "".join([exe, appname])
     return binascii.crc32(str.encode(unique_id)) | 0x80000000
 
 

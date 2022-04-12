@@ -44,11 +44,9 @@ class XDGService(BaseService):
     icon = "linux"
     online = False
     local = True
-    medias = {
-        "icon": XDGMedia
-    }
+    medias = {"icon": XDGMedia}
 
-    ignored_games = ("lutris", )
+    ignored_games = ("lutris",)
     ignored_executables = ("lutris", "steam")
     ignored_categories = ("Emulator", "Development", "Utility")
 
@@ -62,7 +60,9 @@ class XDGService(BaseService):
     @property
     def lutris_games(self):
         """Iterates through Lutris games imported from XDG"""
-        for game in get_games_where(runner=XDGGame.runner, installer_slug=XDGGame.installer_slug, installed=1):
+        for game in get_games_where(
+            runner=XDGGame.runner, installer_slug=XDGGame.installer_slug, installed=1
+        ):
             yield game
 
     @classmethod
@@ -88,7 +88,13 @@ class XDGService(BaseService):
             return False
 
         # contains a blacklisted category
-        if bool([category for category in categories if category in map(str.lower, cls.ignored_categories)]):
+        if bool(
+            [
+                category
+                for category in categories
+                if category in map(str.lower, cls.ignored_categories)
+            ]
+        ):
             return False
         return True
 
@@ -116,8 +122,8 @@ class XDGService(BaseService):
                     "exe": details["exe"],
                     "args": details["args"],
                 },
-                "system": {"disable_runtime": True}
-            }
+                "system": {"disable_runtime": True},
+            },
         }
 
     def get_game_directory(self, installer):
@@ -149,10 +155,12 @@ class XDGGame(ServiceGame):
         service_game.appid = get_appid(xdg_app)
         service_game.slug = cls.get_slug(xdg_app)
         exe, args = cls.get_command_args(xdg_app)
-        service_game.details = json.dumps({
-            "exe": exe,
-            "args": args,
-        })
+        service_game.details = json.dumps(
+            {
+                "exe": exe,
+                "args": args,
+            }
+        )
         return service_game
 
     @staticmethod
@@ -160,7 +168,9 @@ class XDGGame(ServiceGame):
         """Return a tuple with absolute command path and an argument string"""
         command = shlex.split(app.get_commandline())
         # remove %U etc. and change %% to % in arguments
-        args = list(map(lambda arg: re.sub("%[^%]", "", arg).replace("%%", "%"), command[1:]))
+        args = list(
+            map(lambda arg: re.sub("%[^%]", "", arg).replace("%%", "%"), command[1:])
+        )
         exe = command[0]
         if not exe.startswith("/"):
             exe = system.find_executable(exe)

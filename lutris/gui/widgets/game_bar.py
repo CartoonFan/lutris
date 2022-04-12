@@ -13,18 +13,33 @@ from lutris.util.strings import gtk_safe
 class GameBar(Gtk.Box):
     def __init__(self, db_game, game_actions, application):
         """Create the game bar with a database row"""
-        super().__init__(orientation=Gtk.Orientation.VERTICAL, visible=True,
-                         margin_top=12,
-                         margin_left=12,
-                         margin_bottom=12,
-                         margin_right=12,
-                         spacing=6)
-        self.game_start_hook_id = GObject.add_emission_hook(Game, "game-start", self.on_game_state_changed)
-        self.game_started_hook_id = GObject.add_emission_hook(Game, "game-started", self.on_game_state_changed)
-        self.game_stopped_hook_id = GObject.add_emission_hook(Game, "game-stopped", self.on_game_state_changed)
-        self.game_updated_hook_id = GObject.add_emission_hook(Game, "game-updated", self.on_game_state_changed)
-        self.game_removed_hook_id = GObject.add_emission_hook(Game, "game-removed", self.on_game_state_changed)
-        self.game_installed_hook_id = GObject.add_emission_hook(Game, "game-installed", self.on_game_state_changed)
+        super().__init__(
+            orientation=Gtk.Orientation.VERTICAL,
+            visible=True,
+            margin_top=12,
+            margin_left=12,
+            margin_bottom=12,
+            margin_right=12,
+            spacing=6,
+        )
+        self.game_start_hook_id = GObject.add_emission_hook(
+            Game, "game-start", self.on_game_state_changed
+        )
+        self.game_started_hook_id = GObject.add_emission_hook(
+            Game, "game-started", self.on_game_state_changed
+        )
+        self.game_stopped_hook_id = GObject.add_emission_hook(
+            Game, "game-stopped", self.on_game_state_changed
+        )
+        self.game_updated_hook_id = GObject.add_emission_hook(
+            Game, "game-updated", self.on_game_state_changed
+        )
+        self.game_removed_hook_id = GObject.add_emission_hook(
+            Game, "game-removed", self.on_game_state_changed
+        )
+        self.game_installed_hook_id = GObject.add_emission_hook(
+            Game, "game-installed", self.on_game_state_changed
+        )
         self.connect("destroy", self.on_destroy)
 
         self.set_margin_bottom(12)
@@ -66,7 +81,9 @@ class GameBar(Gtk.Box):
         GObject.remove_emission_hook(Game, "game-stopped", self.game_stopped_hook_id)
         GObject.remove_emission_hook(Game, "game-updated", self.game_updated_hook_id)
         GObject.remove_emission_hook(Game, "game-removed", self.game_removed_hook_id)
-        GObject.remove_emission_hook(Game, "game-installed", self.game_installed_hook_id)
+        GObject.remove_emission_hook(
+            Game, "game-installed", self.game_installed_hook_id
+        )
         return True
 
     def clear_view(self):
@@ -114,7 +131,9 @@ class GameBar(Gtk.Box):
         """Return the label with the game's title"""
         title_label = Gtk.Label(visible=True)
         title_label.set_ellipsize(Pango.EllipsizeMode.END)
-        title_label.set_markup("<span font_desc='16'><b>%s</b></span>" % gtk_safe(self.game.name))
+        title_label.set_markup(
+            "<span font_desc='16'><b>%s</b></span>" % gtk_safe(self.game.name)
+        )
         return title_label
 
     def get_runner_button(self):
@@ -156,7 +175,9 @@ class GameBar(Gtk.Box):
         playtime_label = Gtk.Label(visible=True)
         playtime_label.set_size_request(120, -1)
         playtime_label.set_alignment(0, 0.5)
-        playtime_label.set_markup(_("Time played:\n<b>%s</b>") % self.game.formatted_playtime)
+        playtime_label.set_markup(
+            _("Time played:\n<b>%s</b>") % self.game.formatted_playtime
+        )
         return playtime_label
 
     def get_last_played_label(self):
@@ -165,7 +186,9 @@ class GameBar(Gtk.Box):
         last_played_label.set_size_request(120, -1)
         last_played_label.set_alignment(0, 0.5)
         lastplayed = datetime.fromtimestamp(self.game.lastplayed)
-        last_played_label.set_markup(_("Last played:\n<b>%s</b>") % lastplayed.strftime("%b %-d %Y"))
+        last_played_label.set_markup(
+            _("Last played:\n<b>%s</b>") % lastplayed.strftime("%b %-d %Y")
+        )
         return last_played_label
 
     def get_popover_button(self):
@@ -216,7 +239,9 @@ class GameBar(Gtk.Box):
                 if self.service.drm_free:
                     button.set_size_request(84, 32)
                     box.add(button)
-                    popover = self.get_popover(self.get_locate_installed_game_button(), popover_button)
+                    popover = self.get_popover(
+                        self.get_locate_installed_game_button(), popover_button
+                    )
                     popover_button.set_popover(popover)
                     box.add(popover_button)
                     return box
@@ -269,10 +294,7 @@ class GameBar(Gtk.Box):
 
     def on_game_state_changed(self, game):
         """Handler called when the game has changed state"""
-        if (
-            game.id == self.game.id
-            or (self.appid and game.appid == self.appid)
-        ):
+        if game.id == self.game.id or (self.appid and game.appid == self.appid):
             self.game = game
         else:
             return True

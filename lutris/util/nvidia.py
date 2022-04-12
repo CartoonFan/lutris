@@ -25,6 +25,7 @@ class LinkMap(Structure):
         /* Plus additional fields private to the implementation */
     };
     """
+
     _fields_ = [("l_addr", c_void_p), ("l_name", c_char_p), ("l_ld", c_void_p)]
 
 
@@ -57,7 +58,8 @@ def get_nvidia_glx_path():
     if (
         dlinfo_func(
             libglx_nvidia._handle, RTLD_DI_LINKMAP, addressof(glx_nvidia_info_ptr)
-        ) != 0
+        )
+        != 0
     ):
         logger.error("Unable to read Nvidia information")
         return None

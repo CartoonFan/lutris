@@ -28,7 +28,7 @@ def get_gog_config(gog_game_path):
         logger.error("No config file found in %s", gog_game_path)
         return
     gog_config_path = os.path.join(gog_game_path, config_filename[0])
-    with open(gog_config_path, encoding='utf-8') as gog_config_file:
+    with open(gog_config_path, encoding="utf-8") as gog_config_file:
         gog_config = json.loads(gog_config_file.read())
     return gog_config
 

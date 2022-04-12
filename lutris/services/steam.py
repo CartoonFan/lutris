@@ -17,7 +17,11 @@ from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util.log import logger
 from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
-from lutris.util.steam.config import get_steam_library, get_steamapps_paths, get_user_steam_id
+from lutris.util.steam.config import (
+    get_steam_library,
+    get_steamapps_paths,
+    get_user_steam_id,
+)
 from lutris.util.strings import slugify
 
 
@@ -99,7 +103,11 @@ class SteamService(BaseService):
             return
         steam_games = get_steam_library(steamid)
         if not steam_games:
-            raise RuntimeError(_("Failed to load games. Check that your profile is set to public during the sync."))
+            raise RuntimeError(
+                _(
+                    "Failed to load games. Check that your profile is set to public during the sync."
+                )
+            )
         for steam_game in steam_games:
             if steam_game["appid"] in self.excluded_appids:
                 continue
@@ -113,10 +121,11 @@ class SteamService(BaseService):
         steam_uri = "$STEAM:%s:."
         appid = str(installer.script["game"]["appid"])
         return [
-            InstallerFile(installer.game_slug, "steam_game", {
-                "url": steam_uri % appid,
-                "filename": appid
-            })
+            InstallerFile(
+                installer.game_slug,
+                "steam_game",
+                {"url": steam_uri % appid, "filename": appid},
+            )
         ]
 
     def install_from_steam(self, manifest):
@@ -198,14 +207,14 @@ class SteamService(BaseService):
             "game_slug": slugify(db_game["name"]),
             "runner": self.runner,
             "appid": db_game["appid"],
-            "script": {
-                "game": {"appid": db_game["appid"]}
-            }
+            "script": {"game": {"appid": db_game["appid"]}},
         }
 
     def install(self, db_game):
         appid = db_game["appid"]
-        db_games = get_games(filters={"service_id": appid, "installed": "1", "service": self.id})
+        db_games = get_games(
+            filters={"service_id": appid, "installed": "1", "service": self.id}
+        )
         existing_game = self.match_existing_game(db_games, appid)
         if existing_game:
             logger.debug("Found steam game: %s", existing_game)

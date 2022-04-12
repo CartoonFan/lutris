@@ -78,7 +78,9 @@ class Runtime:
         if not url:
             return self.download_components()
         remote_updated_at = remote_runtime_info["created_at"]
-        remote_updated_at = time.strptime(remote_updated_at[:remote_updated_at.find(".")], "%Y-%m-%dT%H:%M:%S")
+        remote_updated_at = time.strptime(
+            remote_updated_at[: remote_updated_at.find(".")], "%Y-%m-%dT%H:%M:%S"
+        )
         if not self.should_update(remote_updated_at):
             return None
 
@@ -116,7 +118,8 @@ class Runtime:
         downloads = []
         for component in components:
             modified_at = time.strptime(
-                component["modified_at"][:component["modified_at"].find(".")], "%Y-%m-%dT%H:%M:%S"
+                component["modified_at"][: component["modified_at"].find(".")],
+                "%Y-%m-%dT%H:%M:%S",
             )
             if not self.should_update_component(component["filename"], modified_at):
                 continue
@@ -124,7 +127,9 @@ class Runtime:
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             future_downloads = {
-                executor.submit(self.download_component, component): component["filename"]
+                executor.submit(self.download_component, component): component[
+                    "filename"
+                ]
                 for component in downloads
             }
             for future in concurrent.futures.as_completed(future_downloads):
@@ -166,7 +171,13 @@ class Runtime:
         system.remove_folder(initial_path)
 
         # Extract the runtime archive
-        jobs.AsyncCall(extract_archive, self.on_extracted, path, settings.RUNTIME_DIR, merge_single=False)
+        jobs.AsyncCall(
+            extract_archive,
+            self.on_extracted,
+            path,
+            settings.RUNTIME_DIR,
+            merge_single=False,
+        )
         return False
 
     def on_extracted(self, result, error):
@@ -220,7 +231,8 @@ class RuntimeUpdater:
 
             # Skip 32bit runtimes on 64 bit systems except the main runtime
             if (
-                runtime["architecture"] == "i386" and LINUX_SYSTEM.is_64_bit
+                runtime["architecture"] == "i386"
+                and LINUX_SYSTEM.is_64_bit
                 and not runtime["name"].startswith(("Ubuntu", "lib32"))
             ):
                 logger.debug(
@@ -261,7 +273,11 @@ def get_env(version=None, prefer_system_libs=False, wine_path=None):
     Returns:
         dict
     """
-    library_path = ":".join(get_paths(version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path))
+    library_path = ":".join(
+        get_paths(
+            version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path
+        )
+    )
     env = {}
     if library_path:
         env["LD_LIBRARY_PATH"] = library_path
@@ -316,7 +332,9 @@ def get_runtime_paths(version=None, prefer_system_libs=True, wine_path=None):
 def get_paths(version=None, prefer_system_libs=True, wine_path=None):
     """Return a list of paths containing the runtime libraries."""
     if not RUNTIME_DISABLED:
-        paths = get_runtime_paths(version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path)
+        paths = get_runtime_paths(
+            version=version, prefer_system_libs=prefer_system_libs, wine_path=wine_path
+        )
     else:
         paths = []
     # Put existing LD_LIBRARY_PATH at the end

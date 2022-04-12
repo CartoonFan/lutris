@@ -15,8 +15,13 @@ from lutris.util.strings import split_arguments
 from lutris.util.wine.cabinstall import CabInstaller
 from lutris.util.wine.prefix import WinePrefixManager
 from lutris.util.wine.wine import (
-    WINE_DEFAULT_ARCH, WINE_DIR, detect_arch, detect_prefix_arch, get_overrides_env, get_real_executable,
-    use_lutris_runtime
+    WINE_DEFAULT_ARCH,
+    WINE_DIR,
+    detect_arch,
+    detect_prefix_arch,
+    get_overrides_env,
+    get_real_executable,
+    use_lutris_runtime,
 )
 
 
@@ -42,8 +47,10 @@ def set_regedit(
     }
     # Make temporary reg file
     reg_path = os.path.join(settings.CACHE_DIR, "winekeys.reg")
-    with open(reg_path, "w", encoding='utf-8') as reg_file:
-        reg_file.write('REGEDIT4\n\n[%s]\n"%s"=%s\n' % (path, key, formatted_value[type]))
+    with open(reg_path, "w", encoding="utf-8") as reg_file:
+        reg_file.write(
+            'REGEDIT4\n\n[%s]\n"%s"=%s\n' % (path, key, formatted_value[type])
+        )
     logger.debug("Setting [%s]:%s=%s", path, key, formatted_value[type])
     set_regedit_file(reg_path, wine_path=wine_path, prefix=prefix, arch=arch)
     os.remove(reg_path)
@@ -123,8 +130,12 @@ def create_prefix(  # noqa: C901
         "WINEARCH": arch,
         "WINEPREFIX": prefix,
         "WINEDLLOVERRIDES": get_overrides_env(overrides),
-        "WINE_MONO_CACHE_DIR": os.path.join(os.path.dirname(os.path.dirname(wine_path)), "mono"),
-        "WINE_GECKO_CACHE_DIR": os.path.join(os.path.dirname(os.path.dirname(wine_path)), "gecko"),
+        "WINE_MONO_CACHE_DIR": os.path.join(
+            os.path.dirname(os.path.dirname(wine_path)), "mono"
+        ),
+        "WINE_GECKO_CACHE_DIR": os.path.join(
+            os.path.dirname(os.path.dirname(wine_path)), "gecko"
+        ),
     }
 
     if install_gecko == "False":
@@ -142,14 +153,18 @@ def create_prefix(  # noqa: C901
         if loop_index == 60:
             logger.warning("Wine prefix creation is taking longer than expected...")
     if not os.path.exists(os.path.join(prefix, "user.reg")):
-        logger.error("No user.reg found after prefix creation. " "Prefix might not be valid")
+        logger.error(
+            "No user.reg found after prefix creation. " "Prefix might not be valid"
+        )
         return
     logger.info("%s Prefix created in %s", arch, prefix)
     prefix_manager = WinePrefixManager(prefix)
     prefix_manager.setup_defaults()
 
 
-def winekill(prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_pids=None):
+def winekill(
+    prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_pids=None
+):
     """Kill processes in Wine prefix."""
 
     initial_pids = initial_pids or []
@@ -175,7 +190,9 @@ def winekill(prefix, arch=WINE_DEFAULT_ARCH, wine_path=None, env=None, initial_p
     num_cycles = 0
     while True:
         num_cycles += 1
-        running_processes = [pid for pid in initial_pids if system.path_exists("/proc/%s" % pid)]
+        running_processes = [
+            pid for pid in initial_pids if system.path_exists("/proc/%s" % pid)
+        ]
 
         if not running_processes:
             break
@@ -329,7 +346,9 @@ def winetricks(
     """Execute winetricks."""
     wine_config = config or LutrisConfig(runner_slug="wine")
     winetricks_path = os.path.join(settings.RUNTIME_DIR, "winetricks/winetricks")
-    if (wine_config.runner_config.get("system_winetricks") or not system.path_exists(winetricks_path)):
+    if wine_config.runner_config.get("system_winetricks") or not system.path_exists(
+        winetricks_path
+    ):
         winetricks_path = system.find_executable("winetricks")
         if not winetricks_path:
             raise RuntimeError("No installation of winetricks found")

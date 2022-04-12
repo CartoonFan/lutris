@@ -9,8 +9,8 @@ from lutris.gui.views import COL_ID
 class GameView:
     # pylint: disable=no-member
     __gsignals__ = {
-        "game-selected": (GObject.SIGNAL_RUN_FIRST, None, (Gtk.TreeIter, )),
-        "game-activated": (GObject.SIGNAL_RUN_FIRST, None, (str, )),
+        "game-selected": (GObject.SIGNAL_RUN_FIRST, None, (Gtk.TreeIter,)),
+        "game-activated": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "remove-game": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 

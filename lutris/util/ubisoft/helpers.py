@@ -1,4 +1,3 @@
-
 import os
 
 from lutris.util.log import logger
@@ -17,20 +16,26 @@ def _get_registry_value_from_path(registry_path, key):
 def _return_local_game_path_from_special_registry(special_registry_path):
     if not special_registry_path:
         return NOT_INSTALLED
-    return _get_registry_value_from_path("HKEY_LOCAL_MACHINE" + special_registry_path, "InstallLocation")
+    return _get_registry_value_from_path(
+        "HKEY_LOCAL_MACHINE" + special_registry_path, "InstallLocation"
+    )
 
 
 def _return_local_game_path(launch_id):
     installs_path = UBISOFT_REGISTRY_LAUNCHER_INSTALLS
     registry = WineRegistry()
-    game_path = registry.query("HKEY_LOCAL_MACHINE" + installs_path + f'\\{launch_id}', 'InstallDir')
+    game_path = registry.query(
+        "HKEY_LOCAL_MACHINE" + installs_path + f"\\{launch_id}", "InstallDir"
+    )
     return os.path.normcase(os.path.normpath(game_path))
 
 
 def get_local_game_path(special_registry_path, launch_id):
     local_game_path = _return_local_game_path(launch_id)
     if not local_game_path and special_registry_path:
-        local_game_path = _return_local_game_path_from_special_registry(special_registry_path)
+        local_game_path = _return_local_game_path_from_special_registry(
+            special_registry_path
+        )
     return local_game_path
 
 
@@ -52,14 +57,16 @@ def _is_file_at_path(path, file):
 
 def _read_status_from_state_file(game_path):
     try:
-        if os.path.exists(os.path.join(game_path, 'uplay_install.state')):
-            with open(os.path.join(game_path, 'uplay_install.state'), 'rb') as f:
+        if os.path.exists(os.path.join(game_path, "uplay_install.state")):
+            with open(os.path.join(game_path, "uplay_install.state"), "rb") as f:
                 if f.read()[0] == 0x0A:
                     return INSTALLED
                 return NOT_INSTALLED
         return NOT_INSTALLED
     except Exception as e:
-        logger.warning("Issue reading install state file for %s: %s", game_path, repr(e))
+        logger.warning(
+            "Issue reading install state file for %s: %s", game_path, repr(e)
+        )
         return NOT_INSTALLED
 
 
@@ -82,7 +89,7 @@ def get_ubisoft_registry(prefix, fullpath):
     if not fullpath:
         return ""
     if fullpath.startswith("HKEY"):
-        path, key = fullpath.rsplit('\\', maxsplit=1)
+        path, key = fullpath.rsplit("\\", maxsplit=1)
         path = convert_ubisoft_key(path)
         return prefix.get_registry_key(path, key)
     return fullpath
@@ -90,7 +97,7 @@ def get_ubisoft_registry(prefix, fullpath):
 
 def convert_ubisoft_key(key_path):
     """Convert Ubisoft registry keys for Wine compatibility"""
-    if 'LOCAL_MACHINE' in key_path:
+    if "LOCAL_MACHINE" in key_path:
         key_path = key_path.replace("SOFTWARE\\", "Software\\Wow6432Node\\")
     key_path = key_path.replace("\\UBISOFT", "\\Ubisoft")
     key_path = key_path.replace("\\", "/")

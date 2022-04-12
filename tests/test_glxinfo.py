@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from lutris.util.graphics.glxinfo import GlxInfo
 
-FIXTURES_PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
+FIXTURES_PATH = os.path.join(os.path.dirname(__file__), "fixtures")
 
 
 class BaseGlxInfo(TestCase):
@@ -20,7 +20,7 @@ class BaseGlxInfo(TestCase):
 
 
 class TestAMDGlxInfo(BaseGlxInfo):
-    fixture = 'glxinfo-amd.txt'
+    fixture = "glxinfo-amd.txt"
 
     """GlxInfo tests"""
 
@@ -29,7 +29,7 @@ class TestAMDGlxInfo(BaseGlxInfo):
         self.assertEqual(self.glxinfo.screen, "0")
         self.assertEqual(
             self.glxinfo.opengl_version,
-            "4.5 (Compatibility Profile) Mesa 19.0.0-devel - padoka PPA"
+            "4.5 (Compatibility Profile) Mesa 19.0.0-devel - padoka PPA",
         )
         self.assertEqual(self.glxinfo.opengl_vendor, "X.Org")
         self.assertEqual(self.glxinfo.GLX_MESA_query_renderer.version, "19.0.0")
@@ -37,7 +37,8 @@ class TestAMDGlxInfo(BaseGlxInfo):
 
 class TestNvidiaGlxInfo(BaseGlxInfo):
     """GlxInfo tests"""
-    fixture = 'glxinfo-nvidia.txt'
+
+    fixture = "glxinfo-nvidia.txt"
 
     def test_can_get_name_of_display(self):
         self.assertEqual(self.glxinfo.display, ":0")

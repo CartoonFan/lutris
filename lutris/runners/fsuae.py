@@ -124,18 +124,20 @@ class fsuae(Runner):
                 "Files ending in .hdf will be mounted as hard drives and "
                 "ISOs can be used for Amiga CD32 and CDTV models."
             ),
-        }, {
+        },
+        {
             "option": "disks",
             "type": "multiple",
             "label": _("Additionnal floppies"),
             "default_path": "game_path",
             "help": _("The additional floppy disk image(s)."),
-        }, {
+        },
+        {
             "option": "cdrom_image",
             "label": _("CD-ROM image"),
             "type": "file",
-            "help": _("CD-ROM image to use on non CD32/CDTV models")
-        }
+            "help": _("CD-ROM image to use on non CD32/CDTV models"),
+        },
     ]
 
     runner_options = [
@@ -177,8 +179,10 @@ class fsuae(Runner):
             "label": _("Scanlines display style"),
             "type": "bool",
             "default": False,
-            "help": _("Activates a display filter adding scanlines to imitate "
-                      "the displays of yesteryear."),
+            "help": _(
+                "Activates a display filter adding scanlines to imitate "
+                "the displays of yesteryear."
+            ),
         },
         {
             "option": "cpumodel",
@@ -187,9 +191,11 @@ class fsuae(Runner):
             "choices": cpumodel_choices,
             "default": "auto",
             "advanced": True,
-            "help": _("Use this option to override the CPU model in the emulated Amiga. All Amiga "
-                      "models imply a default CPU model, so you only need to use this option if you "
-                      "want to use another CPU."),
+            "help": _(
+                "Use this option to override the CPU model in the emulated Amiga. All Amiga "
+                "models imply a default CPU model, so you only need to use this option if you "
+                "want to use another CPU."
+            ),
         },
         {
             "option": "fmemory",
@@ -207,9 +213,11 @@ class fsuae(Runner):
             "choices": zorroiii_choices,
             "default": "0",
             "advanced": True,
-            "help": _("Override the amount of Zorro III Fast memory, specified in KB. Must be a "
-                      "multiple of 1024. The default value depends on [amiga_model]. Requires a "
-                      "processor with 32-bit address bus, (use for example the A1200/020 model)."),
+            "help": _(
+                "Override the amount of Zorro III Fast memory, specified in KB. Must be a "
+                "multiple of 1024. The default value depends on [amiga_model]. Requires a "
+                "processor with 32-bit address bus, (use for example the A1200/020 model)."
+            ),
         },
         {
             "option": "fdvolume",
@@ -218,8 +226,10 @@ class fsuae(Runner):
             "choices": flsound_choices,
             "default": "0",
             "advanced": True,
-            "help": _("Set volume to 0 to disable floppy drive clicks "
-                      "when the drive is empty. Max volume is 100.")
+            "help": _(
+                "Set volume to 0 to disable floppy drive clicks "
+                "when the drive is empty. Max volume is 100."
+            ),
         },
         {
             "option": "fdspeed",
@@ -233,7 +243,7 @@ class fsuae(Runner):
                 "For example, you can specify 800 to get an 8x increase in "
                 "speed. Use 0 to specify turbo mode. Turbo mode means that "
                 "all floppy operations complete immediately. The default is 100 for most models."
-            )
+            ),
         },
         {
             "option": "grafixcard",
@@ -245,7 +255,7 @@ class fsuae(Runner):
             "help": _(
                 "Use this option to enable a graphics card. This option is none by default, in "
                 "which case only chipset graphics (OCS/ECS/AGA) support is available."
-            )
+            ),
         },
         {
             "option": "grafixmemory",
@@ -257,7 +267,7 @@ class fsuae(Runner):
             "help": _(
                 "Override the amount of graphics memory on the graphics card. The 0 MB option is "
                 "not really valid, but exists for user interface reasons."
-            )
+            ),
         },
         {
             "option": "jitcompiler",
@@ -272,8 +282,10 @@ class fsuae(Runner):
             "type": "bool",
             "default": False,
             "advanced": True,
-            "help": _("Automatically uses Feral GameMode daemon if available. "
-                      "Set to true to disable the feature.")
+            "help": _(
+                "Automatically uses Feral GameMode daemon if available. "
+                "Set to true to disable the feature."
+            ),
         },
         {
             "option": "govwarning",
@@ -281,9 +293,10 @@ class fsuae(Runner):
             "type": "bool",
             "default": False,
             "advanced": True,
-            "help":
-            _("Warn if running with a CPU governor other than performance. "
-              "Set to true to disable the warning.")
+            "help": _(
+                "Warn if running with a CPU governor other than performance. "
+                "Set to true to disable the warning."
+            ),
         },
         {
             "option": "bsdsocket",
@@ -376,4 +389,8 @@ class fsuae(Runner):
         return params
 
     def play(self):
-        return {"command": [self.get_executable()] + self.get_params() + self.insert_floppies()}
+        return {
+            "command": [self.get_executable()]
+            + self.get_params()
+            + self.insert_floppies()
+        }

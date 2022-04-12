@@ -4,7 +4,7 @@ import os
 
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 
 
 def setup_test_environment():

@@ -31,12 +31,9 @@ class linux(Runner):
             "help": _("Command line arguments used when launching the game"),
         },
         {
-            "option":
-            "working_dir",
-            "type":
-            "directory_chooser",
-            "label":
-            _("Working directory"),
+            "option": "working_dir",
+            "type": "directory_chooser",
+            "label": _("Working directory"),
             "help": _(
                 "The location where the game is run from.\n"
                 "By default, Lutris uses the directory of the "
@@ -51,14 +48,10 @@ class linux(Runner):
             "help": _("A library to load before running the game's executable."),
         },
         {
-            "option":
-            "ld_library_path",
-            "type":
-            "directory_chooser",
-            "label":
-            _("Add directory to LD_LIBRARY_PATH"),
-            "advanced":
-            True,
+            "option": "ld_library_path",
+            "type": "directory_chooser",
+            "label": _("Add directory to LD_LIBRARY_PATH"),
+            "advanced": True,
             "help": _(
                 "A directory where libraries should be searched for "
                 "first, before the standard set of directories; this is "

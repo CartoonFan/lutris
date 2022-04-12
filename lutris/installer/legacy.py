@@ -12,7 +12,9 @@ def get_game_launcher(script):
     launcher_value = None
     exe = "exe64" if "exe64" in script and linux.LINUX_SYSTEM.is_64_bit else "exe"
     if exe == "exe64":
-        logger.warning("Stop using exe64, use launch configs to add support for 32 bit. Please update the script.")
+        logger.warning(
+            "Stop using exe64, use launch configs to add support for 32 bit. Please update the script."
+        )
     for launcher in (exe, "iso", "rom", "disk", "main_file"):
         if launcher not in script:
             continue

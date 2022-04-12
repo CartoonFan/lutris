@@ -30,12 +30,9 @@ class vice(Runner):
     ]
     game_options = [
         {
-            "option":
-            "main_file",
-            "type":
-            "file",
-            "label":
-            _("ROM file"),
+            "option": "main_file",
+            "type": "file",
+            "label": _("ROM file"),
             "help": _(
                 "The game data, commonly called a ROM image.\n"
                 "Supported formats: X64, D64, G64, P64, D67, D71, D81, "
@@ -49,7 +46,7 @@ class vice(Runner):
             "option": "joy",
             "type": "bool",
             "label": _("Use joysticks"),
-            "default": False
+            "default": False,
         },
         {
             "option": "fullscreen",
@@ -117,7 +114,6 @@ class vice(Runner):
         return os.path.join(settings.RUNNER_DIR, "vice/bin/%s" % executable)
 
     def install(self, version=None, downloader=None, callback=None):
-
         def on_runner_installed(*args):
             config_path = system.create_folder("~/.vice")
             lib_dir = os.path.join(settings.RUNNER_DIR, "vice/lib/vice")

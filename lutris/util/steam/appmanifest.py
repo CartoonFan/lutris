@@ -44,7 +44,7 @@ class AppManifest:
         self.appmanifest_data = {}
 
         if path_exists(appmanifest_path):
-            with open(appmanifest_path, "r", encoding='utf-8') as appmanifest_file:
+            with open(appmanifest_path, "r", encoding="utf-8") as appmanifest_file:
                 self.appmanifest_data = vdf_parse(appmanifest_file, {})
         else:
             logger.error("Path to AppManifest file %s doesn't exist", appmanifest_path)
@@ -99,7 +99,9 @@ class AppManifest:
         """Absolute path of the installation directory"""
         if not self.installdir:
             return None
-        install_path = fix_path_case(os.path.join(self.steamapps_path, "common", self.installdir))
+        install_path = fix_path_case(
+            os.path.join(self.steamapps_path, "common", self.installdir)
+        )
         if install_path and path_exists(install_path):
             return install_path
         return None
@@ -138,4 +140,6 @@ def get_path_from_appmanifest(steamapps_path, appid):
 
 def get_appmanifests(steamapps_path):
     """Return the list for all appmanifest files in a Steam library folder"""
-    return [f for f in os.listdir(steamapps_path) if re.match(r"^appmanifest_\d+.acf$", f)]
+    return [
+        f for f in os.listdir(steamapps_path) if re.match(r"^appmanifest_\d+.acf$", f)
+    ]

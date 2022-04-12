@@ -42,8 +42,8 @@ class SteamWindowsService(SteamService):
                     "exe": steam_game.config.game_config["exe"],
                     "args": "-no-cef-sandbox -applaunch %s" % db_game["appid"],
                     "prefix": steam_game.config.game_config["prefix"],
-                }
-            }
+                },
+            },
         }
 
     def get_steam(self):
@@ -61,7 +61,9 @@ class SteamWindowsService(SteamService):
         else:
             installers = [self.generate_installer(db_game, steam_game)]
             appid = db_game["appid"]
-            db_games = get_games(filters={"service_id": appid, "installed": "1", "service": self.id})
+            db_games = get_games(
+                filters={"service_id": appid, "installed": "1", "service": self.id}
+            )
             existing_game = self.match_existing_game(db_games, appid)
             if existing_game:
                 logger.debug("Found steam game: %s", existing_game)
@@ -69,11 +71,7 @@ class SteamWindowsService(SteamService):
                 game.save()
                 return
         application = Gio.Application.get_default()
-        application.show_installer_window(
-            installers,
-            service=self,
-            appid=appid
-        )
+        application.show_installer_window(installers, service=self, appid=appid)
 
     @property
     def steamapps_paths(self):

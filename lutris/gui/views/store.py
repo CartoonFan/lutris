@@ -12,8 +12,21 @@ from lutris.gui.views.store_item import StoreItem
 from lutris.util.strings import gtk_safe
 
 from . import (
-    COL_ICON, COL_ID, COL_INSTALLED, COL_INSTALLED_AT, COL_INSTALLED_AT_TEXT, COL_LASTPLAYED, COL_LASTPLAYED_TEXT,
-    COL_NAME, COL_PLATFORM, COL_PLAYTIME, COL_PLAYTIME_TEXT, COL_RUNNER, COL_RUNNER_HUMAN_NAME, COL_SLUG, COL_YEAR
+    COL_ICON,
+    COL_ID,
+    COL_INSTALLED,
+    COL_INSTALLED_AT,
+    COL_INSTALLED_AT_TEXT,
+    COL_LASTPLAYED,
+    COL_LASTPLAYED_TEXT,
+    COL_NAME,
+    COL_PLATFORM,
+    COL_PLAYTIME,
+    COL_PLAYTIME_TEXT,
+    COL_RUNNER,
+    COL_RUNNER_HUMAN_NAME,
+    COL_SLUG,
+    COL_YEAR,
 )
 
 
@@ -90,7 +103,9 @@ class GameStore(GObject.Object):
         previous_access = self._installed_games_accessed or 0
         self._installed_games_accessed = time.time()
         if self._installed_games_accessed - previous_access > 1:
-            self._installed_games = [g["slug"] for g in get_games(filters={"installed": "1"})]
+            self._installed_games = [
+                g["slug"] for g in get_games(filters={"installed": "1"})
+            ]
         return self._installed_games
 
     def add_games(self, games):
@@ -178,18 +193,11 @@ class GameStore(GObject.Object):
             db_games = sql.filtered_query(
                 settings.PGA_DB,
                 "service_games",
-                filters=({
-                    "service": self.service_media.service,
-                    "appid": game.appid
-                })
+                filters=({"service": self.service_media.service, "appid": game.appid}),
             )
         else:
             db_games = sql.filtered_query(
-                settings.PGA_DB,
-                "games",
-                filters=({
-                    "id": game.id
-                })
+                settings.PGA_DB, "games", filters=({"id": game.id})
             )
 
         for db_game in db_games:

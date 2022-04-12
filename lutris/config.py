@@ -243,7 +243,9 @@ class LutrisConfig:
         """Convert the option list to a dict with option name as keys"""
         if options_type == "system":
             options = (
-                sysoptions.with_runner_overrides(self.runner_slug) if self.runner_slug else sysoptions.system_options
+                sysoptions.with_runner_overrides(self.runner_slug)
+                if self.runner_slug
+                else sysoptions.system_options
             )
         else:
             if not self.runner_slug:

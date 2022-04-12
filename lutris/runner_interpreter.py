@@ -18,9 +18,7 @@ def get_mangohud_conf(system_config):
 def get_launch_parameters(runner, gameplay_info):
     system_config = runner.system_config
     launch_arguments = gameplay_info["command"]
-    env = {
-        "DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1": "1"
-    }
+    env = {"DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1": "1"}
 
     # Steam compatibility
     if os.environ.get("SteamAppId"):
@@ -50,11 +48,15 @@ def get_launch_parameters(runner, gameplay_info):
         if strangle_cmd:
             launch_arguments = [strangle_cmd, fps_limit] + launch_arguments
         else:
-            logger.warning("libstrangle is not available on this system, FPS limiter disabled")
+            logger.warning(
+                "libstrangle is not available on this system, FPS limiter disabled"
+            )
 
     prefix_command = system_config.get("prefix_command") or ""
     if prefix_command:
-        launch_arguments = (shlex.split(os.path.expandvars(prefix_command)) + launch_arguments)
+        launch_arguments = (
+            shlex.split(os.path.expandvars(prefix_command)) + launch_arguments
+        )
 
     single_cpu = system_config.get("single_cpu") or False
     if single_cpu:
@@ -85,8 +87,9 @@ def get_launch_parameters(runner, gameplay_info):
     game_ld_library_path = gameplay_info.get("ld_library_path")
     if game_ld_library_path:
         ld_library_path = env.get("LD_LIBRARY_PATH")
-        env["LD_LIBRARY_PATH"] = os.pathsep.join(filter(None, [
-            game_ld_library_path, ld_library_path]))
+        env["LD_LIBRARY_PATH"] = os.pathsep.join(
+            filter(None, [game_ld_library_path, ld_library_path])
+        )
 
     # Feral gamemode
     gamemode = system_config.get("gamemode") and LINUX_SYSTEM.gamemode_available()
@@ -106,7 +109,9 @@ def get_gamescope_args(launch_arguments, system_config):
     launch_arguments.insert(0, "--")
     launch_arguments.insert(0, "-f")
     if system_config.get("gamescope_output_res"):
-        output_width, output_height = system_config["gamescope_output_res"].lower().split("x")
+        output_width, output_height = (
+            system_config["gamescope_output_res"].lower().split("x")
+        )
         launch_arguments.insert(0, output_height)
         launch_arguments.insert(0, "-H")
         launch_arguments.insert(0, output_width)
@@ -123,7 +128,7 @@ def get_gamescope_args(launch_arguments, system_config):
 
 def export_bash_script(runner, gameplay_info, script_path):
     """Convert runner configuration into a bash script"""
-    if getattr(runner, 'prelaunch', None) is not None:
+    if getattr(runner, "prelaunch", None) is not None:
         runner.prelaunch()
     command, env = get_launch_parameters(runner, gameplay_info)
     # Override TERM otherwise the script might not run
@@ -134,7 +139,7 @@ def export_bash_script(runner, gameplay_info, script_path):
         script_content += 'export %s="%s"\n' % (name, value)
     script_content += "\n# Command\n"
     script_content += " ".join([shlex.quote(c) for c in command])
-    with open(script_path, "w", encoding='utf-8') as script_file:
+    with open(script_path, "w", encoding="utf-8") as script_file:
         script_file.write(script_content)
 
     os.chmod(script_path, os.stat(script_path).st_mode | stat.S_IEXEC)

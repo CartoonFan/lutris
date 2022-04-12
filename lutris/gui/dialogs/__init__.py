@@ -12,7 +12,6 @@ from lutris.util.log import logger
 
 
 class Dialog(Gtk.Dialog):
-
     def __init__(self, title=None, parent=None, flags=0, buttons=None):
         super().__init__(title, parent, flags, buttons)
         self.set_border_width(10)
@@ -108,7 +107,9 @@ class QuestionDialog(Gtk.MessageDialog):
     NO = Gtk.ResponseType.NO
 
     def __init__(self, dialog_settings):
-        super().__init__(message_type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.YES_NO)
+        super().__init__(
+            message_type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.YES_NO
+        )
         self.set_markup(dialog_settings["question"])
         self.set_title(dialog_settings["title"])
         if "parent" in dialog_settings:
@@ -171,7 +172,6 @@ class FileDialog:
 
 
 class LutrisInitDialog(Gtk.Dialog):
-
     def __init__(self, init_lutris):
         super().__init__()
         self.set_size_request(320, 60)
@@ -207,7 +207,6 @@ class LutrisInitDialog(Gtk.Dialog):
 
 
 class InstallOrPlayDialog(Gtk.Dialog):
-
     def __init__(self, game_name):
         Gtk.Dialog.__init__(self, _("%s is already installed") % game_name)
         self.connect("delete-event", lambda *x: self.destroy())
@@ -293,8 +292,8 @@ class ClientLoginDialog(GtkBuilderDialog):
     glade_file = "dialog-lutris-login.ui"
     dialog_object = "lutris-login"
     __gsignals__ = {
-        "connected": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
-        "cancel": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT, )),
+        "connected": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
+        "cancel": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
     }
 
     def __init__(self, parent):
@@ -341,7 +340,9 @@ class InstallerSourceDialog(Gtk.Dialog):
     """Show install script source"""
 
     def __init__(self, code, name, parent):
-        Gtk.Dialog.__init__(self, _("Install script for {}").format(name), parent=parent)
+        Gtk.Dialog.__init__(
+            self, _("Install script for {}").format(name), parent=parent
+        )
         self.set_size_request(500, 350)
         self.set_border_width(0)
 
@@ -384,7 +385,9 @@ class DontShowAgainDialog(Gtk.MessageDialog):
             logger.info("Dialog %s dismissed by user", setting)
             return
 
-        super().__init__(type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK, parent=parent)
+        super().__init__(
+            type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK, parent=parent
+        )
 
         self.set_border_width(12)
         self.set_markup("<b>%s</b>" % message)

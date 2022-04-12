@@ -8,8 +8,17 @@ from lutris.runners import NonInstallableRunnerError
 from lutris.runners.runner import Runner
 from lutris.util import linux, system
 from lutris.util.log import logger
-from lutris.util.steam.appmanifest import get_appmanifest_from_appid, get_path_from_appmanifest
-from lutris.util.steam.config import STEAM_DATA_DIRS, get_default_acf, get_steam_dir, read_config, read_library_folders
+from lutris.util.steam.appmanifest import (
+    get_appmanifest_from_appid,
+    get_path_from_appmanifest,
+)
+from lutris.util.steam.config import (
+    STEAM_DATA_DIRS,
+    get_default_acf,
+    get_steam_dir,
+    read_config,
+    read_library_folders,
+)
 from lutris.util.steam.vdfutils import to_vdf
 from lutris.util.strings import split_arguments
 
@@ -121,7 +130,7 @@ class steam(Runner):
         return read_config(self.steam_data_dir)
 
     def get_library_config(self):
-        """Return the "libraryfolders" part of Steam's libraryfolders.vdf as a dict """
+        """Return the "libraryfolders" part of Steam's libraryfolders.vdf as a dict"""
         return read_library_folders(self.steam_data_dir)
 
     @property
@@ -148,7 +157,9 @@ class steam(Runner):
             if appmanifest:
                 appmanifests.append(appmanifest)
         if len(appmanifests) > 1:
-            logger.warning("More than one AppManifest for %s returning only 1st", self.appid)
+            logger.warning(
+                "More than one AppManifest for %s returning only 1st", self.appid
+            )
         if appmanifests:
             return appmanifests[0]
 
@@ -200,8 +211,8 @@ class steam(Runner):
         """Return a list of the Steam library main + custom folders."""
         dirs = []
         # Extra colon-separated compatibility tools dirs environment variable
-        if 'STEAM_EXTRA_COMPAT_TOOLS_PATHS' in os.environ:
-            dirs += os.getenv('STEAM_EXTRA_COMPAT_TOOLS_PATHS').split(':')
+        if "STEAM_EXTRA_COMPAT_TOOLS_PATHS" in os.environ:
+            dirs += os.getenv("STEAM_EXTRA_COMPAT_TOOLS_PATHS").split(":")
         # Main steamapps dir and compatibilitytools.d dir
         for data_dir in STEAM_DATA_DIRS:
             for _dir in ["steamapps", "compatibilitytools.d"]:
@@ -260,9 +271,11 @@ class steam(Runner):
             if not steamapps_path:
                 raise RuntimeError("Could not find Steam path, is Steam installed?")
             acf_path = os.path.join(steamapps_path, "appmanifest_%s.acf" % appid)
-            with open(acf_path, "w", encoding='utf-8') as acf_file:
+            with open(acf_path, "w", encoding="utf-8") as acf_file:
                 acf_file.write(acf_content)
-        subprocess.Popen([self.get_executable(), "steam://install/%s" % appid])  # pylint: disable=consider-using-with
+        subprocess.Popen(
+            [self.get_executable(), "steam://install/%s" % appid]
+        )  # pylint: disable=consider-using-with
 
     def get_run_data(self):
         return {"command": self.launch_args, "env": self.get_env()}

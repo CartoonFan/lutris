@@ -25,6 +25,7 @@ from lutris.util.strings import slugify
 # pylint: disable=too-many-instance-attributes, no-member
 class GameDialogCommon(Dialog):
     """Base class for config dialogs"""
+
     no_runner_label = _("Select a runner in the Game Info tab")
 
     def __init__(self, title, parent=None):
@@ -172,10 +173,14 @@ class GameDialogCommon(Dialog):
         self.banner_button.connect("clicked", self.on_custom_image_select, "banner")
         banner_box.pack_start(self.banner_button, False, False, 0)
 
-        reset_banner_button = Gtk.Button.new_from_icon_name("edit-clear", Gtk.IconSize.MENU)
+        reset_banner_button = Gtk.Button.new_from_icon_name(
+            "edit-clear", Gtk.IconSize.MENU
+        )
         reset_banner_button.set_relief(Gtk.ReliefStyle.NONE)
         reset_banner_button.set_tooltip_text(_("Remove custom banner"))
-        reset_banner_button.connect("clicked", self.on_custom_image_reset_clicked, "banner")
+        reset_banner_button.connect(
+            "clicked", self.on_custom_image_reset_clicked, "banner"
+        )
         banner_box.pack_start(reset_banner_button, False, False, 0)
 
         self.icon_button = Gtk.Button()
@@ -183,7 +188,9 @@ class GameDialogCommon(Dialog):
         self.icon_button.connect("clicked", self.on_custom_image_select, "icon")
         banner_box.pack_start(self.icon_button, False, False, 0)
 
-        reset_icon_button = Gtk.Button.new_from_icon_name("edit-clear", Gtk.IconSize.MENU)
+        reset_icon_button = Gtk.Button.new_from_icon_name(
+            "edit-clear", Gtk.IconSize.MENU
+        )
         reset_icon_button.set_relief(Gtk.ReliefStyle.NONE)
         reset_icon_button.set_tooltip_text(_("Remove custom icon"))
         reset_icon_button.connect("clicked", self.on_custom_image_reset_clicked, "icon")
@@ -240,7 +247,9 @@ class GameDialogCommon(Dialog):
         runner_liststore.append((_("Select a runner from the list"), ""))
         for runner in runners.get_installed():
             description = runner.description
-            runner_liststore.append(("%s (%s)" % (runner.human_name, description), runner.name))
+            runner_liststore.append(
+                ("%s (%s)" % (runner.human_name, description), runner.name)
+            )
         return runner_liststore
 
     def on_slug_change_clicked(self, widget):
@@ -259,8 +268,11 @@ class GameDialogCommon(Dialog):
         self.slug_change_button.set_label(_("Change"))
 
     def on_move_clicked(self, _button):
-        new_location = DirectoryDialog("Select new location for the game",
-                                       default_path=self.game.directory, parent=self)
+        new_location = DirectoryDialog(
+            "Select new location for the game",
+            default_path=self.game.directory,
+            parent=self,
+        )
         if not new_location.folder or new_location.folder == self.game.directory:
             return
         move_dialog = dialogs.MoveDialog(self.game, new_location.folder)
@@ -272,9 +284,13 @@ class GameDialogCommon(Dialog):
         new_directory = dialog.new_directory
         if new_directory:
             self.directory_entry.set_text(new_directory)
-            send_notification("Finished moving game", "%s moved to %s" % (dialog.game, new_directory))
+            send_notification(
+                "Finished moving game", "%s moved to %s" % (dialog.game, new_directory)
+            )
         else:
-            send_notification("Failed to move game", "Lutris could not move %s" % dialog.game)
+            send_notification(
+                "Failed to move game", "Lutris could not move %s" % dialog.game
+            )
 
     def _build_game_tab(self):
         if self.game and self.runner_name:
@@ -308,8 +324,7 @@ class GameDialogCommon(Dialog):
             raise RuntimeError("Lutris config not loaded yet")
         self.system_box = SystemBox(self.lutris_config)
         self._add_notebook_tab(
-            self.build_scrolled_window(self.system_box),
-            _("System options")
+            self.build_scrolled_window(self.system_box), _("System options")
         )
 
     def _add_notebook_tab(self, widget, label):
@@ -364,12 +379,12 @@ class GameDialogCommon(Dialog):
             dlg = QuestionDialog(
                 {
                     "parent": self,
-                    "question":
-                    _("Are you sure you want to change the runner for this game ? "
-                      "This will reset the full configuration for this game and "
-                      "is not reversible."),
-                    "title":
-                    _("Confirm runner change"),
+                    "question": _(
+                        "Are you sure you want to change the runner for this game ? "
+                        "This will reset the full configuration for this game and "
+                        "is not reversible."
+                    ),
+                    "title": _("Confirm runner change"),
                 }
             )
 
@@ -397,7 +412,9 @@ class GameDialogCommon(Dialog):
                 return
             logger.info("Creating new configuration with runner %s", runner_name)
             self.runner_name = runner_name
-            self.lutris_config = LutrisConfig(runner_slug=self.runner_name, level="game")
+            self.lutris_config = LutrisConfig(
+                runner_slug=self.runner_name, level="game"
+            )
         self._rebuild_tabs()
         self.notebook.set_current_page(current_page)
 
@@ -422,7 +439,9 @@ class GameDialogCommon(Dialog):
         if not self.name_entry.get_text():
             ErrorDialog(_("Please fill in the name"), parent=self)
             return False
-        if self.runner_name == "steam" and not self.lutris_config.game_config.get("appid"):
+        if self.runner_name == "steam" and not self.lutris_config.game_config.get(
+            "appid"
+        ):
             ErrorDialog(_("Steam AppID not provided"), parent=self)
             return False
         invalid_fields = []
@@ -441,14 +460,20 @@ class GameDialogCommon(Dialog):
                     except Exception:
                         invalid_fields.append(option.get("label"))
         if invalid_fields:
-            ErrorDialog(_("The following fields have invalid values: ") + ", ".join(invalid_fields), parent=self)
+            ErrorDialog(
+                _("The following fields have invalid values: ")
+                + ", ".join(invalid_fields),
+                parent=self,
+            )
             return False
         return True
 
     def on_save(self, _button):
         """Save game info and destroy widget. Return True if success."""
         if not self.is_valid():
-            logger.warning(_("Current configuration is not valid, ignoring save request"))
+            logger.warning(
+                _("Current configuration is not valid, ignoring save request")
+            )
             return False
         name = self.name_entry.get_text()
 
@@ -500,7 +525,9 @@ class GameDialogCommon(Dialog):
             image_path = dialog.get_filename()
             if image_type == "banner":
                 self.game.has_custom_banner = True
-                dest_path = os.path.join(settings.BANNER_PATH, "%s.jpg" % self.game.slug)
+                dest_path = os.path.join(
+                    settings.BANNER_PATH, "%s.jpg" % self.game.slug
+                )
                 size = BANNER_SIZE
                 file_format = "jpeg"
             else:

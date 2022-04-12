@@ -41,26 +41,26 @@ class InstallerFileBox(Gtk.VBox):
     @property
     def is_ready(self):
         """Whether the file is ready to be downloaded / fetched from its provider"""
-        if (
-                self.provider in ("user", "pga")
-                and not system.path_exists(self.installer_file.dest_file)
+        if self.provider in ("user", "pga") and not system.path_exists(
+            self.installer_file.dest_file
         ):
             return False
         return True
 
     def get_download_progress(self):
         """Return the widget for the download progress bar"""
-        download_progress = DownloadProgressBox({
-            "url": self.installer_file.url,
-            "dest": self.installer_file.dest_file,
-            "referer": self.installer_file.referer
-        })
+        download_progress = DownloadProgressBox(
+            {
+                "url": self.installer_file.url,
+                "dest": self.installer_file.dest_file,
+                "referer": self.installer_file.referer,
+            }
+        )
         download_progress.connect("complete", self.on_download_complete)
         download_progress.connect("cancel", self.on_download_cancelled)
         download_progress.show()
-        if (
-                not self.installer_file.uses_pga_cache()
-                and system.path_exists(self.installer_file.dest_file)
+        if not self.installer_file.uses_pga_cache() and system.path_exists(
+            self.installer_file.dest_file
         ):
             os.remove(self.installer_file.dest_file)
         return download_progress
@@ -75,7 +75,9 @@ class InstallerFileBox(Gtk.VBox):
             box.pack_start(download_progress, False, False, 0)
             return box
         if self.provider == "pga":
-            url_label = InstallerLabel("In cache: %s" % self.get_file_label(), wrap=False)
+            url_label = InstallerLabel(
+                "In cache: %s" % self.get_file_label(), wrap=False
+            )
             box.pack_start(url_label, False, False, 6)
             return box
         if self.provider == "user":
@@ -83,8 +85,9 @@ class InstallerFileBox(Gtk.VBox):
             box.pack_start(user_label, False, False, 0)
             return box
         if self.provider == "steam":
-            steam_installer = SteamInstaller(self.installer_file.url,
-                                             self.installer_file.id)
+            steam_installer = SteamInstaller(
+                self.installer_file.url, self.installer_file.id
+            )
             steam_installer.connect("steam-game-installed", self.on_download_complete)
             steam_installer.connect("steam-state-changed", self.on_state_changed)
             self.start_func = steam_installer.install_steam_game
@@ -92,9 +95,9 @@ class InstallerFileBox(Gtk.VBox):
 
             steam_box = Gtk.HBox(spacing=6)
             info_box = Gtk.VBox(spacing=6)
-            steam_label = InstallerLabel(_("Steam game <b>{appid}</b>").format(
-                appid=steam_installer.appid
-            ))
+            steam_label = InstallerLabel(
+                _("Steam game <b>{appid}</b>").format(appid=steam_installer.appid)
+            )
             info_box.add(steam_label)
             self.state_label = InstallerLabel("")
             info_box.add(self.state_label)
@@ -107,7 +110,9 @@ class InstallerFileBox(Gtk.VBox):
         url = self.installer_file.url
         if url.startswith("http"):
             parsed = urlparse(url)
-            label = _("{file} on {host}").format(file=self.installer_file.filename, host=parsed.netloc)
+            label = _("{file} on {host}").format(
+                file=self.installer_file.filename, host=parsed.netloc
+            )
         elif url.startswith("N/A"):
             label = url[3:].lstrip(":")
         else:
@@ -115,7 +120,7 @@ class InstallerFileBox(Gtk.VBox):
         return add_url_tags(gtk_safe(label))
 
     def get_combobox_model(self):
-        """"Return the combobox's model"""
+        """ "Return the combobox's model"""
         model = Gtk.ListStore(str, str)
         if "download" in self.installer_file.providers:
             model.append(["download", "Download"])
@@ -176,9 +181,7 @@ class InstallerFileBox(Gtk.VBox):
             label.props.can_focus = True
             box.pack_start(label, False, False, 0)
             location_entry = FileChooserEntry(
-                self.installer_file.human_url,
-                Gtk.FileChooserAction.OPEN,
-                path=None
+                self.installer_file.human_url, Gtk.FileChooserAction.OPEN, path=None
             )
             location_entry.entry.connect("changed", self.on_location_changed)
             location_entry.show()
@@ -193,11 +196,7 @@ class InstallerFileBox(Gtk.VBox):
 
     def get_widgets(self):
         """Return the widget with the source of the file and a way to change its source"""
-        box = Gtk.HBox(
-            spacing=12,
-            margin_top=6,
-            margin_bottom=6
-        )
+        box = Gtk.HBox(spacing=12, margin_top=6, margin_bottom=6)
         self.file_provider_widget = self.get_file_provider_label()
         box.pack_start(self.file_provider_widget, True, True, 0)
         source_box = Gtk.HBox()

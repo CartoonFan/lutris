@@ -30,22 +30,25 @@ class yuzu(Runner):
             "label": _("Encryption keys"),
             "type": "file",
             "help": _("File containing the encryption keys."),
-        }, {
+        },
+        {
             "option": "title_keys",
             "label": _("Title keys"),
             "type": "file",
             "help": _("File containing the title keys."),
-        }
+        },
     ]
 
     @property
     def yuzu_data_dir(self):
         """Return dir where Yuzu files lie."""
-        candidates = ("~/.local/share/yuzu", )
+        candidates = ("~/.local/share/yuzu",)
         for candidate in candidates:
-            path = system.fix_path_case(os.path.join(os.path.expanduser(candidate), "nand"))
+            path = system.fix_path_case(
+                os.path.join(os.path.expanduser(candidate), "nand")
+            )
             if path and system.path_exists(path):
-                return path[:-len("nand")]
+                return path[: -len("nand")]
 
     def play(self):
         """Run the game."""
@@ -57,7 +60,7 @@ class yuzu(Runner):
         return {"command": arguments}
 
     def _update_key(self, key_type):
-        """Update a keys file if set """
+        """Update a keys file if set"""
         yuzu_data_dir = self.yuzu_data_dir
         if not yuzu_data_dir:
             logger.error("Yuzu data dir not set")
