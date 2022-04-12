@@ -2,7 +2,8 @@ import os
 from gettext import gettext as _
 
 from lutris.runners.runner import Runner
-from lutris.util import display, system
+from lutris.util import display
+from lutris.util import system
 from lutris.util.linux import LINUX_SYSTEM
 from lutris.util.log import logger
 from lutris.util.strings import split_arguments

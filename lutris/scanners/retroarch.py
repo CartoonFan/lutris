@@ -1,7 +1,8 @@
 import os
 
 from lutris.config import write_game_config
-from lutris.database.games import add_game, get_games
+from lutris.database.games import add_game
+from lutris.database.games import get_games
 from lutris.game import Game
 from lutris.util.log import logger
 from lutris.util.retroarch.core_config import RECOMMENDED_CORES

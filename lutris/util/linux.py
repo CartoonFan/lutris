@@ -6,10 +6,13 @@ import re
 import resource
 import shutil
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
+from collections import defaultdict
 
 from lutris.util import system
-from lutris.util.graphics import drivers, glxinfo, vkquery
+from lutris.util.graphics import drivers
+from lutris.util.graphics import glxinfo
+from lutris.util.graphics import vkquery
 from lutris.util.log import logger
 
 try:

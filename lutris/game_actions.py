@@ -1,22 +1,25 @@
 """Handle game specific actions"""
-
 # Standard Library
 # pylint: disable=too-many-public-methods
 import os
 from gettext import gettext as _
 
-from gi.repository import Gio, Gtk
+from gi.repository import Gio
+from gi.repository import Gtk
 
 from lutris.command import MonitoredCommand
 from lutris.config import duplicate_game_config
-from lutris.database.games import add_game, get_game_by_field, get_unusued_game_name
+from lutris.database.games import add_game
+from lutris.database.games import get_game_by_field
+from lutris.database.games import get_unusued_game_name
 from lutris.game import Game
 from lutris.gui import dialogs
 from lutris.gui.config.add_game import AddGameDialog
 from lutris.gui.config.edit_game import EditGameConfigDialog
 from lutris.gui.dialogs import QuestionDialog
 from lutris.gui.dialogs.log import LogWindow
-from lutris.gui.dialogs.uninstall_game import RemoveGameDialog, UninstallGameDialog
+from lutris.gui.dialogs.uninstall_game import RemoveGameDialog
+from lutris.gui.dialogs.uninstall_game import UninstallGameDialog
 from lutris.gui.widgets.utils import open_uri
 from lutris.util import xdgshortcuts
 from lutris.util.log import logger

@@ -14,43 +14,59 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import json
 import logging
 import os
 import signal
 import sys
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from gettext import gettext as _
 
 import gi
-from gi.repository import Gio, GLib, GObject, Gtk
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 
+from .lutriswindow import LutrisWindow
 from lutris import settings
-from lutris.api import get_runners, parse_installer_url
+from lutris.api import get_runners
+from lutris.api import parse_installer_url
 from lutris.command import exec_command
 from lutris.database import games as games_db
 from lutris.database.services import ServiceGameCollection
-from lutris.game import Game, export_game, import_game
-from lutris.gui.dialogs import ErrorDialog, InstallOrPlayDialog, LutrisInitDialog
+from lutris.game import export_game
+from lutris.game import Game
+from lutris.game import import_game
+from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import InstallOrPlayDialog
+from lutris.gui.dialogs import LutrisInitDialog
 from lutris.gui.dialogs.download import simple_downloader
 from lutris.gui.dialogs.issue import IssueReportWindow
 from lutris.gui.installerwindow import InstallerWindow
 from lutris.gui.widgets.status_icon import LutrisStatusIcon
 from lutris.installer import get_installers
 from lutris.migrations import migrate
-from lutris.runners import InvalidRunner, RunnerInstallationError, get_runner_names, import_runner
+from lutris.runners import get_runner_names
+from lutris.runners import import_runner
+from lutris.runners import InvalidRunner
+from lutris.runners import RunnerInstallationError
 from lutris.services import get_enabled_services
-from lutris.startup import init_lutris, run_all_checks, update_runtime
+from lutris.startup import init_lutris
+from lutris.startup import run_all_checks
+from lutris.startup import update_runtime
 from lutris.style_manager import StyleManager
-from lutris.util import datapath, log, system
-from lutris.util.http import HTTPError, Request
+from lutris.util import datapath
+from lutris.util import log
+from lutris.util import system
+from lutris.util.http import HTTPError
+from lutris.util.http import Request
 from lutris.util.log import logger
-from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
+from lutris.util.steam.appmanifest import AppManifest
+from lutris.util.steam.appmanifest import get_appmanifests
 from lutris.util.steam.config import get_steamapps_paths
-
-from .lutriswindow import LutrisWindow
 
 gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")

@@ -7,8 +7,11 @@ from gettext import gettext as _
 from gi.repository import Gio
 
 from lutris import settings
-from lutris.config import LutrisConfig, write_game_config
-from lutris.database.games import add_game, get_game_by_field, get_games
+from lutris.config import LutrisConfig
+from lutris.config import write_game_config
+from lutris.database.games import add_game
+from lutris.database.games import get_game_by_field
+from lutris.database.games import get_games
 from lutris.database.services import ServiceGameCollection
 from lutris.game import Game
 from lutris.installer.installer_file import InstallerFile
@@ -16,8 +19,11 @@ from lutris.services.base import BaseService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util.log import logger
-from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
-from lutris.util.steam.config import get_steam_library, get_steamapps_paths, get_user_steam_id
+from lutris.util.steam.appmanifest import AppManifest
+from lutris.util.steam.appmanifest import get_appmanifests
+from lutris.util.steam.config import get_steam_library
+from lutris.util.steam.config import get_steamapps_paths
+from lutris.util.steam.config import get_user_steam_id
 from lutris.util.strings import slugify
 
 

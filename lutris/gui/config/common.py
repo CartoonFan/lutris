@@ -3,21 +3,39 @@
 import os
 from gettext import gettext as _
 
-from gi.repository import Gdk, GLib, Gtk, Pango
+from gi.repository import Gdk
+from gi.repository import GLib
+from gi.repository import Gtk
+from gi.repository import Pango
 
-from lutris import runners, settings
-from lutris.config import LutrisConfig, make_game_config_id
+from lutris import runners
+from lutris import settings
+from lutris.config import LutrisConfig
+from lutris.config import make_game_config_id
 from lutris.game import Game
 from lutris.gui import dialogs
-from lutris.gui.config import DIALOG_HEIGHT, DIALOG_WIDTH
-from lutris.gui.config.boxes import GameBox, RunnerBox, SystemBox
-from lutris.gui.dialogs import Dialog, DirectoryDialog, ErrorDialog, QuestionDialog
-from lutris.gui.widgets.common import Label, NumberEntry, SlugEntry, VBox
+from lutris.gui.config import DIALOG_HEIGHT
+from lutris.gui.config import DIALOG_WIDTH
+from lutris.gui.config.boxes import GameBox
+from lutris.gui.config.boxes import RunnerBox
+from lutris.gui.config.boxes import SystemBox
+from lutris.gui.dialogs import Dialog
+from lutris.gui.dialogs import DirectoryDialog
+from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import QuestionDialog
+from lutris.gui.widgets.common import Label
+from lutris.gui.widgets.common import NumberEntry
+from lutris.gui.widgets.common import SlugEntry
+from lutris.gui.widgets.common import VBox
 from lutris.gui.widgets.notifications import send_notification
-from lutris.gui.widgets.utils import BANNER_SIZE, ICON_SIZE, get_pixbuf
+from lutris.gui.widgets.utils import BANNER_SIZE
+from lutris.gui.widgets.utils import get_pixbuf
+from lutris.gui.widgets.utils import ICON_SIZE
 from lutris.runners import import_runner
-from lutris.services.lutris import LutrisBanner, LutrisIcon
-from lutris.util import resources, system
+from lutris.services.lutris import LutrisBanner
+from lutris.services.lutris import LutrisIcon
+from lutris.util import resources
+from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.strings import slugify
 

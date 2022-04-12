@@ -4,11 +4,11 @@ import subprocess
 import xml.etree.ElementTree as etree
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris import settings
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 SNES9X_DIR = os.path.join(settings.DATA_DIR, "runners/snes9x")
 

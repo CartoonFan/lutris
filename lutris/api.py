@@ -9,7 +9,8 @@ import urllib.request
 import requests
 
 from lutris import settings
-from lutris.util import http, system
+from lutris.util import http
+from lutris.util import system
 from lutris.util.log import logger
 
 API_KEY_FILE_PATH = os.path.join(settings.CACHE_DIR, "auth-token")

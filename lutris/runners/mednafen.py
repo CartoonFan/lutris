@@ -2,12 +2,12 @@
 import subprocess
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.display import DISPLAY_MANAGER
 from lutris.util.joypad import get_controller_mappings
 from lutris.util.log import logger
+# Lutris Modules
 
 DEFAULT_MEDNAFEN_SCALER = "nn4x"
 

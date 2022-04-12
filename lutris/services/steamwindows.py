@@ -3,10 +3,12 @@ from gettext import gettext as _
 
 from gi.repository import Gio
 
-from lutris.database.games import get_game_by_field, get_games
+from lutris.database.games import get_game_by_field
+from lutris.database.games import get_games
 from lutris.game import Game
 from lutris.installer import get_installers
-from lutris.services.steam import SteamGame, SteamService
+from lutris.services.steam import SteamGame
+from lutris.services.steam import SteamService
 from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.strings import slugify

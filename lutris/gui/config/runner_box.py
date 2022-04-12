@@ -1,13 +1,16 @@
 from gettext import gettext as _
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris import runners
 from lutris.gui.config.runner import RunnerConfigDialog
-from lutris.gui.dialogs import ErrorDialog, QuestionDialog
+from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import QuestionDialog
 from lutris.gui.dialogs.download import simple_downloader
 from lutris.gui.dialogs.runner_install import RunnerInstallDialog
-from lutris.gui.widgets.utils import ICON_SIZE, get_icon
+from lutris.gui.widgets.utils import get_icon
+from lutris.gui.widgets.utils import ICON_SIZE
 from lutris.util.log import logger
 
 

@@ -6,8 +6,8 @@ Everything in this module should rely on /proc or /sys only, no executable calls
 import os
 import re
 
-# Lutris Modules
 from lutris.util.log import logger
+# Lutris Modules
 
 MIN_RECOMMENDED_NVIDIA_DRIVER = 415
 

@@ -1,4 +1,5 @@
-from gi.repository import Gtk, Pango
+from gi.repository import Gtk
+from gi.repository import Pango
 
 
 class GridViewCellRendererText(Gtk.CellRendererText):

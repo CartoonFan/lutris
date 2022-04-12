@@ -1,7 +1,8 @@
 """Automatically detects game executables in a folder"""
 import os
 
-from lutris.util import magic, system
+from lutris.util import magic
+from lutris.util import system
 from lutris.util.log import logger
 
 

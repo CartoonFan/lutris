@@ -6,10 +6,16 @@ from gettext import gettext as _
 from lutris.command import MonitoredCommand
 from lutris.runners import NonInstallableRunnerError
 from lutris.runners.runner import Runner
-from lutris.util import linux, system
+from lutris.util import linux
+from lutris.util import system
 from lutris.util.log import logger
-from lutris.util.steam.appmanifest import get_appmanifest_from_appid, get_path_from_appmanifest
-from lutris.util.steam.config import STEAM_DATA_DIRS, get_default_acf, get_steam_dir, read_config, read_library_folders
+from lutris.util.steam.appmanifest import get_appmanifest_from_appid
+from lutris.util.steam.appmanifest import get_path_from_appmanifest
+from lutris.util.steam.config import get_default_acf
+from lutris.util.steam.config import get_steam_dir
+from lutris.util.steam.config import read_config
+from lutris.util.steam.config import read_library_folders
+from lutris.util.steam.config import STEAM_DATA_DIRS
 from lutris.util.steam.vdfutils import to_vdf
 from lutris.util.strings import split_arguments
 

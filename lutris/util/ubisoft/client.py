@@ -1,6 +1,5 @@
 # Ubisoft Connect client adapted from the Galaxy integration by Rasmus Luund.
 # https://github.com/FriendsOfGalaxy/galaxy-integration-uplay
-
 import json
 import time
 from datetime import datetime
@@ -9,7 +8,9 @@ from gettext import gettext as _
 import requests
 
 from lutris.util.log import logger
-from lutris.util.ubisoft.consts import CHROME_USERAGENT, CLUB_APPID, UBISOFT_APPID
+from lutris.util.ubisoft.consts import CHROME_USERAGENT
+from lutris.util.ubisoft.consts import CLUB_APPID
+from lutris.util.ubisoft.consts import UBISOFT_APPID
 
 
 def parse_date(date_str):

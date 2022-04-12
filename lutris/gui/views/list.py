@@ -1,18 +1,28 @@
 """TreeView based game list"""
 from gettext import gettext as _
 
-# Third Party Libraries
-# pylint: disable=no-member
-from gi.repository import Gdk, Gtk, Pango
+from gi.repository import Gdk
+from gi.repository import Gtk
+from gi.repository import Pango
 
-# Lutris Modules
 from lutris import settings
-from lutris.gui.views import (
-    COL_ICON, COL_INSTALLED_AT, COL_INSTALLED_AT_TEXT, COL_LASTPLAYED, COL_LASTPLAYED_TEXT, COL_NAME, COL_PLATFORM,
-    COL_PLAYTIME, COL_PLAYTIME_TEXT, COL_RUNNER_HUMAN_NAME, COL_YEAR, COLUMN_NAMES
-)
+from lutris.gui.views import COL_ICON
+from lutris.gui.views import COL_INSTALLED_AT
+from lutris.gui.views import COL_INSTALLED_AT_TEXT
+from lutris.gui.views import COL_LASTPLAYED
+from lutris.gui.views import COL_LASTPLAYED_TEXT
+from lutris.gui.views import COL_NAME
+from lutris.gui.views import COL_PLATFORM
+from lutris.gui.views import COL_PLAYTIME
+from lutris.gui.views import COL_PLAYTIME_TEXT
+from lutris.gui.views import COL_RUNNER_HUMAN_NAME
+from lutris.gui.views import COL_YEAR
+from lutris.gui.views import COLUMN_NAMES
 from lutris.gui.views.base import GameView
 from lutris.gui.views.store import sort_func
+# Third Party Libraries
+# pylint: disable=no-member
+# Lutris Modules
 
 
 class GameListView(Gtk.TreeView, GameView):

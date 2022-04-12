@@ -6,7 +6,8 @@ from lutris.util.log import logger
 from lutris.util.steam.config import get_steamapps_paths
 from lutris.util.steam.vdfutils import vdf_parse
 from lutris.util.strings import slugify
-from lutris.util.system import fix_path_case, path_exists
+from lutris.util.system import fix_path_case
+from lutris.util.system import path_exists
 
 APP_STATE_FLAGS = [
     "Invalid",

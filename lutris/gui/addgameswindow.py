@@ -1,15 +1,21 @@
 from gettext import gettext as _
 
-from gi.repository import Gio, GLib, Gtk
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import Gtk
 
 from lutris import api
 from lutris.gui.config.add_game import AddGameDialog
-from lutris.gui.dialogs import DirectoryDialog, ErrorDialog, FileDialog
+from lutris.gui.dialogs import DirectoryDialog
+from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import FileDialog
 from lutris.gui.widgets.window import BaseApplicationWindow
-from lutris.installer import AUTO_WIN32_EXE, get_installers
+from lutris.installer import AUTO_WIN32_EXE
+from lutris.installer import get_installers
 from lutris.scanners.lutris import scan_directory
 from lutris.util.jobs import AsyncCall
-from lutris.util.strings import gtk_safe, slugify
+from lutris.util.strings import gtk_safe
+from lutris.util.strings import slugify
 
 
 class AddGamesWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-methods

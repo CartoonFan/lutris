@@ -5,13 +5,18 @@ import os
 from collections import defaultdict
 from gettext import gettext as _
 
-from gi.repository import GLib, Gtk
+from gi.repository import GLib
+from gi.repository import Gtk
 
-from lutris import api, settings
+from lutris import api
+from lutris import settings
 from lutris.database.games import get_games_by_runner
 from lutris.game import Game
-from lutris.gui.dialogs import Dialog, ErrorDialog, QuestionDialog
-from lutris.util import jobs, system
+from lutris.gui.dialogs import Dialog
+from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import QuestionDialog
+from lutris.util import jobs
+from lutris.util import system
 from lutris.util.downloader import Downloader
 from lutris.util.extract import extract_archive
 from lutris.util.log import logger

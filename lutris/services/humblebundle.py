@@ -6,13 +6,15 @@ from gettext import gettext as _
 
 from lutris import settings
 from lutris.exceptions import UnavailableGame
-from lutris.installer import AUTO_ELF_EXE, AUTO_WIN32_EXE
+from lutris.installer import AUTO_ELF_EXE
+from lutris.installer import AUTO_WIN32_EXE
 from lutris.installer.installer_file import InstallerFile
 from lutris.services.base import OnlineService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util import linux
-from lutris.util.http import HTTPError, Request
+from lutris.util.http import HTTPError
+from lutris.util.http import Request
 from lutris.util.log import logger
 from lutris.util.strings import slugify
 

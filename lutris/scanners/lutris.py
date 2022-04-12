@@ -1,6 +1,7 @@
 import os
 
-from lutris.api import get_api_games, get_game_installers
+from lutris.api import get_api_games
+from lutris.api import get_game_installers
 from lutris.database.games import get_games
 from lutris.installer.errors import MissingGameDependency
 from lutris.installer.interpreter import ScriptInterpreter

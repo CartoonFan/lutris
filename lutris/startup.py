@@ -4,8 +4,11 @@ import sqlite3
 import time
 from gettext import gettext as _
 
-from lutris import runners, settings
-from lutris.database.games import delete_game, get_games, get_games_where
+from lutris import runners
+from lutris import settings
+from lutris.database.games import delete_game
+from lutris.database.games import get_games
+from lutris.database.games import get_games_where
 from lutris.database.schema import syncdb
 from lutris.game import Game
 from lutris.gui.dialogs import DontShowAgainDialog
@@ -14,7 +17,8 @@ from lutris.runtime import RuntimeUpdater
 from lutris.services import DEFAULT_SERVICES
 from lutris.services.lutris import sync_media
 from lutris.util import update_cache
-from lutris.util.graphics import drivers, vkquery
+from lutris.util.graphics import drivers
+from lutris.util.graphics import vkquery
 from lutris.util.linux import LINUX_SYSTEM
 from lutris.util.log import logger
 from lutris.util.system import create_folder

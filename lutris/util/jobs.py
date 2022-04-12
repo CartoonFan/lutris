@@ -3,11 +3,11 @@ import sys
 import threading
 import traceback
 
-# Third Party Libraries
 from gi.repository import GLib
 
-# Lutris Modules
 from lutris.util.log import logger
+# Third Party Libraries
+# Lutris Modules
 
 
 class AsyncCall(threading.Thread):

@@ -2,8 +2,8 @@
 from gettext import gettext as _
 from os import path
 
-# Lutris Modules
 from lutris.runners.runner import Runner
+# Lutris Modules
 
 
 class easyrpg(Runner):

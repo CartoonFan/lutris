@@ -1,4 +1,5 @@
-from gi.repository import GObject, Gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris.gui.installer.script_box import InstallerScriptBox
 

@@ -1,14 +1,19 @@
 from gettext import gettext as _
 
-from gi.repository import Gtk, Pango
+from gi.repository import Gtk
+from gi.repository import Pango
 
 from lutris.database.games import get_games
 from lutris.game import Game
-from lutris.gui.dialogs import Dialog, QuestionDialog
+from lutris.gui.dialogs import Dialog
+from lutris.gui.dialogs import QuestionDialog
 from lutris.util.jobs import AsyncCall
 from lutris.util.log import logger
-from lutris.util.strings import gtk_safe, human_size
-from lutris.util.system import get_disk_size, is_removeable, reverse_expanduser
+from lutris.util.strings import gtk_safe
+from lutris.util.strings import human_size
+from lutris.util.system import get_disk_size
+from lutris.util.system import is_removeable
+from lutris.util.system import reverse_expanduser
 
 
 class UninstallGameDialog(Dialog):

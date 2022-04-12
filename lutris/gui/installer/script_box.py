@@ -3,7 +3,8 @@ from gettext import gettext as _
 from gi.repository import Gtk
 
 from lutris.gui.installer.widgets import InstallerLabel
-from lutris.util.strings import add_url_tags, gtk_safe
+from lutris.util.strings import add_url_tags
+from lutris.util.strings import gtk_safe
 
 
 class InstallerScriptBox(Gtk.VBox):

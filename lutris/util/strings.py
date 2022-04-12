@@ -6,8 +6,8 @@ import shlex
 import unicodedata
 import uuid
 
-# Lutris Modules
 from lutris.util.log import logger
+# Lutris Modules
 
 NO_PLAYTIME = "Never played"
 

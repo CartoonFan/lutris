@@ -2,12 +2,16 @@
 import glob
 import os
 import subprocess
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
+from collections import OrderedDict
 from gettext import gettext as _
 
 from lutris import runners
-from lutris.util import linux, system
-from lutris.util.display import DISPLAY_MANAGER, SCREEN_SAVER_INHIBITOR, USE_DRI_PRIME
+from lutris.util import linux
+from lutris.util import system
+from lutris.util.display import DISPLAY_MANAGER
+from lutris.util.display import SCREEN_SAVER_INHIBITOR
+from lutris.util.display import USE_DRI_PRIME
 from lutris.util.graphics import drivers
 
 VULKAN_DATA_DIRS = [

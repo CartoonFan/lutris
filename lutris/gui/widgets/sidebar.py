@@ -1,9 +1,13 @@
 """Sidebar for the main window"""
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject, Gtk, Pango
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
 
-from lutris import runners, services
+from lutris import runners
+from lutris import services
 from lutris.database import categories as categories_db
 from lutris.database import games as games_db
 from lutris.game import Game
@@ -13,7 +17,8 @@ from lutris.gui.config.services_box import ServicesBox
 from lutris.gui.dialogs import ErrorDialog
 from lutris.gui.dialogs.runner_install import RunnerInstallDialog
 from lutris.gui.widgets.utils import has_stock_icon
-from lutris.services.base import AuthTokenExpired, BaseService
+from lutris.services.base import AuthTokenExpired
+from lutris.services.base import BaseService
 from lutris.util.jobs import AsyncCall
 
 TYPE = 0

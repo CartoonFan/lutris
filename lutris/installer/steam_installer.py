@@ -3,7 +3,8 @@ import os
 import time
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject
+from gi.repository import GLib
+from gi.repository import GObject
 
 from lutris.config import LutrisConfig
 from lutris.installer.errors import ScriptingError

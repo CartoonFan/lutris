@@ -2,10 +2,15 @@
 import array
 import os
 
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
+from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import Gtk
 
 from lutris import settings
-from lutris.util import datapath, system
+from lutris.util import datapath
+from lutris.util import system
 from lutris.util.log import logger
 
 try:

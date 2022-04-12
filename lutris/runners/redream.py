@@ -3,7 +3,8 @@ import shutil
 from gettext import gettext as _
 
 from lutris import settings
-from lutris.gui.dialogs import FileDialog, QuestionDialog
+from lutris.gui.dialogs import FileDialog
+from lutris.gui.dialogs import QuestionDialog
 from lutris.runners.runner import Runner
 
 

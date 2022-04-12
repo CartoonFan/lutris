@@ -1,7 +1,10 @@
 from gettext import gettext as _
 from urllib.parse import urlparse
 
-from gi.repository import GLib, GObject, Gtk, Pango
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
 
 from lutris.util.downloader import Downloader
 from lutris.util.log import logger

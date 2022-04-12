@@ -6,7 +6,8 @@ import tempfile
 import xml.etree.ElementTree
 
 from lutris.util.log import logger
-from lutris.util.system import execute, read_process_output
+from lutris.util.system import execute
+from lutris.util.system import read_process_output
 
 
 class CabInstaller:

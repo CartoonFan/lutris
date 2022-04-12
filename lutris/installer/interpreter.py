@@ -2,7 +2,8 @@
 import os
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject
+from gi.repository import GLib
+from gi.repository import GObject
 
 from lutris import settings
 from lutris.config import LutrisConfig
@@ -10,17 +11,24 @@ from lutris.database.games import get_game_by_field
 from lutris.gui.dialogs import WineNotInstalledWarning
 from lutris.gui.dialogs.download import simple_downloader
 from lutris.installer.commands import CommandsMixin
-from lutris.installer.errors import MissingGameDependency, ScriptingError
+from lutris.installer.errors import MissingGameDependency
+from lutris.installer.errors import ScriptingError
 from lutris.installer.installer import LutrisInstaller
 from lutris.installer.legacy import get_game_launcher
-from lutris.runners import InvalidRunner, NonInstallableRunnerError, RunnerInstallationError, import_runner, steam, wine
+from lutris.runners import import_runner
+from lutris.runners import InvalidRunner
+from lutris.runners import NonInstallableRunnerError
+from lutris.runners import RunnerInstallationError
+from lutris.runners import steam
+from lutris.runners import wine
 from lutris.services.lutris import download_lutris_media
 from lutris.util import system
 from lutris.util.display import DISPLAY_MANAGER
 from lutris.util.jobs import AsyncCall
 from lutris.util.log import logger
 from lutris.util.strings import unpack_dependencies
-from lutris.util.wine.wine import get_wine_version, get_wine_version_exe
+from lutris.util.wine.wine import get_wine_version
+from lutris.util.wine.wine import get_wine_version_exe
 
 
 class ScriptInterpreter(GObject.Object, CommandsMixin):

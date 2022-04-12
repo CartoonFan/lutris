@@ -15,13 +15,16 @@ Usage:
 >>>
 
 """
-
-import ctypes
 import ctypes.util
 import glob
 import sys
 import threading
-from ctypes import POINTER, byref, c_char_p, c_int, c_size_t, c_void_p
+from ctypes import byref
+from ctypes import c_char_p
+from ctypes import c_int
+from ctypes import c_size_t
+from ctypes import c_void_p
+from ctypes import POINTER
 
 # avoid shadowing the real open with the version from compat.py
 _real_open = open

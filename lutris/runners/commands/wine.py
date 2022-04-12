@@ -4,20 +4,25 @@ import os
 import shlex
 import time
 
-from lutris import runtime, settings
+from lutris import runtime
+from lutris import settings
 from lutris.command import MonitoredCommand
 from lutris.config import LutrisConfig
 from lutris.runners import import_runner
-from lutris.util import linux, system
+from lutris.util import linux
+from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.shell import get_shell_command
 from lutris.util.strings import split_arguments
 from lutris.util.wine.cabinstall import CabInstaller
 from lutris.util.wine.prefix import WinePrefixManager
-from lutris.util.wine.wine import (
-    WINE_DEFAULT_ARCH, WINE_DIR, detect_arch, detect_prefix_arch, get_overrides_env, get_real_executable,
-    use_lutris_runtime
-)
+from lutris.util.wine.wine import detect_arch
+from lutris.util.wine.wine import detect_prefix_arch
+from lutris.util.wine.wine import get_overrides_env
+from lutris.util.wine.wine import get_real_executable
+from lutris.util.wine.wine import use_lutris_runtime
+from lutris.util.wine.wine import WINE_DEFAULT_ARCH
+from lutris.util.wine.wine import WINE_DIR
 
 
 def set_regedit(

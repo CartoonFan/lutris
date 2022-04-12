@@ -3,16 +3,22 @@ import json
 import os
 from gettext import gettext as _
 
-from lutris.config import LutrisConfig, write_game_config
-from lutris.database.games import add_or_update, get_game_by_field
-from lutris.installer import AUTO_ELF_EXE, AUTO_WIN32_EXE
+from lutris.config import LutrisConfig
+from lutris.config import write_game_config
+from lutris.database.games import add_or_update
+from lutris.database.games import get_game_by_field
+from lutris.installer import AUTO_ELF_EXE
+from lutris.installer import AUTO_WIN32_EXE
 from lutris.installer.errors import ScriptingError
 from lutris.installer.installer_file import InstallerFile
 from lutris.installer.legacy import get_game_launcher
 from lutris.runners import import_runner
 from lutris.services import SERVICES
-from lutris.util.game_finder import find_linux_game_executable, find_windows_game_executable
-from lutris.util.gog import convert_gog_config_to_lutris, get_gog_config_from_path, get_gog_game_path
+from lutris.util.game_finder import find_linux_game_executable
+from lutris.util.game_finder import find_windows_game_executable
+from lutris.util.gog import convert_gog_config_to_lutris
+from lutris.util.gog import get_gog_config_from_path
+from lutris.util.gog import get_gog_game_path
 from lutris.util.log import logger
 
 

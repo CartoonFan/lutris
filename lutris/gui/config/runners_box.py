@@ -1,9 +1,11 @@
 """Add, remove and configure runners"""
 from gettext import gettext as _
 
-from gi.repository import GLib, Gtk
+from gi.repository import GLib
+from gi.repository import Gtk
 
-from lutris import runners, settings
+from lutris import runners
+from lutris import settings
 from lutris.gui.config.base_config_box import BaseConfigBox
 from lutris.gui.config.runner_box import RunnerBox
 from lutris.gui.widgets.utils import open_uri

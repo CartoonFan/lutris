@@ -4,10 +4,13 @@ from collections import OrderedDict
 from functools import lru_cache
 from gettext import gettext as _
 
-from lutris import runtime, settings
-from lutris.gui.dialogs import DontShowAgainDialog, ErrorDialog
+from lutris import runtime
+from lutris import settings
+from lutris.gui.dialogs import DontShowAgainDialog
+from lutris.gui.dialogs import ErrorDialog
 from lutris.runners.steam import steam
-from lutris.util import linux, system
+from lutris.util import linux
+from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.strings import version_sort
 from lutris.util.wine import fsync

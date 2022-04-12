@@ -3,12 +3,14 @@ import logging
 import os.path
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.config import LutrisConfig
 from lutris.gui.dialogs import ErrorDialog
 from lutris.gui.dialogs.download import DownloadDialog
 from lutris.runners.runner import Runner
-from lutris.util import display, extract, system
+from lutris.util import display
+from lutris.util import extract
+from lutris.util import system
+# Lutris Modules
 
 
 def get_resolutions():

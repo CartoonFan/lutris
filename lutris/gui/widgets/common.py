@@ -3,14 +3,16 @@
 import os
 from gettext import gettext as _
 
-# Third Party Libraries
-from gi.repository import GObject, Gtk, Pango
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
 
-# Lutris Modules
 from lutris.gui.widgets.utils import get_stock_icon
 from lutris.util import system
 from lutris.util.linux import LINUX_SYSTEM
 from lutris.util.log import logger
+# Third Party Libraries
+# Lutris Modules
 
 
 class SlugEntry(Gtk.Entry, Gtk.Editable):

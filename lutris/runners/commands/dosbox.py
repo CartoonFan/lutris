@@ -2,11 +2,11 @@
 # Standard Library
 import os
 
-# Lutris Modules
 from lutris import runtime
 from lutris.runners import import_runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
 def dosexec(

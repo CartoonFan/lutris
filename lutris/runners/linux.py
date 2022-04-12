@@ -4,10 +4,10 @@ import os
 import stat
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.strings import split_arguments
+# Lutris Modules
 
 
 class linux(Runner):

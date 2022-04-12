@@ -1,14 +1,16 @@
 """Handle the game, runner and global system configurations."""
-
 import os
 import time
 from shutil import copyfile
 
-from lutris import settings, sysoptions
-from lutris.runners import InvalidRunner, import_runner
+from lutris import settings
+from lutris import sysoptions
+from lutris.runners import import_runner
+from lutris.runners import InvalidRunner
 from lutris.util.log import logger
 from lutris.util.system import path_exists
-from lutris.util.yaml import read_yaml_from_file, write_yaml_to_file
+from lutris.util.yaml import read_yaml_from_file
+from lutris.util.yaml import write_yaml_to_file
 
 
 def make_game_config_id(game_slug):

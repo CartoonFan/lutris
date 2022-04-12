@@ -2,11 +2,11 @@
 import os
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris import settings
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class vice(Runner):

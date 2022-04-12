@@ -2,23 +2,30 @@
 import os
 from gettext import gettext as _
 
-from gi.repository import GLib, Gtk
+from gi.repository import GLib
+from gi.repository import Gtk
 
 from lutris.exceptions import UnavailableGame
 from lutris.game import Game
-from lutris.gui.dialogs import DirectoryDialog, InstallerSourceDialog, QuestionDialog
+from lutris.gui.dialogs import DirectoryDialog
+from lutris.gui.dialogs import InstallerSourceDialog
+from lutris.gui.dialogs import QuestionDialog
 from lutris.gui.dialogs.cache import CacheConfigurationDialog
 from lutris.gui.installer.files_box import InstallerFilesBox
 from lutris.gui.installer.script_picker import InstallerPicker
-from lutris.gui.widgets.common import FileChooserEntry, InstallerLabel
+from lutris.gui.widgets.common import FileChooserEntry
+from lutris.gui.widgets.common import InstallerLabel
 from lutris.gui.widgets.log_text_view import LogTextView
 from lutris.gui.widgets.window import BaseApplicationWindow
 from lutris.installer import interpreter
-from lutris.installer.errors import MissingGameDependency, ScriptingError
+from lutris.installer.errors import MissingGameDependency
+from lutris.installer.errors import ScriptingError
 from lutris.util import xdgshortcuts
 from lutris.util.log import logger
 from lutris.util.steam import shortcut as steam_shortcut
-from lutris.util.strings import add_url_tags, gtk_safe, human_size
+from lutris.util.strings import add_url_tags
+from lutris.util.strings import gtk_safe
+from lutris.util.strings import human_size
 
 
 class InstallerWindow(BaseApplicationWindow):  # pylint: disable=too-many-public-methods

@@ -1,10 +1,11 @@
 """isort:skip_file"""
-from lutris.gui.dialogs import Dialog
-from gi.repository import WebKit2
 import os
 from gettext import gettext as _
 
 import gi
+from gi.repository import WebKit2
+
+from lutris.gui.dialogs import Dialog
 
 gi.require_version("WebKit2", "4.0")
 

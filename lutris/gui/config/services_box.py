@@ -1,10 +1,13 @@
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris import settings
 from lutris.gui.config.base_config_box import BaseConfigBox
-from lutris.gui.widgets.utils import ICON_SIZE, get_icon
+from lutris.gui.widgets.utils import get_icon
+from lutris.gui.widgets.utils import ICON_SIZE
 from lutris.services import SERVICES
 
 

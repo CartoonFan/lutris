@@ -2,9 +2,9 @@
 import os
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
+# Lutris Modules
 
 
 class o2em(Runner):

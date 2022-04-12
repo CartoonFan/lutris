@@ -1,7 +1,13 @@
 """Nvidia library detection from Proton"""
-
 import os
-from ctypes import CDLL, POINTER, Structure, addressof, c_char_p, c_int, c_void_p, cast
+from ctypes import addressof
+from ctypes import c_char_p
+from ctypes import c_int
+from ctypes import c_void_p
+from ctypes import cast
+from ctypes import CDLL
+from ctypes import POINTER
+from ctypes import Structure
 
 from lutris.util.log import logger
 

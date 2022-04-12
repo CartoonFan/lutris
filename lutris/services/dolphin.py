@@ -9,7 +9,8 @@ from lutris.services.base import BaseService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util import system
-from lutris.util.dolphin.cache_reader import DOLPHIN_GAME_CACHE_FILE, DolphinCacheReader
+from lutris.util.dolphin.cache_reader import DOLPHIN_GAME_CACHE_FILE
+from lutris.util.dolphin.cache_reader import DolphinCacheReader
 from lutris.util.strings import slugify
 
 

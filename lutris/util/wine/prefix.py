@@ -1,7 +1,8 @@
 """Wine prefix management"""
 import os
 
-from lutris.util import joypad, system
+from lutris.util import joypad
+from lutris.util import system
 from lutris.util.display import DISPLAY_MANAGER
 from lutris.util.log import logger
 from lutris.util.wine.registry import WineRegistry

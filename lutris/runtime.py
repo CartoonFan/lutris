@@ -6,7 +6,9 @@ import time
 from gi.repository import GLib
 
 from lutris import settings
-from lutris.util import http, jobs, system
+from lutris.util import http
+from lutris.util import jobs
+from lutris.util import system
 from lutris.util.downloader import Downloader
 from lutris.util.extract import extract_archive
 from lutris.util.linux import LINUX_SYSTEM

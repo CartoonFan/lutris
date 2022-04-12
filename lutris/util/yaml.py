@@ -3,9 +3,9 @@
 # pylint: disable=no-member
 import yaml
 
-# Lutris Modules
 from lutris.util.log import logger
 from lutris.util.system import path_exists
+# Lutris Modules
 
 
 def read_yaml_from_file(filename):

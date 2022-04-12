@@ -4,10 +4,10 @@ import os
 from gettext import gettext as _
 from shutil import copyfile
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class ryujinx(Runner):

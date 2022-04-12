@@ -2,9 +2,12 @@
 import os
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 
-from lutris import api, settings
+from lutris import api
+from lutris import settings
 from lutris.gui.widgets.log_text_view import LogTextView
 from lutris.util import datapath
 from lutris.util.jobs import AsyncCall

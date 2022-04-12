@@ -1,5 +1,4 @@
 """Module that actually runs the games."""
-
 # pylint: disable=too-many-public-methods
 import json
 import os
@@ -10,26 +9,42 @@ import subprocess
 import time
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gtk
 
-from lutris import runtime, settings
+from lutris import runtime
+from lutris import settings
 from lutris.command import MonitoredCommand
 from lutris.config import LutrisConfig
 from lutris.database import categories as categories_db
 from lutris.database import games as games_db
 from lutris.database import sql
-from lutris.exceptions import GameConfigError, watch_lutris_errors
+from lutris.exceptions import GameConfigError
+from lutris.exceptions import watch_lutris_errors
 from lutris.gui import dialogs
-from lutris.runner_interpreter import export_bash_script, get_launch_parameters
-from lutris.runners import InvalidRunner, import_runner, wine
-from lutris.util import audio, extract, jobs, linux, strings, system, xdgshortcuts
-from lutris.util.display import (
-    DISPLAY_MANAGER, SCREEN_SAVER_INHIBITOR, disable_compositing, enable_compositing, restore_gamma
-)
+from lutris.runner_interpreter import export_bash_script
+from lutris.runner_interpreter import get_launch_parameters
+from lutris.runners import import_runner
+from lutris.runners import InvalidRunner
+from lutris.runners import wine
+from lutris.util import audio
+from lutris.util import extract
+from lutris.util import jobs
+from lutris.util import linux
+from lutris.util import strings
+from lutris.util import system
+from lutris.util import xdgshortcuts
+from lutris.util.display import disable_compositing
+from lutris.util.display import DISPLAY_MANAGER
+from lutris.util.display import enable_compositing
+from lutris.util.display import restore_gamma
+from lutris.util.display import SCREEN_SAVER_INHIBITOR
 from lutris.util.graphics.xephyr import get_xephyr_command
 from lutris.util.graphics.xrandr import turn_off_except
 from lutris.util.linux import LINUX_SYSTEM
-from lutris.util.log import LOG_BUFFERS, logger
+from lutris.util.log import LOG_BUFFERS
+from lutris.util.log import logger
 from lutris.util.process import Process
 from lutris.util.timer import Timer
 from lutris.util.yaml import write_yaml_to_file

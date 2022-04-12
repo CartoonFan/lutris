@@ -3,7 +3,8 @@ import os
 from gettext import gettext as _
 from urllib.parse import urlparse
 
-from lutris import cache, settings
+from lutris import cache
+from lutris import settings
 from lutris.installer.errors import ScriptingError
 from lutris.util import system
 from lutris.util.log import logger

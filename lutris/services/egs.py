@@ -7,13 +7,18 @@ import requests
 from gi.repository import Gio
 
 from lutris import settings
-from lutris.config import LutrisConfig, write_game_config
-from lutris.database.games import add_game, get_game_by_field
+from lutris.config import LutrisConfig
+from lutris.config import write_game_config
+from lutris.database.games import add_game
+from lutris.database.games import get_game_by_field
 from lutris.database.services import ServiceGameCollection
 from lutris.game import Game
-from lutris.gui.widgets.utils import Image, paste_overlay, thumbnail_image
+from lutris.gui.widgets.utils import Image
+from lutris.gui.widgets.utils import paste_overlay
+from lutris.gui.widgets.utils import thumbnail_image
 from lutris.installer import get_installers
-from lutris.services.base import AuthTokenExpired, OnlineService
+from lutris.services.base import AuthTokenExpired
+from lutris.services.base import OnlineService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util import system

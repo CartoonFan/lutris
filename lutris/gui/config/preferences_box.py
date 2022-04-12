@@ -1,6 +1,7 @@
 from gettext import gettext as _
 
-from gi.repository import Gio, Gtk
+from gi.repository import Gio
+from gi.repository import Gtk
 
 from lutris import settings
 from lutris.gui.widgets.common import VBox

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-
-from os import environ, path
+from os import environ
+from os import path
 from subprocess import call
 
 prefix = environ.get("MESON_INSTALL_PREFIX", "/usr/local")

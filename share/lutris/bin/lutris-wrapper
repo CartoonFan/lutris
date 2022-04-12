@@ -3,7 +3,6 @@
 Starts a game in a contained process tree, waits for the game to start,
 gently tries to close other game processes when the main game has exited.
 """
-
 import ctypes
 import logging
 import os

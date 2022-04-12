@@ -10,7 +10,8 @@ import uuid
 
 from gi.repository import GLib
 
-from lutris import runtime, settings
+from lutris import runtime
+from lutris import settings
 from lutris.util import system
 from lutris.util.log import logger
 from lutris.util.shell import get_terminal_script

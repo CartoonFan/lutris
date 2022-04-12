@@ -8,8 +8,10 @@ from urllib.parse import unquote
 from gi.repository import Gio
 
 from lutris import settings
-from lutris.config import LutrisConfig, write_game_config
-from lutris.database.games import add_game, get_game_by_field
+from lutris.config import LutrisConfig
+from lutris.config import write_game_config
+from lutris.database.games import add_game
+from lutris.database.games import get_game_by_field
 from lutris.database.services import ServiceGameCollection
 from lutris.game import Game
 from lutris.installer import get_installers

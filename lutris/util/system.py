@@ -10,7 +10,8 @@ import string
 import subprocess
 from gettext import gettext as _
 
-from gi.repository import Gio, GLib
+from gi.repository import Gio
+from gi.repository import GLib
 
 from lutris import settings
 from lutris.util.log import logger

@@ -2,7 +2,8 @@
 import os
 from gettext import gettext as _
 
-from lutris import runtime, settings
+from lutris import runtime
+from lutris import settings
 from lutris.runners.runner import Runner
 from lutris.util import system
 from lutris.util.jobs import AsyncCall

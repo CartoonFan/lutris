@@ -4,21 +4,29 @@ import os
 import time
 from collections import defaultdict
 from gettext import gettext as _
-from urllib.parse import parse_qsl, urlencode, urlparse
+from urllib.parse import parse_qsl
+from urllib.parse import urlencode
+from urllib.parse import urlparse
 
 from lxml import etree
 
 from lutris import settings
-from lutris.exceptions import AuthenticationError, UnavailableGame
-from lutris.installer import AUTO_ELF_EXE, AUTO_WIN32_EXE
+from lutris.exceptions import AuthenticationError
+from lutris.exceptions import UnavailableGame
+from lutris.installer import AUTO_ELF_EXE
+from lutris.installer import AUTO_WIN32_EXE
 from lutris.installer.installer_file import InstallerFile
 from lutris.services.base import OnlineService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
-from lutris.util import i18n, system
-from lutris.util.http import HTTPError, Request, UnauthorizedAccess
+from lutris.util import i18n
+from lutris.util import system
+from lutris.util.http import HTTPError
+from lutris.util.http import Request
+from lutris.util.http import UnauthorizedAccess
 from lutris.util.log import logger
-from lutris.util.strings import human_size, slugify
+from lutris.util.strings import human_size
+from lutris.util.strings import slugify
 
 
 class GogSmallBanner(ServiceMedia):

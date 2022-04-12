@@ -2,7 +2,9 @@
 import os
 from datetime import datetime
 
-from gi.repository import Gdk, GObject, Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 from lutris.gui.dialogs import FileDialog
 from lutris.gui.widgets.log_text_view import LogTextView

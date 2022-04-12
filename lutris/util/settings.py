@@ -2,8 +2,8 @@
 import configparser
 import os
 
-# Lutris Modules
 from lutris.util.log import logger
+# Lutris Modules
 
 
 class SettingsIO:

@@ -17,10 +17,15 @@ from lutris.database.games import get_game_by_field
 from lutris.game import Game
 from lutris.installer.errors import ScriptingError
 from lutris.runners import import_task
-from lutris.util import extract, linux, selective_merge, system
-from lutris.util.fileio import EvilConfigParser, MultiOrderedDict
+from lutris.util import extract
+from lutris.util import linux
+from lutris.util import selective_merge
+from lutris.util import system
+from lutris.util.fileio import EvilConfigParser
+from lutris.util.fileio import MultiOrderedDict
 from lutris.util.log import logger
-from lutris.util.wine.wine import WINE_DEFAULT_ARCH, get_wine_version_exe
+from lutris.util.wine.wine import get_wine_version_exe
+from lutris.util.wine.wine import WINE_DEFAULT_ARCH
 
 
 class CommandsMixin:

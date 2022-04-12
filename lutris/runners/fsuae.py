@@ -2,9 +2,9 @@
 import os
 from gettext import gettext as _
 
-# Lutris Modules
 from lutris.runners.runner import Runner
 from lutris.util.display import DISPLAY_MANAGER
+# Lutris Modules
 
 
 class fsuae(Runner):

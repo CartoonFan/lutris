@@ -4,13 +4,13 @@ import json
 import os
 from gettext import gettext as _
 
-# Third Party Libraries
 from gi.repository import Gtk
 
-# Lutris Modules
 from lutris.gui.dialogs import NoticeDialog
 from lutris.gui.widgets.window import BaseApplicationWindow
 from lutris.util.linux import gather_system_info
+# Third Party Libraries
+# Lutris Modules
 
 
 class IssueReportWindow(BaseApplicationWindow):
