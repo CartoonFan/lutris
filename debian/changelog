@@ -1,3 +1,73 @@
+lutris (0.5.10) impish; urgency=medium
+
+  * Add new window to add games to Lutris, with searches from the website,
+    scanning a folder for previously installed games, installing a Windows
+    game from a setup file, installing from a YAML script or configuring a
+    single game manually.
+  * Move the search for Lutris installers from a tab in the Lutris service
+    to the window for adding games.
+  * Add option to add a Lutris game to Steam
+  * Add a coverart format
+  * Add integration with EA Origin
+  * Add integration with Ubisoft Connect
+  * Download missing media on startup
+  * Remove Winesteam runner (install Steam for Windows in Lutris instead)
+  * PC (Linux and Windows) games have their own dedicated Nvidia shader cache
+  * Add dgvoodoo2 option
+  * Add option to enable BattleEye anti-cheat support
+  * Default to Retroarch cores in ~/.config/retroarch/cores if available
+  * Add support for downloading patches and DLC for GOG games
+  * Add --export and --import command line flags to export a game a lutris
+    game and re-import it (requires --dest for the destination path, feature still experimental)
+  * Add command line flags to manage runners: --install-runner, --uninstall-runners,
+    --list-runners, --list-wine-versions
+  * Change behavior of the "Stop" button, remove "Kill all Wine processes" action
+  * Gamescope option is now disabled on Nvidia GPUs
+  * Enable F-Sync by default
+
+ -- Mathieu Comandon <strider@strycore.com>  Fri, 04 Feb 2022 19:14:41 -0800
+
+lutris (0.5.9.1) hirsute; urgency=medium
+
+  * Fix possible escaping error for gamescope option
+  * Remove walrus operator to restore compatibility with Python 3.7 / Ubuntu 18.04
+  * Remove log file being written in the home folder
+  * Fix install button for community installer
+  * Fix markup error on gamescope option
+  * Update URL for Ryujinx build
+  * Fix Steam sync creating duplicate games
+
+ -- Mathieu Comandon <strider@strycore.com>  Sat, 16 Oct 2021 18:08:26 -0700
+
+lutris (0.5.9) hirsute; urgency=medium
+
+  * Add initial support for Epic Games Store
+  * Add support for Steam for Windows as a game source
+  * Add support for DXVK-NVAPI and DLSS
+  * Add FidelityFX Super Resolution (FSR) option for compatible Wine versions
+  * Add workaround for locale issues when Lutris is launched from Steam
+  * Add gamescope option
+  * Lutris games can now be launched from Steam
+  * 3rd party services can be enabled or disabled in the preferences
+  * The main preferences window has now tabs on the left side
+  * Runner configuration is now available from the main preferences window
+  * VKD3D is a separate option from DXVK
+  * Esync is enabled by default
+  * Dolphin is available as a game source (reads games from the emulator's
+    local database of games)
+  * Scan for installed games when using Steam source
+  * Improved automatic installers for GOG, detection of DOSBOX and ScummVM
+    games.
+  * DRM free services (Humble, GOG) can locate existing installations of games
+  * Use 7zip as the default extractor when not given an archive type
+  * Improve process monitoring, allowing for monitoring of Steam games
+  * Disable AMD switchable graphics layer by default (breaks games)
+  * Removed support for Gallium 9
+  * Removed support for X360CE
+  * Removed legacy WineD3D options
+
+ -- Mathieu Comandon <strider@strycore.com>  Mon, 11 Oct 2021 12:33:39 -0700
+
 lutris (0.5.8.3) groovy; urgency=medium
 
   * Really fix popovers not showing on Wayland without making them non-modal

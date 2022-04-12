@@ -43,36 +43,43 @@ def get_pixbuf(image, size, fallback=None, is_installed=True):
     """Return a pixbuf from file `image` at `size` or fallback to `fallback`"""
     width, height = size
     pixbuf = None
-    if system.path_exists(image):
+    if system.path_exists(image, exclude_empty=True):
         try:
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(image, width, height)
             pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.NEAREST)
         except GLib.GError:
             logger.error("Unable to load icon from image %s", image)
-    if system.path_exists(fallback):
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(fallback, width, height)
-    if not pixbuf:
-        logger.warning("Returning empty pixbuf for %s", image)
-        return GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, True, 8, width, height)
-    if is_installed:
+    else:
+        if not fallback:
+            fallback = get_default_icon(size)
+        if system.path_exists(fallback):
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(fallback, width, height)
+    if is_installed and pixbuf:
         pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.NEAREST)
         return pixbuf
     overlay = os.path.join(datapath.get(), "media/unavailable.png")
     transparent_pixbuf = get_overlay(overlay, size).copy()
-    pixbuf.composite(
-        transparent_pixbuf,
-        0,
-        0,
-        size[0],
-        size[1],
-        0,
-        0,
-        1,
-        1,
-        GdkPixbuf.InterpType.NEAREST,
-        100,
-    )
+    if pixbuf:
+        pixbuf.composite(
+            transparent_pixbuf,
+            0,
+            0,
+            size[0],
+            size[1],
+            0,
+            0,
+            1,
+            1,
+            GdkPixbuf.InterpType.NEAREST,
+            100,
+        )
     return transparent_pixbuf
+
+
+def has_stock_icon(name):
+    """This tests if a GTK stock icon is known; if not we can try a fallback."""
+    theme = Gtk.IconTheme.get_default()
+    return theme.has_icon(name)
 
 
 def get_stock_icon(name, size):
@@ -123,13 +130,8 @@ def get_default_icon(size):
     return os.path.join(datapath.get(), "media/default_banner.png")
 
 
-def get_pixbuf_for_game(image_abspath, size, is_installed=True):
-    return get_pixbuf(image_abspath, size, fallback=get_default_icon(size), is_installed=is_installed)
-
-
 def convert_to_background(background_path, target_size=(320, 1080)):
     """Converts a image to a pane background"""
-
     coverart = Image.open(background_path)
     coverart = coverart.convert("RGBA")
 
@@ -159,21 +161,48 @@ def convert_to_background(background_path, target_size=(320, 1080)):
     return background
 
 
+def thumbnail_image(base_image, target_size):
+    base_width, base_height = base_image.size
+    base_ratio = base_width / base_height
+    target_width, target_height = target_size
+    target_ratio = target_width / target_height
+
+    # Resize and crop coverart
+    if base_ratio >= target_ratio:
+        width = int(base_width * (target_height / base_height))
+        height = target_height
+    else:
+        width = target_width
+        height = int(base_height * (target_width / base_width))
+    x_offset = int((width - target_width) / 2)
+    y_offset = int((height - target_height) / 2)
+    base_image = base_image.resize((width, height), resample=Image.BICUBIC)
+    base_image = base_image.crop((x_offset, y_offset, width - x_offset, height - y_offset))
+    return base_image
+
+
+def paste_overlay(base_image, overlay_image, position=0.7):
+    base_width, base_height = base_image.size
+    overlay_width, overlay_height = overlay_image.size
+    offset_x = int((base_width - overlay_width) / 2)
+    offset_y = int((base_height - overlay_height) / 2)
+    base_image.paste(
+        overlay_image, (
+            offset_x,
+            offset_y,
+            overlay_width + offset_x,
+            overlay_height + offset_y
+        ),
+        mask=overlay_image
+    )
+    return base_image
+
+
 def image2pixbuf(image):
     """Converts a PIL Image to a GDK Pixbuf"""
     image_array = array.array('B', image.tobytes())
     width, height = image.size
     return GdkPixbuf.Pixbuf.new_from_data(image_array, GdkPixbuf.Colorspace.RGB, True, 8, width, height, width * 4)
-
-
-def get_builder_from_file(glade_file):
-    ui_filename = os.path.join(datapath.get(), "ui", glade_file)
-    if not os.path.exists(ui_filename):
-        raise ValueError("ui file does not exists: %s" % ui_filename)
-
-    builder = Gtk.Builder()
-    builder.add_from_file(ui_filename)
-    return builder
 
 
 def get_link_button(text):

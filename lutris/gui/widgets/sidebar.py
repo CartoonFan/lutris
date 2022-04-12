@@ -9,11 +9,12 @@ from lutris.database import games as games_db
 from lutris.game import Game
 from lutris.gui.config.runner import RunnerConfigDialog
 from lutris.gui.config.runner_box import RunnerBox
+from lutris.gui.config.services_box import ServicesBox
 from lutris.gui.dialogs import ErrorDialog
 from lutris.gui.dialogs.runner_install import RunnerInstallDialog
-from lutris.services.base import BaseService
+from lutris.gui.widgets.utils import has_stock_icon
+from lutris.services.base import AuthTokenExpired, BaseService
 from lutris.util.jobs import AsyncCall
-from lutris.util.log import logger
 
 TYPE = 0
 SLUG = 1
@@ -127,26 +128,26 @@ class ServiceSidebarRow(SidebarRow):
             ("view-refresh-symbolic", _("Reload"), self.on_refresh_clicked, "refresh")
         ]
 
+    def on_service_run(self, button):
+        """Run a launcher associated with a service"""
+        self.service.run()
+
     def on_refresh_clicked(self, button):
         """Reload the service games"""
         button.set_sensitive(False)
         if self.service.online and not self.service.is_connected():
             self.service.logout()
             return
+        AsyncCall(self.service.reload, self.service_load_cb)
 
-        self.service.wipe_game_cache()
-        AsyncCall(self.service.load, self.service_load_cb)
-
-    def service_load_cb(self, games, error):
-        if games is None:
-            logger.warning("No game returned from the service")
-        if not error and not games and self.service.id == "steam":
-            # This should not be handled here, the steam service should raise an error
-            error = _("Failed to load games. Check that your profile is set to public during the sync.")
+    def service_load_cb(self, _result, error):
         if error:
-            ErrorDialog(str(error))
-        AsyncCall(self.service.add_installed_games, None)
-        GLib.timeout_add(5000, self.enable_refresh_button)
+            if isinstance(error, AuthTokenExpired):
+                self.service.logout()
+                self.service.login()
+            else:
+                ErrorDialog(str(error))
+        GLib.timeout_add(2000, self.enable_refresh_button)
 
     def enable_refresh_button(self):
         self.buttons["refresh"].set_sensitive(True)
@@ -156,6 +157,7 @@ class ServiceSidebarRow(SidebarRow):
 class OnlineServiceSidebarRow(ServiceSidebarRow):
     def get_buttons(self):
         return {
+            "run": (("media-playback-start-symbolic", _("Run"), self.on_service_run, "run")),
             "refresh": ("view-refresh-symbolic", _("Reload"), self.on_refresh_clicked, "refresh"),
             "disconnect": ("system-log-out-symbolic", _("Disconnect"), self.on_connect_clicked, "disconnect"),
             "connect": ("avatar-default-symbolic", _("Connect"), self.on_connect_clicked, "connect")
@@ -163,9 +165,14 @@ class OnlineServiceSidebarRow(ServiceSidebarRow):
 
     def get_actions(self):
         buttons = self.get_buttons()
+        displayed_buttons = []
+        if self.service.is_launchable():
+            displayed_buttons.append(buttons["run"])
         if self.service.is_authenticated():
-            return [buttons["refresh"], buttons["disconnect"]]
-        return [buttons["connect"]]
+            displayed_buttons += [buttons["refresh"], buttons["disconnect"]]
+        else:
+            displayed_buttons += [buttons["connect"]]
+        return displayed_buttons
 
     def on_connect_clicked(self, button):
         button.set_sensitive(False)
@@ -266,6 +273,7 @@ class LutrisSidebar(Gtk.ListBox):
         }
         GObject.add_emission_hook(RunnerBox, "runner-installed", self.update)
         GObject.add_emission_hook(RunnerBox, "runner-removed", self.update)
+        GObject.add_emission_hook(ServicesBox, "services-changed", self.on_services_changed)
         GObject.add_emission_hook(Game, "game-start", self.on_game_start)
         GObject.add_emission_hook(Game, "game-stop", self.on_game_stop)
         GObject.add_emission_hook(Game, "game-updated", self.update)
@@ -274,15 +282,28 @@ class LutrisSidebar(Gtk.ListBox):
         GObject.add_emission_hook(BaseService, "service-logout", self.on_service_auth_changed)
         GObject.add_emission_hook(BaseService, "service-games-load", self.on_service_games_updating)
         GObject.add_emission_hook(BaseService, "service-games-loaded", self.on_service_games_updated)
-        self.connect("realize", self.on_realize)
         self.set_filter_func(self._filter_func)
         self.set_header_func(self._header_func)
         self.show_all()
 
     def get_sidebar_icon(self, icon_name):
-        return Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU)
+        name = icon_name if has_stock_icon(icon_name) else "package-x-generic-symbolic"
+        icon = Gtk.Image.new_from_icon_name(name, Gtk.IconSize.MENU)
 
-    def on_realize(self, widget):
+        # We can wind up with an icon of the wrong size, if that's what is
+        # available. So we'll fix that.
+        icon_size = Gtk.IconSize.lookup(Gtk.IconSize.MENU)
+        if icon_size[0]:
+            icon.set_pixel_size(icon_size[2])
+
+        return icon
+
+    def initialize_rows(self):
+        """
+        Select the initial row; this triggers the initialization of the game view
+        so we must do this even if this sidebar is never realized, but only after
+        the sidebar's signals are connected.
+        """
         self.active_platforms = games_db.get_used_platforms()
         self.runners = sorted(runners.__all__)
         self.platforms = sorted(runners.RUNNER_PLATFORMS)
@@ -348,10 +369,12 @@ class LutrisSidebar(Gtk.ListBox):
             self.add(SidebarRow(platform, "platform", platform, self.get_sidebar_icon(icon_name)))
 
         self.update()
+
         for row in self.get_children():
             if row.type == self.selected_row_type and row.id == self.selected_row_id:
                 self.select_row(row)
                 break
+
         self.show_all()
         self.running_row.hide()
 
@@ -365,8 +388,6 @@ class LutrisSidebar(Gtk.ListBox):
         return row.id in self.active_platforms
 
     def _header_func(self, row, before):
-        if row.get_header():
-            return
         if not before:
             row.set_header(self.row_headers["library"])
         elif before.type in ("category", "dynamic_category") and row.type == "service":
@@ -375,6 +396,8 @@ class LutrisSidebar(Gtk.ListBox):
             row.set_header(self.row_headers["runners"])
         elif before.type == "runner" and row.type == "platform":
             row.set_header(self.row_headers["platforms"])
+        else:
+            row.set_header(None)
 
     def update(self, *_args):
         self.installed_runners = [runner.name for runner in runners.get_installed()]
@@ -391,6 +414,10 @@ class LutrisSidebar(Gtk.ListBox):
         """Hide the "running" section when no games are running"""
         if not self.application.running_games.get_n_items():
             self.running_row.hide()
+
+            if self.get_selected_row() == self.running_row:
+                self.select_row(self.get_children()[0])
+
         return True
 
     def on_service_auth_changed(self, service):
@@ -406,4 +433,10 @@ class LutrisSidebar(Gtk.ListBox):
     def on_service_games_updated(self, service):
         self.service_rows[service.id].is_updating = False
         self.service_rows[service.id].update_buttons()
+        return True
+
+    def on_services_changed(self, _widget):
+        for child in self.get_children():
+            child.destroy()
+        self.initialize_rows()
         return True

@@ -8,7 +8,6 @@ __all__ = [
     "web",
     # Microsoft based
     "wine",
-    "winesteam",
     "dosbox",
     # Multi-system
     "easyrpg",
@@ -27,6 +26,7 @@ __all__ = [
     "snes9x",
     "mupen64plus",
     "dolphin",
+    "ryujinx",
     "yuzu",
     # Sony
     "pcsx2",

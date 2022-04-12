@@ -1,20 +1,23 @@
 """Steam service"""
 import json
 import os
-import re
+from collections import defaultdict
 from gettext import gettext as _
 
 from gi.repository import Gio
 
 from lutris import settings
-from lutris.database.games import get_games
+from lutris.config import LutrisConfig, write_game_config
+from lutris.database.games import add_game, get_game_by_field, get_games
+from lutris.database.services import ServiceGameCollection
 from lutris.game import Game
 from lutris.installer.installer_file import InstallerFile
 from lutris.services.base import BaseService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util.log import logger
-from lutris.util.steam.config import get_steam_library, get_user_steam_id
+from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
+from lutris.util.steam.config import get_steam_library, get_steamapps_paths, get_user_steam_id
 from lutris.util.strings import slugify
 
 
@@ -78,6 +81,7 @@ class SteamService(BaseService):
     is_loading = False
     runner = "steam"
     excluded_appids = [
+        "221410",  # Steam for Linux
         "228980",  # Steamworks Common Redistributables
         "1070560",  # Steam Linux Runtime
     ]
@@ -89,29 +93,24 @@ class SteamService(BaseService):
             logger.warning("Steam games are already loading")
             return
         self.is_loading = True
-        self.emit("service-games-load")
-
         steamid = get_user_steam_id()
         if not steamid:
             logger.error("Unable to find SteamID from Steam config")
-            self.emit("service-games-loaded")
             return
         steam_games = get_steam_library(steamid)
+        if not steam_games:
+            raise RuntimeError(_("Failed to load games. Check that your profile is set to public during the sync."))
         for steam_game in steam_games:
             if steam_game["appid"] in self.excluded_appids:
                 continue
-            print(self.game_class)
             game = self.game_class.new_from_steam_game(steam_game)
             game.save()
-
         self.match_games()
         self.is_loading = False
-        logger.debug("%d Steam games loaded", len(steam_games))
-        self.emit("service-games-loaded")
         return steam_games
 
     def get_installer_files(self, installer, installer_file_id):
-        steam_uri = "$WINESTEAM:%s:." if installer.runner == "winesteam" else "$STEAM:%s:."
+        steam_uri = "$STEAM:%s:."
         appid = str(installer.script["game"]["appid"])
         return [
             InstallerFile(installer.game_slug, "steam_game", {
@@ -120,11 +119,81 @@ class SteamService(BaseService):
             })
         ]
 
+    def install_from_steam(self, manifest):
+        """Create a new Lutris game based on an existing Steam install"""
+        if not manifest.is_installed():
+            return
+        appid = manifest.steamid
+        if appid in self.excluded_appids:
+            return
+        service_game = ServiceGameCollection.get_game(self.id, appid)
+        if not service_game:
+            return
+        lutris_game_id = "%s-%s" % (self.id, appid)
+        existing_game = get_game_by_field(lutris_game_id, "installer_slug")
+        if existing_game:
+            return
+        game_config = LutrisConfig().game_level
+        game_config["game"]["appid"] = appid
+        configpath = write_game_config(lutris_game_id, game_config)
+        game_id = add_game(
+            name=service_game["name"],
+            runner="steam",
+            slug=slugify(service_game["name"]),
+            installed=1,
+            installer_slug=lutris_game_id,
+            configpath=configpath,
+            platform="Linux",
+            service=self.id,
+            service_id=appid,
+        )
+        return game_id
+
+    @property
+    def steamapps_paths(self):
+        return get_steamapps_paths()
+
+    def add_installed_games(self):
+        """Syncs installed Steam games with Lutris"""
+        installed_appids = []
+        for steamapps_path in self.steamapps_paths:
+            for appmanifest_file in get_appmanifests(steamapps_path):
+                app_manifest_path = os.path.join(steamapps_path, appmanifest_file)
+                app_manifest = AppManifest(app_manifest_path)
+                installed_appids.append(app_manifest.steamid)
+                self.install_from_steam(app_manifest)
+
+        db_games = get_games(filters={"runner": "steam"})
+        for db_game in db_games:
+            steam_game = Game(db_game["id"])
+            try:
+                appid = steam_game.config.game_level["game"]["appid"]
+            except KeyError:
+                logger.warning("Steam game %s has no AppID")
+                continue
+            if appid not in installed_appids:
+                steam_game.remove(no_signal=True)
+
+        db_appids = defaultdict(list)
+        db_games = get_games(filters={"service": "steam"})
+        for db_game in db_games:
+            db_appids[db_game["service_id"]].append(db_game["id"])
+
+        for appid in db_appids:
+            game_ids = db_appids[appid]
+            if len(game_ids) == 1:
+                continue
+            for game_id in game_ids:
+                steam_game = Game(game_id)
+                if not steam_game.playtime:
+                    steam_game.remove(no_signal=True)
+                    steam_game.delete()
+
     def generate_installer(self, db_game):
         """Generate a basic Steam installer"""
         return {
             "name": db_game["name"],
-            "version": "Steam",
+            "version": self.name,
             "slug": slugify(db_game["name"]) + "-" + self.id,
             "game_slug": slugify(db_game["name"]),
             "runner": self.runner,
@@ -136,7 +205,7 @@ class SteamService(BaseService):
 
     def install(self, db_game):
         appid = db_game["appid"]
-        db_games = get_games(filters={"service_id": appid, "installed": "1", "service": "steam"})
+        db_games = get_games(filters={"service_id": appid, "installed": "1", "service": self.id})
         existing_game = self.match_existing_game(db_games, appid)
         if existing_game:
             logger.debug("Found steam game: %s", existing_game)

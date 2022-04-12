@@ -1,7 +1,6 @@
 import os
-import sys
 import shutil
-
+import sys
 
 KNOWN_DIRS = [
     "ProgramData/Microsoft/Windows",
@@ -12,6 +11,7 @@ KNOWN_DIRS = [
     "Program Files/Windows NT",
     "windows",
 ]
+
 
 def delete_known_dirs(prefix_path):
     for known_dir in KNOWN_DIRS:
@@ -32,8 +32,10 @@ def remove_empty_dirs(dirname):
         os.rmdir(folder)
     return empty_folders
 
-dirname = sys.argv[1]
-delete_known_dirs(dirname)
-empty_folders = True
-while empty_folders:
-    empty_folders = remove_empty_dirs(dirname)
+
+if __name__ == "__main__":
+    dirname = sys.argv[1]
+    delete_known_dirs(dirname)
+    empty_folders = True
+    while empty_folders:
+        empty_folders = remove_empty_dirs(dirname)

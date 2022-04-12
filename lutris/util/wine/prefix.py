@@ -1,8 +1,6 @@
 """Wine prefix management"""
-# Standard Library
 import os
 
-# Lutris Modules
 from lutris.util import joypad, system
 from lutris.util.display import DISPLAY_MANAGER
 from lutris.util.log import logger
@@ -10,12 +8,10 @@ from lutris.util.wine.registry import WineRegistry
 from lutris.util.xdgshortcuts import get_xdg_entry
 
 DESKTOP_KEYS = ["Desktop", "Personal", "My Music", "My Videos", "My Pictures"]
-DEFAULT_DESKTOP_FOLDERS = ["Desktop", "My Documents", "My Music", "My Videos", "My Pictures"]
+DEFAULT_DESKTOP_FOLDERS = ["Desktop", "Documents", "Music", "Videos", "Pictures"]
 DESKTOP_XDG = ["DESKTOP", "DOCUMENTS", "MUSIC", "VIDEOS", "PICTURES"]
 DEFAULT_DLL_OVERRIDES = {
-    "winemenubuilder": "d",
-    "nvapi": "d",
-    "nvapi64": "d"
+    "winemenubuilder": "",
 }
 
 
@@ -45,11 +41,36 @@ class WinePrefixManager:
     """Class to allow modification of Wine prefixes without the use of Wine"""
 
     hkcu_prefix = "HKEY_CURRENT_USER"
+    hklm_prefix = "HKEY_LOCAL_MACHINE"
 
     def __init__(self, path):
         if not path:
             logger.warning("No path specified for Wine prefix")
         self.path = path
+
+    @property
+    def user_dir(self):
+        """Returns the directory that contains the current user's profile in the WINE prefix."""
+        user = os.getenv("USER") or 'lutrisuser'
+        return os.path.join(self.path, "drive_c/users/", user)
+
+    @property
+    def appdata_dir(self):
+        """Returns the app-data directory for the user; this depends on a registry key."""
+        user_dir = self.user_dir
+        folder = self.get_registry_key(
+            self.hkcu_prefix + "/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders",
+            "AppData",
+        )
+        if folder is None:
+            logger.warning("Get Registry Key function returned NoneType to variable folder.")
+        else:
+            # Don't try to resolve the Windows path we get- there's
+            # just two options, the Vista-and later option and the
+            # XP-and-earlier option.
+            if folder.lower().endswith("\\application data"):
+                return os.path.join(user_dir, "Application Data")  # Windows XP
+        return os.path.join(user_dir, "AppData/Roaming")  # Vista
 
     def setup_defaults(self):
         """Sets the defaults for newly created prefixes"""
@@ -68,11 +89,14 @@ class WinePrefixManager:
         """
         if key.startswith(self.hkcu_prefix):
             return os.path.join(self.path, "user.reg")
+        if key.startswith(self.hklm_prefix):
+            return os.path.join(self.path, "system.reg")
         raise ValueError("Unsupported key '{}'".format(key))
 
     def get_key_path(self, key):
-        if key.startswith(self.hkcu_prefix):
-            return key[len(self.hkcu_prefix) + 1:]
+        for prefix in (self.hkcu_prefix, self.hklm_prefix):
+            if key.startswith(prefix):
+                return key[len(prefix) + 1:]
         raise ValueError("The key {} is currently not supported by WinePrefixManager".format(key))
 
     def get_registry_key(self, key, subkey):
@@ -121,16 +145,9 @@ class WinePrefixManager:
         """Overwrite desktop integration"""
         # pylint: disable=too-many-branches
         # TODO: reduce complexity (18)
-        user = os.getenv("USER")
-        if not user:
-            user = 'lutrisuser'
-        user_dir = os.path.join(self.path, "drive_c/users/", user)
+        user_dir = self.user_dir
         desktop_folders = self.get_desktop_folders()
-
-        if desktop_dir:
-            desktop_dir = os.path.expanduser(desktop_dir)
-        else:
-            desktop_dir = user_dir
+        desktop_dir = os.path.expanduser(desktop_dir) if desktop_dir else user_dir
 
         if system.path_exists(user_dir):
             # Replace or restore desktop integration symlinks
@@ -165,11 +182,11 @@ class WinePrefixManager:
                 if desktop_dir != user_dir:
                     try:
                         src_path = os.path.join(desktop_dir, item)
-                    except TypeError:
+                    except TypeError as ex:
                         # There is supposedly a None value in there
                         # The current code shouldn't allow that
                         # Just raise a exception with the values
-                        raise RuntimeError("Missing value desktop_dir=%s or item=%s" % (desktop_dir, item))
+                        raise RuntimeError("Missing value desktop_dir=%s or item=%s" % (desktop_dir, item)) from ex
 
                     os.makedirs(src_path, exist_ok=True)
                     os.symlink(src_path, path)
@@ -179,13 +196,6 @@ class WinePrefixManager:
                         os.rename(old_path, path)
                     else:
                         os.makedirs(path, exist_ok=True)
-
-            # Security: Remove other symlinks.
-            for item in os.listdir(user_dir):
-                path = os.path.join(user_dir, item)
-                if item not in desktop_folders and os.path.islink(path):
-                    os.unlink(path)
-                    os.makedirs(path)
 
     def set_crash_dialogs(self, enabled):
         """Enable or diable Wine crash dialogs"""
@@ -224,13 +234,10 @@ class WinePrefixManager:
         if desktop_size:
             self.set_registry_key(path, "WineDesktop", desktop_size)
 
-    def use_xvid_mode(self, enabled):
-        """Set this to "Y" to allow wine switch the resolution using XVidMode extension."""
-        self.set_registry_key(
-            self.hkcu_prefix + "/Software/Wine/X11 Driver",
-            "UseXVidMode",
-            "Y" if enabled else "N",
-        )
+    def set_dpi(self, dpi):
+        """Sets the DPI for WINE to use. 96 DPI is effectively unscaled."""
+        self.set_registry_key(self.hkcu_prefix + "/Software/Wine/Fonts", "LogPixels", dpi)
+        self.set_registry_key(self.hkcu_prefix + "/Control Panel/Desktop", "LogPixels", dpi)
 
     def configure_joypads(self):
         """Disables some joypad devices"""

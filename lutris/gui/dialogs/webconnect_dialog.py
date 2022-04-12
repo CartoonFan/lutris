@@ -54,6 +54,10 @@ class WebConnectDialog(Dialog):
     def on_navigation(self, widget, load_event):
         if load_event == WebKit2.LoadEvent.FINISHED:
             url = widget.get_uri()
+            if url in self.service.scripts:
+                script = self.service.scripts[url]
+                widget.run_javascript(script, None, None)
+                return True
             if url.startswith(self.service.redirect_uri):
                 if self.service.requires_login_page:
                     resource = widget.get_main_resource()
@@ -85,7 +89,7 @@ class WebPopupDialog(Dialog):
     def __init__(self, webview, parent=None):
         # pylint: disable=no-member
         self.parent = parent
-        super(WebPopupDialog, self).__init__(title=_('Loading...'), parent=parent)
+        super().__init__(title=_('Loading...'), parent=parent)
         self.webview = webview
         self.webview.connect("ready-to-show", self.on_ready_webview)
         self.webview.connect("notify::title", self.on_available_webview_title)

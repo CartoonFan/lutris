@@ -9,7 +9,7 @@ from lutris.gui.dialogs import DontShowAgainDialog, ErrorDialog
 from lutris.runners.steam import steam
 from lutris.util import linux, system
 from lutris.util.log import logger
-from lutris.util.strings import parse_version, version_sort
+from lutris.util.strings import version_sort
 from lutris.util.wine import fsync
 
 WINE_DIR = os.path.join(settings.RUNNER_DIR, "wine")
@@ -80,7 +80,7 @@ def detect_prefix_arch(prefix_path=None):
         # No prefix_path exists or invalid prefix
         logger.debug("Prefix not found: %s", prefix_path)
         return None
-    with open(registry_path, "r") as registry:
+    with open(registry_path, "r", encoding='utf-8') as registry:
         for _line_no in range(5):
             line = registry.readline()
             if "win64" in line:
@@ -254,7 +254,6 @@ def get_default_version():
 def get_wine_version(wine_path="wine"):
     """Return the version of Wine installed on the system."""
     if wine_path != "wine" and not system.path_exists(wine_path):
-        logger.warning("Non existent Wine path: %s", wine_path)
         return
     if wine_path == "wine" and not system.find_executable("wine"):
         return
@@ -286,13 +285,15 @@ def is_version_esync(path):
     except IndexError:
         logger.error("Invalid path '%s'", path)
         return False
-    _version_number, version_prefix, version_suffix = parse_version(version)
     esync_compatible_versions = ["esync", "lutris", "tkg", "ge", "proton", "staging"]
     for esync_version in esync_compatible_versions:
-        if esync_version in version_prefix or esync_version in version_suffix:
+        if esync_version in version:
             return True
-    wine_version = get_wine_version(path).lower()
-    return "esync" in wine_version or "staging" in wine_version
+    wine_version = get_wine_version(path)
+    if wine_version:
+        wine_version = wine_version.lower()
+        return "esync" in wine_version or "staging" in wine_version
+    return False
 
 
 def is_version_fsync(path):
@@ -309,12 +310,14 @@ def is_version_fsync(path):
     except IndexError:
         logger.error("Invalid path '%s'", path)
         return False
-    _, version_prefix, version_suffix = parse_version(version)
     fsync_compatible_versions = ["fsync", "lutris", "ge", "proton"]
     for fsync_version in fsync_compatible_versions:
-        if fsync_version in version_prefix or fsync_version in version_suffix:
+        if fsync_version in version:
             return True
-    return "fsync" in get_wine_version(path).lower()
+    wine_version = get_wine_version(path)
+    if wine_version:
+        return "fsync" in wine_version.lower()
+    return False
 
 
 def get_real_executable(windows_executable, working_dir=None):
@@ -351,8 +354,8 @@ def display_vulkan_error(on_launch):
         secondary_message=_(
             "If you have compatible hardware, please follow "
             "the installation procedures as described in\n"
-            "<a href='https://github.com/lutris/lutris/wiki/How-to:-DXVK'>"
-            "How-to:-DXVK (https://github.com/lutris/lutris/wiki/How-to:-DXVK)</a>"
+            "<a href='https://github.com/lutris/docs/blob/master/HowToDXVK.md'>"
+            "How-to:-DXVK (https://github.com/lutris/docs/blob/master/HowToDXVK.md)</a>"
         ),
         checkbox_message=checkbox_message,
     )
@@ -363,8 +366,8 @@ def esync_display_limit_warning():
     ErrorDialog(_(
         "Your limits are not set correctly."
         " Please increase them as described here:"
-        " <a href='https://github.com/lutris/lutris/wiki/How-to:-Esync'>"
-        "How-to:-Esync (https://github.com/lutris/lutris/wiki/How-to:-Esync)</a>"
+        " <a href='https://github.com/lutris/docs/blob/master/HowToEsync.md'>"
+        "How-to:-Esync (https://github.com/lutris/docs/blob/master/HowToEsync.md)</a>"
     ))
 
 
@@ -420,8 +423,10 @@ def get_overrides_env(overrides):
     Output a string of dll overrides usable with WINEDLLOVERRIDES
     See: https://wiki.winehq.org/Wine_User%27s_Guide#WINEDLLOVERRIDES.3DDLL_Overrides
     """
-    if not overrides:
-        return ""
+    default_overrides = {
+        "winemenubuilder": ""
+    }
+    overrides.update(default_overrides)
     override_buckets = OrderedDict([("n,b", []), ("b,n", []), ("b", []), ("n", []), ("d", []), ("", [])])
     for dll, value in overrides.items():
         if not value:

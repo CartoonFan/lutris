@@ -158,6 +158,14 @@ class mame(Runner):  # pylint: disable=invalid-name
             "default": True,
         },
         {
+            "option": "crt",
+            "type": "bool",
+            "label": _("CRT effect ()"),
+            "help": _("Applies a CRT effect to the screen."
+                      "Requires OpenGL renderer."),
+            "default": False,
+        },
+        {
             "option": "video",
             "type": "choice",
             "label": _("Video backend"),
@@ -168,14 +176,14 @@ class mame(Runner):  # pylint: disable=invalid-name
                 ("SDL2", "accel"),
                 (_("Software"), "soft"),
             ),
-            "default": "",
+            "default": "opengl",
         },
         {
             "option": "waitvsync",
             "type": "bool",
             "label": _("Wait for VSync"),
             "help":
-            _("Enable waiting for  the  start  of  VBLANK  before "
+            _("Enable waiting for  the  start  of  vblank  before "
               "flipping  screens; reduces tearing effects."),
             "advanced": True,
             "default": False,
@@ -232,14 +240,13 @@ class mame(Runner):  # pylint: disable=invalid-name
 
     def write_xml_list(self):
         """Write the full game list in XML to disk"""
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
+        os.makedirs(self.cache_dir, exist_ok=True)
         output = system.execute(
             [self.get_executable(), "-listxml"],
             env=runtime.get_env()
         )
         if output:
-            with open(self.xml_path, "w") as xml_file:
+            with open(self.xml_path, "w", encoding='utf-8') as xml_file:
                 xml_file.write(output)
             logger.info("MAME XML list written to %s", self.xml_path)
         else:
@@ -270,6 +277,18 @@ class mame(Runner):  # pylint: disable=invalid-name
             )
         return True
 
+    def get_shader_params(self, shader_dir, shaders):
+        """Returns a list of CLI parameters to apply a list of shaders"""
+        params = []
+        shader_path = os.path.join(self.working_dir, "shaders", shader_dir)
+        for index, shader in enumerate(shaders):
+            params += [
+                "-gl_glsl",
+                "-glsl_shader_mame%s" % index,
+                os.path.join(shader_path, shader)
+            ]
+        return params
+
     def play(self):
         command = [self.get_executable(), "-skip_gameinfo", "-inipath", self.config_dir]
         if self.runner_config.get("video"):
@@ -280,6 +299,10 @@ class mame(Runner):  # pylint: disable=invalid-name
             command.append("-waitvsync")
         if self.runner_config.get("uimodekey"):
             command += ["-uimodekey", self.runner_config["uimodekey"]]
+
+        if self.runner_config.get("crt"):
+            command += self.get_shader_params("CRT-geom", ["Gaussx", "Gaussy", "CRT-geom-halation"])
+            command += ["-nounevenstretch"]
 
         if self.game_config.get("machine"):
             rompath = self.runner_config.get("rompath")

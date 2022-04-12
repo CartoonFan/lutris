@@ -39,15 +39,25 @@ class InstallerFilesBox(Gtk.ListBox):
         """Iterates through installer files while keeping the number
         of simultaneously downloaded files down to a maximum number"""
         started_downloads = 0
-        for file_id in self.installer_files_boxes:
-            if self.installer_files_boxes[file_id].provider == "download":
+        for file_id, file_entry in self.installer_files_boxes.items():
+            if file_entry.provider == "download":
                 started_downloads += 1
                 if started_downloads <= self.max_downloads:
-                    self.installer_files_boxes[file_id].start()
+                    file_entry.start()
                 else:
                     self._file_queue.append(file_id)
             else:
-                self.installer_files_boxes[file_id].start()
+                file_entry.start()
+
+    def stop_all(self):
+        """Stops all ongoing files gathering.
+        Iterates through installer files, and call the "stop" command
+        if they've been started and not available yet.
+        """
+        self._file_queue.clear()
+        for file_id, file_box in self.installer_files_boxes.items():
+            if file_box.started and file_id not in self.available_files and file_box.stop_func is not None:
+                file_box.stop_func()
 
     @property
     def is_ready(self):
@@ -56,8 +66,10 @@ class InstallerFilesBox(Gtk.ListBox):
 
     def check_files_ready(self):
         """Checks if all installer files are ready and emit a signal if so"""
-        logger.debug("Files are ready? %s", self.is_ready)
-        self.emit("files-ready", self.is_ready)
+        if self.is_ready:
+            self.emit("files-ready", self.is_ready)
+        else:
+            logger.info("Waiting for user to provide files")
 
     def on_file_ready(self, widget):
         """Fired when a file has a valid provider.

@@ -1,8 +1,11 @@
 import json
 import os
+import random
+import time
 
 from lutris import settings
 from lutris.database.services import ServiceGameCollection
+from lutris.gui.widgets.utils import get_default_icon, get_pixbuf
 from lutris.util import system
 from lutris.util.http import HTTPError, download_file
 from lutris.util.log import logger
@@ -16,6 +19,7 @@ class ServiceMedia:
     service = NotImplemented
     size = NotImplemented
     source = "remote"  # set to local if the files don't need to be downloaded
+    visible = True  # This media should be displayed as an option in the UI
     small_size = None
     dest_path = None
     file_pattern = NotImplemented
@@ -37,8 +41,9 @@ class ServiceMedia:
         """Whether the icon for the specified slug exists locally"""
         return system.path_exists(self.get_absolute_path(slug))
 
-    def get_url(self, service_game):
-        return self.url_pattern % service_game[self.api_field]
+    def get_pixbuf_for_game(self, slug, is_installed=True):
+        image_abspath = self.get_absolute_path(slug)
+        return get_pixbuf(image_abspath, self.size, fallback=get_default_icon(self.size), is_installed=is_installed)
 
     def get_media_url(self, details):
         if self.api_field not in details:
@@ -69,10 +74,18 @@ class ServiceMedia:
         if not url:
             return
         cache_path = os.path.join(self.dest_path, self.get_filename(slug))
-        if system.path_exists(cache_path):
+        if system.path_exists(cache_path, exclude_empty=True):
             return
+        if system.path_exists(cache_path):
+            cache_stats = os.stat(cache_path)
+            # Empty files have a life time between 1 and 2 weeks, retry them after
+            if time.time() - cache_stats.st_mtime < 3600 * 24 * random.choice(range(7, 15)):
+                return cache_path
+            os.unlink(cache_path)
         try:
-            return download_file(url, cache_path)
-        except HTTPError:
-            return None
-        return cache_path
+            return download_file(url, cache_path, raise_errors=True)
+        except HTTPError as ex:
+            logger.error("Failed to download %s: %s", url, ex)
+
+    def render(self):
+        """Used if the media requires extra processing"""

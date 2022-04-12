@@ -20,17 +20,21 @@ from lutris.util import system
 from lutris.util.dolphin.cache_reader import DOLPHIN_GAME_CACHE_FILE
 from lutris.util.linux import LINUX_SYSTEM
 
-DEFAULT_SERVICES = ["lutris", "gog", "humblebundle", "steam"]
+DEFAULT_SERVICES = ["lutris", "gog", "egs", "origin", "ubisoft", "steam"]
 
 
 def get_services():
     """Return a mapping of available services"""
     _services = {
         "lutris": LutrisService,
-        "xdg": XDGService,
         "gog": GOGService,
         "humblebundle": HumbleBundleService,
+        "egs": EpicGamesStoreService,
+        "origin": OriginService,
+        "ubisoft": UbisoftConnectService,
     }
+    if not LINUX_SYSTEM.is_flatpak:
+        _services["xdg"] = XDGService
     if LINUX_SYSTEM.has_steam:
         _services["steam"] = SteamService
     _services["steamwindows"] = SteamWindowsService
@@ -46,11 +50,9 @@ SERVICES = get_services()
 WIP_SERVICES = {
     "battlenet": BattleNetService,
     "bethesda": BethesdaService,
-    "egs": EpicGamesStoreService,
     "itchio": ItchIoService,
     "mame": MAMEService,
-    "origin": OriginService,
-    "ubisoft": UbisoftConnectService,
+
 }
 
 if os.environ.get("LUTRIS_ENABLE_ALL_SERVICES"):

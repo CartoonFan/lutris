@@ -145,7 +145,7 @@ class ConfigBox(VBox):
             if option.get("advanced"):
                 hbox.get_style_context().add_class("advanced")
                 show_advanced = settings.read_setting("show_advanced_options")
-                if not show_advanced == "True":
+                if show_advanced != "True":
                     hbox.set_no_show_all(True)
             hbox.pack_start(self.wrapper, True, True, 0)
             self.pack_start(hbox, False, False, 0)
@@ -504,16 +504,12 @@ class ConfigBox(VBox):
 
     def on_add_files_clicked(self, _widget, option_name, value):
         """Create and run multi-file chooser dialog."""
-        dialog = Gtk.FileChooserDialog(
-            title=_("Select files"),
-            parent=None,
-            action=Gtk.FileChooserAction.OPEN,
-            buttons=(
-                _("_Cancel"),
-                Gtk.ResponseType.CANCEL,
-                _("_Add"),
-                Gtk.ResponseType.ACCEPT,
-            ),
+        dialog = Gtk.FileChooserNative.new(
+            _("Select files"),
+            None,
+            Gtk.FileChooserAction.OPEN,
+            _("_Add"),
+            _("_Cancel"),
         )
         dialog.set_select_multiple(True)
 

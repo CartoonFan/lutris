@@ -69,15 +69,16 @@ class linux(Runner):
     ]
 
     def __init__(self, config=None):
-        super(linux, self).__init__(config)
+        super().__init__(config)
         self.ld_preload = None
 
     @property
     def game_exe(self):
-        """Return the game's executable's path."""
+        """Return the game's executable's path. The file may not exist, but
+        this returns None if the exe path is not defined."""
         exe = self.game_config.get("exe")
         if not exe:
-            return
+            return None
         if os.path.isabs(exe):
             return exe
         if self.game_path:
@@ -90,7 +91,7 @@ class linux(Runner):
         """
         exe_path = self.game_exe
         working_dir = self.game_config.get("working_dir")
-        if working_dir:
+        if exe_path and working_dir:
             parts = exe_path.split(os.path.expanduser(working_dir))
             if len(parts) == 2:
                 return "." + parts[1]
@@ -104,7 +105,12 @@ class linux(Runner):
             return os.path.expanduser(option)
         if self.game_exe:
             return os.path.dirname(self.game_exe)
-        return super(linux, self).working_dir
+        return super().working_dir
+
+    @property
+    def nvidia_shader_cache_path(self):
+        """Linux programs should get individual shader caches if possible."""
+        return self.game_path or self.shader_cache_dir
 
     def is_installed(self):
         """Well of course Linux is installed, you're using Linux right ?"""
