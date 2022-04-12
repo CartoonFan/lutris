@@ -23,6 +23,7 @@ class TestAMDGlxInfo(BaseGlxInfo):
     fixture = 'glxinfo-amd.txt'
 
     """GlxInfo tests"""
+
     def test_can_get_name_of_display(self):
         self.assertEqual(self.glxinfo.display, ":0")
         self.assertEqual(self.glxinfo.screen, "0")

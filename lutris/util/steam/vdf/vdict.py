@@ -1,9 +1,9 @@
+import collections as _c
 from collections import Counter
 
 _iter_values = 'values'
 _range = range
 _string_type = str
-import collections as _c
 
 
 class _kView(_c.KeysView):

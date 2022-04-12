@@ -15,6 +15,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .lutriswindow import LutrisWindow
+from lutris.database.services import ServiceGameCollection
+from lutris.services import get_enabled_services
+from lutris.util.steam.config import get_steamapps_paths
+from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
+from lutris.util.log import logger
+from lutris.util.http import HTTPError, Request
+from lutris.util import datapath, log, system
+from lutris.style_manager import StyleManager
+from lutris.startup import init_lutris, run_all_checks, update_runtime
+from lutris.migrations import migrate
+from lutris.gui.widgets.status_icon import LutrisStatusIcon
+from lutris.gui.installerwindow import InstallerWindow
+from lutris.gui.dialogs.issue import IssueReportWindow
+from lutris.gui.dialogs import ErrorDialog, InstallOrPlayDialog, LutrisInitDialog
+from lutris.gui.dialogs.download import simple_downloader
+from lutris.installer import get_installers
+from lutris.game import Game, export_game, import_game
+from lutris.database import games as games_db
+from lutris.command import exec_command
+from lutris.api import parse_installer_url, get_runners
+from lutris import settings
+from lutris.runners import get_runner_names, import_runner, InvalidRunner, RunnerInstallationError
+from gi.repository import Gio, GLib, Gtk, GObject
 import json
 import logging
 import os
@@ -28,33 +52,6 @@ from gettext import gettext as _
 import gi
 gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
-
-from gi.repository import Gio, GLib, Gtk, GObject
-
-from lutris.runners import get_runner_names, import_runner, InvalidRunner, RunnerInstallationError
-from lutris import settings
-from lutris.api import parse_installer_url, get_runners
-from lutris.command import exec_command
-from lutris.database import games as games_db
-from lutris.game import Game, export_game, import_game
-from lutris.installer import get_installers
-from lutris.gui.dialogs.download import simple_downloader
-from lutris.gui.dialogs import ErrorDialog, InstallOrPlayDialog, LutrisInitDialog
-from lutris.gui.dialogs.issue import IssueReportWindow
-from lutris.gui.installerwindow import InstallerWindow
-from lutris.gui.widgets.status_icon import LutrisStatusIcon
-from lutris.migrations import migrate
-from lutris.startup import init_lutris, run_all_checks, update_runtime
-from lutris.style_manager import StyleManager
-from lutris.util import datapath, log, system
-from lutris.util.http import HTTPError, Request
-from lutris.util.log import logger
-from lutris.util.steam.appmanifest import AppManifest, get_appmanifests
-from lutris.util.steam.config import get_steamapps_paths
-from lutris.services import get_enabled_services
-from lutris.database.services import ServiceGameCollection
-
-from .lutriswindow import LutrisWindow
 
 
 class Application(Gtk.Application):

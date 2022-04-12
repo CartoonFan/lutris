@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
+from lutris.util.wine.registry import WineRegistry
 import os
 import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from lutris.util.wine.registry import WineRegistry
 
 PREFIXES_PATH = os.path.expanduser("~/Games/wine/prefixes")
 

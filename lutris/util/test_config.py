@@ -1,11 +1,10 @@
+from lutris.database import schema
+from lutris import startup
 import os
 
 import gi
 
 gi.require_version('Gtk', '3.0')
-
-from lutris import startup
-from lutris.database import schema
 
 
 def setup_test_environment():
