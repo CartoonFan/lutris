@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-from lutris.util.wine.registry import WineRegistry
 import os
 import subprocess
 import sys
+
+from lutris.util.wine.registry import WineRegistry
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

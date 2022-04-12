@@ -1,8 +1,9 @@
-from lutris.database import schema
-from lutris import startup
 import os
 
 import gi
+
+from lutris import startup
+from lutris.database import schema
 
 gi.require_version("Gtk", "3.0")
 

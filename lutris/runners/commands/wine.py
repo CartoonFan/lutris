@@ -15,13 +15,8 @@ from lutris.util.strings import split_arguments
 from lutris.util.wine.cabinstall import CabInstaller
 from lutris.util.wine.prefix import WinePrefixManager
 from lutris.util.wine.wine import (
-    WINE_DEFAULT_ARCH,
-    WINE_DIR,
-    detect_arch,
-    detect_prefix_arch,
-    get_overrides_env,
-    get_real_executable,
-    use_lutris_runtime,
+    WINE_DEFAULT_ARCH, WINE_DIR, detect_arch, detect_prefix_arch, get_overrides_env, get_real_executable,
+    use_lutris_runtime
 )
 
 
