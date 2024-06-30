@@ -6,7 +6,7 @@ from typing import Callable, Iterable, List
 from gi.repository import GObject, Gtk
 
 from lutris import settings
-from lutris.database.games import get_games
+from lutris.database.games import get_game_by_field, get_games
 from lutris.game import Game
 from lutris.gui.dialogs import QuestionDialog
 from lutris.gui.widgets.gi_composites import GtkTemplate
@@ -208,7 +208,7 @@ class UninstallDialog(Gtk.Dialog):
 
                 update(
                     self.remove_all_games_checkbox,
-                    lambda row: row.game.is_installed,
+                    lambda row: True,
                     lambda row: row.remove_from_library,
                 )
             finally:
@@ -229,8 +229,7 @@ class UninstallDialog(Gtk.Dialog):
     @GtkTemplate.Callback
     def on_remove_all_games_checkbox_toggled(self, _widget):
         def update_row(row, active):
-            if row.game.is_installed:
-                row.remove_from_library = active
+            row.remove_from_library = active
 
         self._apply_all_checkbox(self.remove_all_games_checkbox, update_row)
 
@@ -283,7 +282,7 @@ class UninstallDialog(Gtk.Dialog):
             library_syncer = LibrarySyncer()
             for row in rows:
                 if row.remove_from_library:
-                    games_removed_from_library.append(row.game.as_library_item)
+                    games_removed_from_library.append(get_game_by_field(row.game._id, "id"))
             if games_removed_from_library:
                 library_syncer.sync_local_library()
 
@@ -352,8 +351,7 @@ class GameRemovalRow(Gtk.ListBoxRow):
         hbox.pack_start(label, False, False, 0)
 
         self.remove_from_library_checkbox = Gtk.CheckButton(_("Remove from Library"), halign=Gtk.Align.START)
-        self.remove_from_library_checkbox.set_sensitive(game.is_installed)
-        self.remove_from_library_checkbox.set_active(not settings.read_bool_setting("library_sync_enabled"))
+        self.remove_from_library_checkbox.set_active(False)
         self.remove_from_library_checkbox.connect("toggled", self.on_checkbox_toggled)
         hbox.pack_end(self.remove_from_library_checkbox, False, False, 0)
 
@@ -437,8 +435,6 @@ class GameRemovalRow(Gtk.ListBoxRow):
     @property
     def remove_from_library(self) -> bool:
         """True if the game should be removed from the database."""
-        if not self.game.is_installed:
-            return True
         return bool(self.remove_from_library_checkbox.get_active())
 
     @remove_from_library.setter

@@ -6,6 +6,7 @@ import random
 import ssl
 import urllib.parse
 from gettext import gettext as _
+from typing import Any, Dict, Optional
 from xml.etree import ElementTree
 
 import requests
@@ -17,7 +18,7 @@ from lutris.config import LutrisConfig, write_game_config
 from lutris.database.games import add_game, get_game_by_field
 from lutris.database.services import ServiceGameCollection
 from lutris.game import Game
-from lutris.services.base import OnlineService
+from lutris.services.base import SERVICE_LOGIN, OnlineService
 from lutris.services.lutris import sync_media
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
@@ -56,7 +57,7 @@ class OriginPackArtSmall(ServiceMedia):
     dest_path = os.path.join(settings.CACHE_DIR, "origin/pack-art-small")
     api_field = "packArtSmall"
 
-    def get_media_url(self, details):
+    def get_media_url(self, details: Dict[str, Any]) -> Optional[str]:
         return details["imageServer"] + details["i18n"][self.api_field]
 
 
@@ -166,7 +167,7 @@ class OriginService(OnlineService):
 
     def login_callback(self, url):
         self.fetch_access_token()
-        self.emit("service-login")
+        SERVICE_LOGIN.fire(self)
 
     def fetch_access_token(self):
         token_data = self.get_access_token()

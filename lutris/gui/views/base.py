@@ -1,14 +1,16 @@
 import time
 from typing import List
 
-from gi.repository import Gdk, Gio, GLib, GObject, Gtk
+from gi.repository import Gdk, Gio, GObject, Gtk
 
 from lutris.database.games import get_game_for_service
 from lutris.database.services import ServiceGameCollection
-from lutris.game import Game
+from lutris.game import GAME_START, Game
 from lutris.game_actions import GameActions, get_game_actions
+from lutris.gui.widgets import EMPTY_NOTIFICATION_REGISTRATION
 from lutris.gui.widgets.contextual_menu import ContextualMenu
 from lutris.gui.widgets.utils import MEDIA_CACHE_INVALIDATED
+from lutris.util.jobs import schedule_repeating_at_idle
 from lutris.util.log import logger
 from lutris.util.path_cache import MISSING_GAMES
 
@@ -24,21 +26,21 @@ class GameView:
         self.game_store = None
         self.service = None
         self.service_media = None
-        self.cache_notification_id = None
-        self.missing_games_updated_id = None
-        self.game_start_hook_id = None
+        self.cache_notification_registration = EMPTY_NOTIFICATION_REGISTRATION
+        self.missing_games_updated_registration = EMPTY_NOTIFICATION_REGISTRATION
+        self.game_start_registration = EMPTY_NOTIFICATION_REGISTRATION
         self.image_renderer = None
 
     def connect_signals(self):
         """Signal handlers common to all views"""
-        self.cache_notification_id = MEDIA_CACHE_INVALIDATED.register(self.on_media_cache_invalidated)
-        self.missing_games_updated_id = MISSING_GAMES.updated.register(self.on_missing_games_updated)
+        self.cache_notification_registration = MEDIA_CACHE_INVALIDATED.register(self.on_media_cache_invalidated)
+        self.missing_games_updated_registration = MISSING_GAMES.updated.register(self.on_missing_games_updated)
 
         self.connect("destroy", self.on_destroy)
         self.connect("button-press-event", self.popup_contextual_menu)
         self.connect("key-press-event", self.handle_key_press)
 
-        self.game_start_hook_id = GObject.add_emission_hook(Game, "game-start", self.on_game_start)
+        self.game_start_registration = GAME_START.register(self.on_game_start)
 
     def set_game_store(self, game_store):
         self.game_store = game_store
@@ -59,15 +61,10 @@ class GameView:
         if self.image_renderer and self.image_renderer.show_badges:
             self.queue_draw()
 
-    def on_destroy(self, _widget):
-        if self.cache_notification_id:
-            MEDIA_CACHE_INVALIDATED.unregister(self.cache_notification_id)
-
-        if self.missing_games_updated_id:
-            MISSING_GAMES.updated.unregister(self.missing_games_updated_id)
-
-        if self.game_start_hook_id:
-            GObject.remove_emission_hook(Game, "game-start", self.game_start_hook_id)
+    def on_destroy(self, _widget) -> None:
+        self.cache_notification_registration.unregister()
+        self.missing_games_updated_registration.unregister()
+        self.game_start_registration.unregister()
 
     def popup_contextual_menu(self, view, event):
         """Contextual menu."""
@@ -150,7 +147,7 @@ class GameView:
     def get_game_id_for_path(self, path):
         raise NotImplementedError()
 
-    def on_game_start(self, game):
+    def on_game_start(self, game: Game) -> None:
         """On game start, we trigger an animation to show the game is starting; it runs at least
         one cycle, but continues until the game exits the STATE_LAUNCHING state."""
 
@@ -165,8 +162,8 @@ class GameView:
         paused = False
 
         def is_modally_blocked():
-            # Is there a modal dialog that is block our top-level parent?
-            # if so we want to pause the animated.
+            # Is there a modal dialog that is blocking our top-level parent?
+            # if so we want to pause the animation.
             for w in Gtk.Window.list_toplevels():
                 if w != toplevel and isinstance(w, Gtk.Dialog):
                     if w.get_modal() and w.get_transient_for() == toplevel:
@@ -207,5 +204,4 @@ class GameView:
             return True  # Return True to call again after another timeout
 
         if self.image_renderer:
-            GLib.timeout_add(25, animate)
-        return True  # Return True to continue handling the emission hook
+            schedule_repeating_at_idle(animate, interval_seconds=0.025)

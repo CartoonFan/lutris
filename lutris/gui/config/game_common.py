@@ -10,11 +10,11 @@ from gi.repository import GdkPixbuf, Gtk, Pango
 from lutris import runners, settings
 from lutris.config import LutrisConfig, make_game_config_id
 from lutris.game import Game
-from lutris.gui import dialogs
 from lutris.gui.config import DIALOG_HEIGHT, DIALOG_WIDTH
 from lutris.gui.config.boxes import GameBox, RunnerBox, SystemConfigBox, UnderslungMessageBox
-from lutris.gui.dialogs import DirectoryDialog, ErrorDialog, QuestionDialog, SavableModelessDialog
+from lutris.gui.dialogs import DirectoryDialog, ErrorDialog, QuestionDialog, SavableModelessDialog, display_error
 from lutris.gui.dialogs.delegates import DialogInstallUIDelegate
+from lutris.gui.dialogs.move_game import MoveDialog
 from lutris.gui.widgets.common import Label, NumberEntry, SlugEntry
 from lutris.gui.widgets.notifications import send_notification
 from lutris.gui.widgets.scaled_image import ScaledImage
@@ -123,12 +123,13 @@ class GameDialogCommon(SavableModelessDialog, DialogInstallUIDelegate):
             show_search = current_page_index in self.searchable_page_indices
             self.set_search_entry_visibility(show_search)
 
-    def set_search_entry_visibility(self, show_search, placeholder_text=None):
+    def set_search_entry_visibility(self, show_search, placeholder_text=None, tooltip_markup=None):
         """Explicitly shows or hides the search entry; can also update the placeholder text."""
         header_bar = self.get_header_bar()
         if show_search and self.search_entry:
             header_bar.set_custom_title(self.search_entry)
             self.search_entry.set_placeholder_text(placeholder_text or self.get_search_entry_placeholder())
+            self.search_entry.set_tooltip_markup(tooltip_markup)
         else:
             header_bar.set_custom_title(None)
 
@@ -347,8 +348,13 @@ class GameDialogCommon(SavableModelessDialog, DialogInstallUIDelegate):
         service_media = self.service_medias[image_format]
         game_slug = self.slug or (self.game.slug if self.game else "")
         media_path = resolve_media_path(service_media.get_possible_media_paths(game_slug))
-        image = ScaledImage.new_from_media_path(media_path, service_media.config_ui_size, scale_factor)
-        image_button.set_image(image)
+        try:
+            image = ScaledImage.new_from_media_path(media_path, service_media.config_ui_size, scale_factor)
+            image_button.set_image(image)
+        except Exception as ex:
+            # We need to survive nasty data in the media files, so the user can replace
+            # them.
+            logger.exception("Unable to load media '%s': %s", image_format, ex)
 
     def _get_runner_dropdown(self):
         runner_liststore = self._get_runner_liststore()
@@ -406,7 +412,7 @@ class GameDialogCommon(SavableModelessDialog, DialogInstallUIDelegate):
         )
         if not new_location.folder or new_location.folder == self.game.directory:
             return
-        move_dialog = dialogs.MoveDialog(self.game, new_location.folder, parent=self)
+        move_dialog = MoveDialog(self.game, new_location.folder, parent=self)
         move_dialog.connect("game-moved", self.on_game_moved)
         move_dialog.move()
 
@@ -620,11 +626,11 @@ class GameDialogCommon(SavableModelessDialog, DialogInstallUIDelegate):
             ErrorDialog(_("Steam AppID not provided"), parent=self)
             return False
         playtime_text = self.playtime_entry.get_text()
-        if playtime_text and playtime_text != self.game.formatted_playtime:
+        if playtime_text and (not self.game or playtime_text != self.game.formatted_playtime):
             try:
                 parse_playtime(playtime_text)
             except ValueError as ex:
-                ErrorDialog(ex, parent=self)
+                display_error(ex, parent=self)
                 return False
 
         invalid_fields = []

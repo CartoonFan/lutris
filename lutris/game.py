@@ -11,7 +11,7 @@ import time
 from gettext import gettext as _
 from typing import cast
 
-from gi.repository import Gio, GLib, GObject, Gtk
+from gi.repository import Gio, GLib, Gtk
 
 from lutris import settings
 from lutris.config import LutrisConfig
@@ -20,6 +20,7 @@ from lutris.database import games as games_db
 from lutris.database import sql
 from lutris.exception_backstops import watch_game_errors
 from lutris.exceptions import GameConfigError, InvalidGameMoveError, MissingExecutableError
+from lutris.gui.widgets import NotificationSource
 from lutris.installer import InstallationKind
 from lutris.monitored_command import MonitoredCommand
 from lutris.runner_interpreter import export_bash_script, get_launch_parameters
@@ -40,8 +41,15 @@ from lutris.util.yaml import write_yaml_to_file
 
 HEARTBEAT_DELAY = 2000
 
+GAME_START = NotificationSource()
+GAME_STARTED = NotificationSource()
+GAME_STOPPED = NotificationSource()
+GAME_UPDATED = NotificationSource()
+GAME_INSTALLED = NotificationSource()
+GAME_UNHANDLED_ERROR = NotificationSource()
 
-class Game(GObject.Object):
+
+class Game:
     """This class takes cares of loading the configuration for a game
     and running it.
     """
@@ -54,20 +62,11 @@ class Game(GObject.Object):
 
     PRIMARY_LAUNCH_CONFIG_NAME = "(primary)"
 
-    __gsignals__ = {
-        # SIGNAL_RUN_LAST works around bug https://gitlab.gnome.org/GNOME/glib/-/issues/513
-        # fix merged Dec 2020, but we support older GNOME!
-        "game-error": (GObject.SIGNAL_RUN_LAST, bool, (object,)),
-        "game-unhandled-error": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
-        "game-start": (GObject.SIGNAL_RUN_FIRST, None, ()),
-        "game-started": (GObject.SIGNAL_RUN_FIRST, None, ()),
-        "game-stopped": (GObject.SIGNAL_RUN_FIRST, None, ()),
-        "game-updated": (GObject.SIGNAL_RUN_FIRST, None, ()),
-        "game-installed": (GObject.SIGNAL_RUN_FIRST, None, ()),
-    }
-
     def __init__(self, game_id: str = None):
         super().__init__()
+
+        self.game_error = NotificationSource()
+
         self._id = str(game_id) if game_id else None  # pylint: disable=invalid-name
 
         # Load attributes from database
@@ -92,7 +91,12 @@ class Game(GObject.Object):
             self.custom_images.add("coverart_big")
         self.service = game_data.get("service")
         self.appid = game_data.get("service_id")
-        self.playtime = float(game_data.get("playtime") or 0.0)
+        try:
+            self.playtime = float(game_data.get("playtime") or 0.0)
+        except ValueError as ex:
+            logger.exception("Unable to parse playtime '%s' for game %s: %s", game_data.get("playtime"), self.slug, ex)
+            self.playtime = 0.0
+
         self.discord_id = game_data.get("discord_id")  # Discord App ID for RPC
 
         self._config = None
@@ -132,20 +136,6 @@ class Game(GObject.Object):
         game.service = service.id if service else None
         return game
 
-    @property
-    def as_library_item(self):
-        """Return a representation of the game suitable for the remote library"""
-        return {
-            "name": self.name,
-            "slug": self.slug,
-            "runner": self.runner_name,
-            "platform": self.platform,
-            "playtime": self.playtime,
-            "lastplayed": self.lastplayed,
-            "service": self.service,
-            "service_id": self.appid,
-        }
-
     def __repr__(self):
         return self.__str__()
 
@@ -183,7 +173,7 @@ class Game(GObject.Object):
         for removed_category_name in removed_category_names:
             self.remove_category(removed_category_name, no_signal=True)
 
-        self.emit("game-updated")
+        GAME_UPDATED.fire(self)
 
     def add_category(self, category_name, no_signal=False):
         """add game to category"""
@@ -198,7 +188,7 @@ class Game(GObject.Object):
         categories_db.add_game_to_category(self.id, category_id)
 
         if not no_signal:
-            self.emit("game-updated")
+            GAME_UPDATED.fire(self)
 
     def remove_category(self, category_name, no_signal=False):
         """remove game from category"""
@@ -212,7 +202,7 @@ class Game(GObject.Object):
         categories_db.remove_category_from_game(self.id, category_id)
 
         if not no_signal:
-            self.emit("game-updated")
+            GAME_UPDATED.fire(self)
 
     @property
     def is_favorite(self) -> bool:
@@ -262,16 +252,16 @@ class Game(GObject.Object):
         return strings.get_formatted_playtime(self.playtime)
 
     def signal_error(self, error):
-        """Reports an error by firing game-error. If handled, it returns
-        True to indicate it handled it, and that's it. If not, this fires
-        game-unhandled-error, which is actually handled via an emission hook
-        and should not be connected otherwise.
+        """Reports an error by firing game_error. If there is no handler for this,
+        we fall back to the global GAME_UNHANDLED_ERROR.
 
         This allows special error handling to be set up for a particular Game, but
-        there's always some handling."""
-        handled = self.emit("game-error", error)
-        if not handled:
-            self.emit("game-unhandled-error", error)
+        there's always some global handling."""
+
+        if self.game_error.has_handlers:
+            self.game_error.fire(error)
+        else:
+            GAME_UNHANDLED_ERROR.fire(self, error)
 
     def get_browse_dir(self):
         """Return the path to open with the Browse Files action."""
@@ -361,7 +351,9 @@ class Game(GObject.Object):
         service = launch_ui_delegate.get_service(self.service)
         db_game = service.get_service_db_game(self)
         if not db_game:
-            logger.error("Can't find %s for %s", self.name, service.name)
+            logger.error("Can't find %s for %s, trying to fall back to Lutris installers", self.name, service.name)
+            application = Gio.Application.get_default()
+            application.show_lutris_installer_window(game_slug=self.slug)
             return
 
         try:
@@ -372,12 +364,11 @@ class Game(GObject.Object):
 
         if game_id:
 
-            def on_error(_game, error):
+            def on_error(error: BaseException) -> None:
                 logger.exception("Unable to install game: %s", error)
-                return True
 
             game = Game(game_id)
-            game.connect("game-error", on_error)
+            game.game_error.register(on_error)
             game.launch(launch_ui_delegate)
 
     def install_updates(self, install_ui_delegate):
@@ -490,19 +481,19 @@ class Game(GObject.Object):
         }
         self._id = str(games_db.add_or_update(**game_data))
         if not no_signal:
-            self.emit("game-updated")
+            GAME_UPDATED.fire(self)
 
     def save_platform(self):
         """Save only the platform field- do not restore any other values the user may have changed
         in another window."""
         games_db.update_existing(id=self.id, slug=self.slug, platform=self.platform)
-        self.emit("game-updated")
+        GAME_UPDATED.fire(self)
 
     def save_lastplayed(self):
         """Save only the lastplayed field- do not restore any other values the user may have changed
         in another window."""
         games_db.update_existing(id=self.id, slug=self.slug, lastplayed=self.lastplayed, playtime=self.playtime)
-        self.emit("game-updated")
+        GAME_UPDATED.fire(self)
 
     def check_launchable(self):
         """Verify that the current game can be launched, and raises exceptions if not."""
@@ -669,7 +660,7 @@ class Game(GObject.Object):
     def get_store_name(self) -> str:
         store = self.service
         if not store:
-            return ""
+            return "none"
         if self.service == "humblebundle":
             return "humble"
         return store
@@ -680,15 +671,24 @@ class Game(GObject.Object):
         This method sets the game_runtime_config attribute.
         """
         gameplay_info = self.get_gameplay_info(launch_ui_delegate)
-        if not gameplay_info:  # if user cancelled- not an error
+        if not gameplay_info:  # if user cancelled - not an error
             return False
         command, env = get_launch_parameters(self.runner, gameplay_info)
 
         if env.get("WINEARCH") == "win32" and "umu" in " ".join(command):
             raise RuntimeError("Proton is not compatible with 32bit prefixes")
-        env["game_name"] = self.name  # What is this used for??
+        # Allow user to override default umu environment variables to apply fixes
         env["GAMEID"] = proton.get_game_id(self)
-        env["STORE"] = self.get_store_name()
+        env["STORE"] = env.get("STORE") or self.get_store_name()
+
+        if env.get("WINE") == proton.GE_PROTON_LATEST:
+            env["PROTONPATH"] = "GE-Proton"
+
+        # Some environment variables for the use of custom pre-launch and post-exit scripts.
+        env["GAME_NAME"] = self.name
+        if self.directory:
+            env["GAME_DIRECTORY"] = self.directory
+
         self.game_runtime_config = {
             "args": command,
             "env": env,
@@ -762,7 +762,7 @@ class Game(GObject.Object):
             logger.error("No prelaunch PIDs could be obtained. Game stop may be ineffective.")
             self.prelaunch_pids = None
 
-        self.emit("game-start")
+        GAME_START.fire(self)
 
         @watch_game_errors(game_stop_result=False, game=self)
         def configure_game(_ignored, error):
@@ -792,7 +792,7 @@ class Game(GObject.Object):
         self.game_thread.start()
         self.timer.start()
         self.state = self.STATE_RUNNING
-        self.emit("game-started")
+        GAME_STARTED.fire(self)
 
         # Game is running, let's update discord status
         if settings.read_setting("discord_rpc") == "True" and self.discord_id:
@@ -903,7 +903,7 @@ class Game(GObject.Object):
             # Inspect why it could have crashed
 
         self.state = self.STATE_STOPPED
-        self.emit("game-stopped")
+        GAME_STOPPED.fire(self)
         if os.path.exists(self.now_playing_path):
             os.unlink(self.now_playing_path)
         if not self.timer.finished:
@@ -1040,16 +1040,7 @@ class Game(GObject.Object):
         old_location = self.directory
         target_directory = self._get_move_target_directory(new_location)
 
-        # Raise errors before actually changing anything!
-        if not old_location:
-            raise InvalidGameMoveError(_("The game has no location currently set, so it can't be moved."))
-
-        if not system.path_exists(old_location):
-            raise InvalidGameMoveError(
-                _("The location '%s' does not exist, perhaps the files have already been moved?") % old_location
-            )
-
-        if new_location.startswith(old_location):
+        if system.path_contains(old_location, new_location):
             raise InvalidGameMoveError(
                 _("Lutris can't move '%s' to a location inside of itself, '%s'.") % (old_location, new_location)
             )
@@ -1065,6 +1056,10 @@ class Game(GObject.Object):
                     new_config += line.replace(old_location, target_directory)
         with open(self.config.game_config_path, "w", encoding="utf-8") as config_file:
             config_file.write(new_config)
+
+        if not system.path_exists(old_location):
+            logger.warning("Initial location %s does not exist, files may have already been moved.")
+            return target_directory
 
         try:
             shutil.move(old_location, new_location)

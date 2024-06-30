@@ -143,6 +143,7 @@ class LibrarySyncer:
         for db_game in db_games:
             lastplayed = db_game["lastplayed"] or 0
             installed_at = db_game["installed_at"] or 0
+
             if since and lastplayed < since and installed_at < since:
                 continue
             payload.append(self._db_game_to_api(db_game))

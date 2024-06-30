@@ -5,7 +5,7 @@ import os
 import time
 from collections import defaultdict
 from gettext import gettext as _
-from typing import List
+from typing import Any, Dict, List, Optional
 from urllib.parse import parse_qsl, urlencode, urlparse
 
 from lxml import etree
@@ -15,7 +15,8 @@ from lutris.exceptions import AuthenticationError, UnavailableGameError
 from lutris.installer import AUTO_ELF_EXE, AUTO_WIN32_EXE
 from lutris.installer.installer_file import InstallerFile
 from lutris.installer.installer_file_collection import InstallerFileCollection
-from lutris.services.base import OnlineService
+from lutris.runners import get_runner_human_name
+from lutris.services.base import SERVICE_LOGIN, OnlineService
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
 from lutris.util import i18n, system
@@ -89,6 +90,8 @@ class GOGService(OnlineService):
     cookies_path = os.path.join(settings.CACHE_DIR, ".gog.auth")
     token_path = os.path.join(settings.CACHE_DIR, ".gog.token")
     cache_path = os.path.join(settings.CACHE_DIR, "gog-library.json")
+
+    runner_to_os_dict = {"wine": "windows", "linux": "linux"}
 
     def __init__(self):
         super().__init__()
@@ -182,7 +185,7 @@ class GOGService(OnlineService):
         with open(self.token_path, "w", encoding="utf-8") as token_file:
             token_file.write(json.dumps(token))
         if not refresh_token:
-            self.emit("service-login")
+            SERVICE_LOGIN.fire(self)
 
     def load_token(self):
         """Load token from disk"""
@@ -349,19 +352,21 @@ class GOGService(OnlineService):
         """Return available installers for a GOG game"""
         # Filter out Mac installers
         gog_installers = [installer for installer in downloads.get("installers", []) if installer["os"] != "mac"]
-        available_platforms = {installer["os"] for installer in gog_installers}
+        filter_os = self.runner_to_os_dict.get(runner)
         # If it's a Linux game, also filter out Windows games
-        if "linux" in available_platforms:
-            filter_os = "windows" if runner == "linux" else "linux"
-            gog_installers = [installer for installer in gog_installers if installer["os"] != filter_os]
+        if filter_os:
+            gog_installers = [installer for installer in gog_installers if installer["os"] == filter_os]
         return [
             installer
             for installer in gog_installers
             if installer["language"] == self.determine_language_installer(gog_installers, language)
         ]
 
-    def get_update_versions(self, gog_id):
+    def get_update_versions(self, gog_id: str, runner_name: Optional[str]):
         """Return updates available for a game, keyed by patch version"""
+
+        filter_os = self.runner_to_os_dict.get(runner_name) if runner_name else None
+
         games_detail = self.get_game_details(gog_id)
         patches = games_detail["downloads"]["patches"]
         if not patches:
@@ -369,6 +374,10 @@ class GOGService(OnlineService):
             return {}
         patch_versions = defaultdict(list)
         for patch in patches:
+            if filter_os:
+                patch_os = patch.get("os")
+                if patch_os and filter_os != patch_os.casefold():
+                    continue
             patch_versions[patch["name"]].append(patch)
         return patch_versions
 
@@ -532,21 +541,46 @@ class GOGService(OnlineService):
         with open(file_path, encoding="utf-8") as checksum_file:
             checksum_content = checksum_file.read()
         root_elem = etree.fromstring(checksum_content)
-        return (root_elem.attrib["name"], root_elem.attrib["md5"])
+        return root_elem.attrib["name"], root_elem.attrib["md5"]
 
-    def generate_installer(self, db_game):
+    def generate_installer(self, db_game: Dict[str, Any]) -> Dict[str, Any]:
         details = json.loads(db_game["details"])
-        platforms = [platform.lower() for platform, is_supported in details["worksOn"].items() if is_supported]
-        system_config = {}
+        slug = details["slug"]
+        platforms = [platform.casefold() for platform, is_supported in details["worksOn"].items() if is_supported]
         if "linux" in platforms:
-            runner = "linux"
+            return self._generate_installer(slug, "linux", db_game)
+        else:
+            return self._generate_installer(slug, "wine", db_game)
+
+    def generate_installers(self, db_game: Dict[str, Any]) -> List[dict]:
+        details = json.loads(db_game["details"])
+        slug = details["slug"]
+        platforms = [platform.casefold() for platform, is_supported in details["worksOn"].items() if is_supported]
+
+        installers = []
+
+        if "linux" in platforms:
+            installers.append(self._generate_installer(slug, "linux", db_game))
+
+        if "windows" in platforms:
+            installers.append(self._generate_installer(slug, "wine", db_game))
+
+        if len(installers) > 1:
+            for installer in installers:
+                runner_human_name = get_runner_human_name(installer["runner"])
+                installer["version"] += " " + (runner_human_name or installer["runner"])
+
+        return installers
+
+    def _generate_installer(self, slug: str, runner: str, db_game: Dict[str, Any]) -> Dict[str, Any]:
+        system_config = {}
+        if runner == "linux":
             game_config = {"exe": AUTO_ELF_EXE}
             script = [
                 {"extract": {"file": "goginstaller", "format": "zip", "dst": "$CACHE"}},
                 {"merge": {"src": "$CACHE/data/noarch", "dst": "$GAMEDIR"}},
             ]
         else:
-            runner = "wine"
             game_config = {"exe": AUTO_WIN32_EXE}
             script = [
                 {"autosetup_gog_game": "goginstaller"},
@@ -554,7 +588,7 @@ class GOGService(OnlineService):
         return {
             "name": db_game["name"],
             "version": "GOG",
-            "slug": details["slug"],
+            "slug": slug,
             "game_slug": self.get_installed_slug(db_game),
             "runner": runner,
             "gogid": db_game["appid"],
@@ -578,6 +612,9 @@ class GOGService(OnlineService):
     def get_dlc_installers(self, db_game):
         """Return all available DLC installers for game"""
         appid = db_game["service_id"]
+        runner_name = db_game.get("runner")
+
+        filter_os = self.runner_to_os_dict.get(runner_name) if runner_name else None
 
         dlcs = self.get_game_dlcs(appid)
 
@@ -592,8 +629,13 @@ class GOGService(OnlineService):
             ]
 
             for file in installfiles:
+                file_os = file["os"].casefold()
+
+                if filter_os and file_os and filter_os != file_os:
+                    continue
+
                 # supports linux
-                if file["os"].casefold() == "linux":
+                if file_os == "linux":
                     runner = "linux"
                     script = [
                         {"extract": {"dst": "$CACHE/GOG", "file": dlc_id, "format": "zip"}},
@@ -652,7 +694,8 @@ class GOGService(OnlineService):
 
     def get_update_installers(self, db_game):
         appid = db_game["service_id"]
-        patch_versions = self.get_update_versions(appid)
+        runner = db_game.get("runner")
+        patch_versions = self.get_update_versions(appid, runner)
         patch_installers = []
         for version in patch_versions:
             patch = patch_versions[version]

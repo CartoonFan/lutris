@@ -2,25 +2,33 @@
 
 import locale
 from gettext import gettext as _
+from typing import List
 
-from gi.repository import GLib, GObject, Gtk, Pango
+from gi.repository import GObject, Gtk, Pango
 
 from lutris import runners, services
 from lutris.config import LutrisConfig
 from lutris.database import categories as categories_db
 from lutris.database import games as games_db
-from lutris.game import Game
+from lutris.game import GAME_START, GAME_STOPPED, GAME_UPDATED, Game
 from lutris.gui.config.edit_category_games import EditCategoryGamesDialog
 from lutris.gui.config.runner import RunnerConfigDialog
 from lutris.gui.config.runner_box import RunnerBox
 from lutris.gui.config.services_box import ServicesBox
-from lutris.gui.dialogs import ErrorDialog
+from lutris.gui.dialogs import display_error
 from lutris.gui.dialogs.runner_install import RunnerInstallDialog
 from lutris.gui.widgets.utils import has_stock_icon
 from lutris.installer.interpreter import ScriptInterpreter
 from lutris.runners import InvalidRunnerError
 from lutris.services import SERVICES
-from lutris.services.base import AuthTokenExpiredError, BaseService
+from lutris.services.base import (
+    SERVICE_GAMES_LOADED,
+    SERVICE_GAMES_LOADING,
+    SERVICE_LOGIN,
+    SERVICE_LOGOUT,
+    AuthTokenExpiredError,
+)
+from lutris.util.jobs import schedule_at_idle
 from lutris.util.library_sync import LOCAL_LIBRARY_SYNCED, LOCAL_LIBRARY_SYNCING
 from lutris.util.strings import get_natural_sort_key
 
@@ -153,6 +161,7 @@ class ServiceSidebarRow(SidebarRow):
         button.set_sensitive(False)
         if self.service.online and not self.service.is_connected():
             self.service.logout()
+            self.service.login(parent=self.get_toplevel())  # login will trigger reload if successful
             return
         self.service.start_reload(self.service_reloaded_cb)
 
@@ -160,14 +169,13 @@ class ServiceSidebarRow(SidebarRow):
         if error:
             if isinstance(error, AuthTokenExpiredError):
                 self.service.logout()
-                self.service.login(parent=self.get_toplevel())
+                self.service.login(parent=self.get_toplevel())  # login will trigger reload if successful
             else:
-                ErrorDialog(error, parent=self.get_toplevel())
-        GLib.timeout_add(2000, self.enable_refresh_button)
+                display_error(error, parent=self.get_toplevel())
+        schedule_at_idle(self.enable_refresh_button, delay_seconds=2.0)
 
-    def enable_refresh_button(self):
+    def enable_refresh_button(self) -> None:
         self.buttons["refresh"].set_sensitive(True)
-        return False
 
 
 class OnlineServiceSidebarRow(ServiceSidebarRow):
@@ -248,7 +256,7 @@ class CategorySidebarRow(SidebarRow):
             category["name"],
             "user_category",
             category["name"],
-            Gtk.Image.new_from_icon_name("folder-symbolic", Gtk.IconSize.MENU),
+            LutrisSidebar.get_sidebar_icon("folder-symbolic"),
             application=application,
         )
         self.category = category
@@ -350,13 +358,13 @@ class LutrisSidebar(Gtk.ListBox):
         GObject.add_emission_hook(RunnerConfigDialog, "runner-updated", self.update_runner_rows)
         GObject.add_emission_hook(ScriptInterpreter, "runners-installed", self.update_rows)
         GObject.add_emission_hook(ServicesBox, "services-changed", self.update_rows)
-        GObject.add_emission_hook(Game, "game-start", self.on_game_start)
-        GObject.add_emission_hook(Game, "game-stopped", self.on_game_stopped)
-        GObject.add_emission_hook(Game, "game-updated", self.update_rows)
-        GObject.add_emission_hook(BaseService, "service-login", self.on_service_auth_changed)
-        GObject.add_emission_hook(BaseService, "service-logout", self.on_service_auth_changed)
-        GObject.add_emission_hook(BaseService, "service-games-load", self.on_service_games_updating)
-        GObject.add_emission_hook(BaseService, "service-games-loaded", self.on_service_games_updated)
+        GAME_START.register(self.on_game_start)
+        GAME_STOPPED.register(self.on_game_stopped)
+        GAME_UPDATED.register(self.update_rows)
+        SERVICE_LOGIN.register(self.on_service_auth_changed)
+        SERVICE_LOGOUT.register(self.on_service_auth_changed)
+        SERVICE_GAMES_LOADING.register(self.on_service_games_loading)
+        SERVICE_GAMES_LOADED.register(self.on_service_games_loaded)
         LOCAL_LIBRARY_SYNCING.register(self.on_local_library_syncing)
         LOCAL_LIBRARY_SYNCED.register(self.on_local_library_synced)
         self.set_filter_func(self._filter_func)
@@ -364,9 +372,16 @@ class LutrisSidebar(Gtk.ListBox):
         self.show_all()
 
     @staticmethod
-    def get_sidebar_icon(icon_name):
-        name = icon_name if has_stock_icon(icon_name) else "package-x-generic-symbolic"
-        icon = Gtk.Image.new_from_icon_name(name, Gtk.IconSize.MENU)
+    def get_sidebar_icon(icon_name: str, fallback_icon_names: List[str] = None) -> Gtk.Image:
+        candidate_names = [icon_name] + (fallback_icon_names or [])
+        candidate_names = [name for name in candidate_names if has_stock_icon(name)]
+
+        # Even if this one is not a stock icon, we'll use it as a last resort and
+        # get the 'broken icon' icon if it's not known.
+        if not candidate_names:
+            candidate_names = ["package-x-generic-symbolic"]
+
+        icon = Gtk.Image.new_from_icon_name(candidate_names[0], Gtk.IconSize.MENU)
 
         # We can wind up with an icon of the wrong size, if that's what is
         # available. So we'll fix that.
@@ -389,7 +404,7 @@ class LutrisSidebar(Gtk.ListBox):
             "all",
             "category",
             _("Games"),
-            Gtk.Image.new_from_icon_name("applications-games-symbolic", Gtk.IconSize.MENU),
+            self.get_sidebar_icon("applications-games-symbolic"),
         )
         self.add(self.games_row)
 
@@ -398,7 +413,7 @@ class LutrisSidebar(Gtk.ListBox):
                 "recent",
                 "dynamic_category",
                 _("Recent"),
-                Gtk.Image.new_from_icon_name("document-open-recent-symbolic", Gtk.IconSize.MENU),
+                self.get_sidebar_icon("document-open-recent-symbolic"),
             )
         )
 
@@ -407,7 +422,16 @@ class LutrisSidebar(Gtk.ListBox):
                 "favorite",
                 "category",
                 _("Favorites"),
-                Gtk.Image.new_from_icon_name("favorite-symbolic", Gtk.IconSize.MENU),
+                self.get_sidebar_icon("favorite-symbolic"),
+            )
+        )
+
+        self.add(
+            SidebarRow(
+                ".uncategorized",
+                "category",
+                _("Uncategorized"),
+                self.get_sidebar_icon("tag-symbolic", ["poi-marker", "favorite-symbolic"]),
             )
         )
 
@@ -415,7 +439,7 @@ class LutrisSidebar(Gtk.ListBox):
             ".hidden",
             "category",
             _("Hidden"),
-            Gtk.Image.new_from_icon_name("action-unavailable-symbolic", Gtk.IconSize.MENU),
+            self.get_sidebar_icon("action-unavailable-symbolic"),
         )
         self.add(self.hidden_row)
 
@@ -423,7 +447,7 @@ class LutrisSidebar(Gtk.ListBox):
             "missing",
             "dynamic_category",
             _("Missing"),
-            Gtk.Image.new_from_icon_name("dialog-warning-symbolic", Gtk.IconSize.MENU),
+            self.get_sidebar_icon("dialog-warning-symbolic"),
         )
         self.add(self.missing_row)
 
@@ -431,7 +455,7 @@ class LutrisSidebar(Gtk.ListBox):
             "running",
             "dynamic_category",
             _("Running"),
-            Gtk.Image.new_from_icon_name("media-playback-start-symbolic", Gtk.IconSize.MENU),
+            self.get_sidebar_icon("media-playback-start-symbolic"),
         )
         # I wanted this to be on top but it really messes with the headers when showing/hiding the row.
         self.add(self.running_row)
@@ -598,12 +622,11 @@ class LutrisSidebar(Gtk.ListBox):
         self.invalidate_filter()
         return True
 
-    def on_game_start(self, _game):
+    def on_game_start(self, _game: Game) -> None:
         """Show the "running" section when a game start"""
         self.running_row.show()
-        return True
 
-    def on_game_stopped(self, _game):
+    def on_game_stopped(self, _game: Game) -> None:
         """Hide the "running" section when no games are running"""
         if not self.application.has_running_games:
             self.running_row.hide()
@@ -611,21 +634,19 @@ class LutrisSidebar(Gtk.ListBox):
             if self.get_selected_row() == self.running_row:
                 self.select_row(self.get_children()[0])
 
-        return True
-
     def on_service_auth_changed(self, service):
         if service.id in self.service_rows:
             self.service_rows[service.id].create_button_box()
             self.service_rows[service.id].update_buttons()
         return True
 
-    def on_service_games_updating(self, service):
+    def on_service_games_loading(self, service):
         if service.id in self.service_rows:
             self.service_rows[service.id].is_updating = True
             self.service_rows[service.id].update_buttons()
         return True
 
-    def on_service_games_updated(self, service):
+    def on_service_games_loaded(self, service):
         if service.id in self.service_rows:
             self.service_rows[service.id].is_updating = False
             self.service_rows[service.id].update_buttons()

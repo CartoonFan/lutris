@@ -1,9 +1,38 @@
+import abc
 import re
 from collections import defaultdict
 from itertools import repeat
+from typing import Dict, List, Union
 
 from lutris import settings
 from lutris.database import sql
+
+
+class _SmartCategory(abc.ABC):
+    """Abstract class to define smart categories. Smart categories are automatically defined based on a rule."""
+
+    @abc.abstractmethod
+    def get_name(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def get_games(self) -> List[str]:
+        pass
+
+
+class _SmartUncategorizedCategory(_SmartCategory):
+    """A SmartCategory that resolves to all uncategorized games."""
+
+    def get_name(self) -> str:
+        return ".uncategorized"
+
+    def get_games(self) -> List[str]:
+        return get_uncategorized_game_ids()
+
+
+# All smart categories should be added to this variable.
+# TODO: Expose a way for the users to define new smart categories.
+_SMART_CATEGORIES: List[_SmartCategory] = [_SmartUncategorizedCategory()]
 
 
 def strip_category_name(name):
@@ -20,8 +49,9 @@ def is_reserved_category(name):
     return not name or name[0] == "." or name in ["all", "favorite"]
 
 
-def get_categories():
+def get_categories() -> List[Dict[str, Union[int, str]]]:
     """Get the list of every category in database."""
+    # Categories look like [{"id": 1, "name": "My Category"}, ...]
     return sql.db_select(settings.DB_PATH, "categories")
 
 
@@ -37,6 +67,25 @@ def get_category(name):
     categories = sql.db_select(settings.DB_PATH, "categories", condition=("name", name))
     if categories:
         return categories[0]
+
+
+def normalized_category_names(name: str, subname_allowed: bool = False) -> List[str]:
+    """Searches for a category name case-insensitively and returns all matching names;
+    if none match, it just returns 'name' as is.
+
+    If subname_allowed is true but name is not a match for any category, we'll look for
+    any category that contains the name as a substring instead before falling back to
+    'name' itself."""
+    query = "SELECT name FROM categories WHERE name=? COLLATE NOCASE"
+    parameters = (name,)
+    names = [cat["name"] for cat in sql.db_query(settings.DB_PATH, query, parameters)]
+
+    if not names and subname_allowed:
+        query = "SELECT name FROM categories WHERE name LIKE ? COLLATE NOCASE"
+        parameters = (f"%{name}%",)
+        names = [cat["name"] for cat in sql.db_query(settings.DB_PATH, query, parameters)]
+
+    return names or [name]
 
 
 def get_game_ids_for_categories(included_category_names=None, excluded_category_names=None):
@@ -71,7 +120,30 @@ def get_game_ids_for_categories(included_category_names=None, excluded_category_
     if filters:
         query += " WHERE %s" % " AND ".join(filters)
 
-    return [game["id"] for game in sql.db_query(settings.DB_PATH, query, tuple(parameters))]
+    result = set(game["id"] for game in sql.db_query(settings.DB_PATH, query, tuple(parameters)))
+    for smart_cat in _SMART_CATEGORIES:
+        if excluded_category_names is not None and smart_cat.get_name() in excluded_category_names:
+            continue
+        if included_category_names is not None and smart_cat.get_name() not in included_category_names:
+            continue
+        result |= set(smart_cat.get_games())
+
+    return list(sorted(result))
+
+
+def get_uncategorized_game_ids() -> List[str]:
+    """Returns the ids of games that are in no categories. We do not count
+    the 'favorites' category, but we do count '.hidden'- hidden games are hidden
+    from this too."""
+    query = (
+        "SELECT games.id FROM games WHERE NOT EXISTS("
+        "SELECT * FROM games_categories "
+        "INNER JOIN categories ON categories.id = games_categories.category_id "
+        "AND categories.name NOT IN ('all', 'favorite') "
+        "WHERE games.id = games_categories.game_id)"
+    )
+    uncategorized = sql.db_query(settings.DB_PATH, query)
+    return [row["id"] for row in uncategorized]
 
 
 def get_categories_in_game(game_id):
@@ -104,17 +176,27 @@ def remove_category_from_game(game_id, category_id):
 
 def remove_unused_categories():
     """Remove all categories that have no games associated with them"""
-    query = (
+
+    delete_orphaned_games = (
+        "DELETE FROM games_categories "
+        "WHERE NOT EXISTS(SELECT * FROM games WHERE game_id=id) "
+        "OR NOT EXISTS(SELECT * FROM categories WHERE category_id=id)"
+    )
+
+    with sql.db_cursor(settings.DB_PATH) as cursor:
+        sql.cursor_execute(cursor, delete_orphaned_games, ())
+
+    find_orphaned_categories = (
         "SELECT categories.* FROM categories "
         "LEFT JOIN games_categories ON categories.id = games_categories.category_id "
         "WHERE games_categories.category_id IS NULL"
     )
 
-    empty_categories = sql.db_query(settings.DB_PATH, query)
+    empty_categories = sql.db_query(settings.DB_PATH, find_orphaned_categories)
     for category in empty_categories:
         if category["name"] == "favorite":
             continue
 
-        query = "DELETE FROM categories WHERE categories.id=?"
+        delete_orphaned_categories = "DELETE FROM categories WHERE categories.id=?"
         with sql.db_cursor(settings.DB_PATH) as cursor:
-            sql.cursor_execute(cursor, query, (category["id"],))
+            sql.cursor_execute(cursor, delete_orphaned_categories, (category["id"],))

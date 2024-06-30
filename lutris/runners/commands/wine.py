@@ -153,7 +153,7 @@ def create_prefix(
         system.execute([wineboot_path], env=wineenv)
     else:
         wineenv["GAMEID"] = proton.DEFAULT_GAMEID
-        wineenv["ULWGL_LOG"] = "debug"
+        wineenv["UMU_LOG"] = "debug"
         wineenv["WINEARCH"] = "win64"
         wineenv["PROTONPATH"] = proton.get_proton_path_from_bin(wine_path)
         command = MonitoredCommand([proton.get_umu_path(), "createprefix"], env=wineenv)
@@ -338,14 +338,19 @@ def wineexec(
     if proton.is_proton_path(wine_path):
         game = None
         wineenv["GAMEID"] = proton.get_game_id(game)
-        wineenv["PROTONPATH"] = proton.get_proton_path_from_bin(wine_path)
+
+        if wine_path == GE_PROTON_LATEST:
+            wine_path = proton.get_umu_path()
+        else:
+            wineenv["PROTONPATH"] = proton.get_proton_path_from_bin(wine_path)
+        locale = env.get("LC_ALL")
+        host_locale = env.get("HOST_LC_ALL")
+        if locale and not host_locale:
+            wineenv["HOST_LC_ALL"] = locale
 
     baseenv = runner.get_env(disable_runtime=disable_runtime)
     baseenv.update(wineenv)
     baseenv.update(env)
-
-    if proton.is_proton_path(wine_path):
-        wine_path = proton.get_umu_path()
 
     command_parameters = [wine_path]
     if executable:

@@ -1,17 +1,17 @@
 import os
 from gettext import gettext as _
 
-from gi.repository import Gio, GLib, Gtk
+from gi.repository import Gio, Gtk
 
 from lutris import api, sysoptions
 from lutris.gui.config.add_game_dialog import AddGameDialog
-from lutris.gui.dialogs import ErrorDialog, ModelessDialog
+from lutris.gui.dialogs import ErrorDialog, ModelessDialog, display_error
 from lutris.gui.dialogs.game_import import ImportGameDialog
 from lutris.gui.widgets.common import FileChooserEntry
 from lutris.gui.widgets.navigation_stack import NavigationStack
 from lutris.installer import AUTO_WIN32_EXE, get_installers
 from lutris.scanners.lutris import scan_directory
-from lutris.util.jobs import AsyncCall
+from lutris.util.jobs import COMPLETED_IDLE_TASK, AsyncCall, schedule_at_idle
 from lutris.util.strings import gtk_safe, slugify
 
 
@@ -70,7 +70,7 @@ class AddGamesWindow(ModelessDialog):  # pylint: disable=too-many-public-methods
         self.search_frame = None
         self.search_explanation_label = None
         self.search_listbox = None
-        self.search_timer_id = None
+        self.search_timer_task = COMPLETED_IDLE_TASK
         self.search_spinner = None
         self.text_query = None
         self.search_result_label = None
@@ -237,18 +237,15 @@ class AddGamesWindow(ModelessDialog):  # pylint: disable=too-many-public-methods
         self.display_cancel_button()
 
     def _on_search_updated(self, entry):
-        if self.search_timer_id:
-            GLib.source_remove(self.search_timer_id)
+        self.search_timer_task.unschedule()
         self.text_query = entry.get_text().strip()
-        self.search_timer_id = GLib.timeout_add(750, self.update_search_results)
+        self.search_timer_task = schedule_at_idle(self.update_search_results, delay_seconds=0.75)
 
-    def update_search_results(self):
+    def update_search_results(self) -> None:
         # Don't start a search while another is going; defer it instead.
         if self.search_spinner.get_visible():
-            self.search_timer_id = GLib.timeout_add(750, self.update_search_results)
+            self.search_timer_task = schedule_at_idle(self.update_search_results, delay_seconds=0.75)
             return
-
-        self.search_timer_id = None
 
         if self.text_query:
             self.search_spinner.show()
@@ -269,7 +266,7 @@ class AddGamesWindow(ModelessDialog):  # pylint: disable=too-many-public-methods
         elif count == total_count:
             self.search_result_label.set_markup(_("Showing <b>%s</b> results") % count)
         else:
-            self.search_result_label.set_markup(_("<b>%s</b> results, only displaying first {count}") % total_count)
+            self.search_result_label.set_markup(_("<b>%s</b> results, only displaying first %s") % (total_count, count))
         for row in self.search_listbox.get_children():
             row.destroy()
         for game in api_games.get("results", []):
@@ -356,7 +353,7 @@ class AddGamesWindow(ModelessDialog):  # pylint: disable=too-many-public-methods
             self.display_cancel_button(label=_("_Close"))
 
         if error:
-            ErrorDialog(error, parent=self)
+            display_error(error, parent=self)
             self.stack.navigation_reset()
             return
 

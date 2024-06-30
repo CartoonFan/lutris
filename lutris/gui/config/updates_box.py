@@ -1,11 +1,15 @@
 import os
 from gettext import gettext as _
-from typing import Callable
+from typing import Callable, Tuple
 
 from gi.repository import Gio, Gtk
 
 from lutris import settings
-from lutris.api import get_default_wine_runner_version_info, get_runtime_versions_date_time_ago
+from lutris.api import (
+    format_runner_version,
+    get_default_wine_runner_version_info,
+    get_runtime_versions_date_time_ago,
+)
 from lutris.gui.config.base_config_box import BaseConfigBox
 from lutris.gui.dialogs import NoticeDialog
 from lutris.runtime import RuntimeUpdater
@@ -17,10 +21,11 @@ from lutris.util.log import logger
 from lutris.util.strings import gtk_safe
 from lutris.util.wine.wine import WINE_DIR
 
+LUTRIS_EXPERIMENTAL_FEATURES_ENABLED = os.environ.get("LUTRIS_EXPERIMENTAL_FEATURES_ENABLED") == "1"
+
 
 class UpdatesBox(BaseConfigBox):
-    def __init__(self):
-        super().__init__()
+    def populate(self):
         self.add(self.get_section_label(_("Wine update channel")))
 
         update_channel_radio_buttons = self.get_update_channel_radio_buttons()
@@ -64,11 +69,10 @@ class UpdatesBox(BaseConfigBox):
 
         markup = _(
             "<b>Umu</b>:\n"
-            "Umu enables the use of Proton and Pressure Vessel outside of Steam. \n"
-            "It uses its own version of Proton which automatically applies game fixes.\n"
-            "Updates to Proton will be automatically downloaded when a game is launched"
+            "Enables the use of Valve's Proton outside of Steam and uses a custom version of Proton which will "
+            "automatically apply fixes for games.\n"
             "\n"
-            "<b>WARNING: This feature is still under heavy development</b>"
+            "Please note that this feature is <b>experimental</b>."
         )
         umu_channel_radio_button = self._get_radio_button(
             markup, active=update_channel == UPDATE_CHANNEL_UMU, group=stable_channel_radio_button
@@ -89,13 +93,21 @@ class UpdatesBox(BaseConfigBox):
         stable_channel_radio_button.connect("toggled", self.on_update_channel_toggled, UPDATE_CHANNEL_STABLE)
         umu_channel_radio_button.connect("toggled", self.on_update_channel_toggled, UPDATE_CHANNEL_UMU)
         unsupported_channel_radio_button.connect("toggled", self.on_update_channel_toggled, UPDATE_CHANNEL_UNSUPPORTED)
-        return (stable_channel_radio_button, umu_channel_radio_button, unsupported_channel_radio_button)
 
-    def get_wine_update_texts(self):
+        if LUTRIS_EXPERIMENTAL_FEATURES_ENABLED:
+            return stable_channel_radio_button, umu_channel_radio_button, unsupported_channel_radio_button
+        return stable_channel_radio_button, unsupported_channel_radio_button
+
+    def get_wine_update_texts(self) -> Tuple[str, str]:
         wine_version_info = get_default_wine_runner_version_info()
-        wine_version = f"{wine_version_info['version']}-{wine_version_info['architecture']}"
-        if system.path_exists(os.path.join(settings.RUNNER_DIR, "wine", wine_version)):
-            update_label_text = _("Your wine version is up to date. Using: <b>%s</b>\n" "<i>Last checked %s.</i>") % (
+        if not wine_version_info:
+            update_label_text = _("No compatible Wine version could be identified. No updates are available.")
+            update_button_text = _("Check Again")
+            return update_label_text, update_button_text
+
+        wine_version = format_runner_version(wine_version_info)
+        if wine_version and system.path_exists(os.path.join(settings.RUNNER_DIR, "wine", wine_version)):
+            update_label_text = _("Your Wine version is up to date. Using: <b>%s</b>\n" "<i>Last checked %s.</i>") % (
                 wine_version_info["version"],
                 get_runtime_versions_date_time_ago(),
             )
@@ -177,9 +189,8 @@ class UpdatesBox(BaseConfigBox):
         if not system.path_exists(WINE_DIR):
             os.mkdir(WINE_DIR)
 
-        updater = RuntimeUpdater()
+        updater = RuntimeUpdater(force=True)
         updater.update_runtime = False
-        updater.update_runners = True
         component_updaters = [u for u in updater.create_component_updaters() if u.name == "wine"]
         if component_updaters:
 
@@ -202,8 +213,7 @@ class UpdatesBox(BaseConfigBox):
 
     def on_runtime_update_clicked(self, _widget):
         def get_updater():
-            updater = RuntimeUpdater()
-            updater.update_runtime = True
+            updater = RuntimeUpdater(force=True)
             updater.update_runners = False
             return updater
 
@@ -267,7 +277,7 @@ class UpdateButtonBox(Gtk.Box):
 
         self.spinner = Gtk.Spinner()
         self.pack_end(self.spinner, False, False, 0)
-        self.result_label = Gtk.Label()
+        self.result_label = Gtk.Label(wrap=True)
         self.pack_end(self.result_label, False, False, 0)
 
     def show_running_markup(self, markup: str) -> None:

@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 from gettext import gettext as _
+from typing import Any, Dict, Optional
 from urllib.parse import unquote
 
 from gi.repository import Gio
@@ -13,10 +14,11 @@ from lutris.config import LutrisConfig, write_game_config
 from lutris.database.games import add_game, get_game_by_field, update_existing
 from lutris.database.services import ServiceGameCollection
 from lutris.game import Game
-from lutris.services.base import OnlineService
+from lutris.services.base import SERVICE_LOGIN, SERVICE_LOGOUT, OnlineService
 from lutris.services.lutris import sync_media
 from lutris.services.service_game import ServiceGame
 from lutris.services.service_media import ServiceMedia
+from lutris.util.jobs import AsyncCall
 from lutris.util.log import logger
 from lutris.util.strings import slugify
 from lutris.util.ubisoft import consts
@@ -36,7 +38,7 @@ class UbisoftCover(ServiceMedia):
     api_field = "id"
     url_pattern = "https://ubiservices.cdn.ubi.com/%s/spaceCardAsset/boxArt_mobile.jpg?imwidth=320"
 
-    def get_media_url(self, details):
+    def get_media_url(self, details: Dict[str, Any]) -> Optional[str]:
         if self.api_field in details:
             return super().get_media_url(details)
         return details["thumbImage"]
@@ -109,7 +111,7 @@ class UbisoftConnectService(OnlineService):
         self.client = UbisoftConnectClient(self)
 
     def auth_lost(self):
-        self.emit("service-logout")
+        SERVICE_LOGOUT.fire(self)
 
     def login_callback(self, credentials):
         """Called after the user has logged in successfully"""
@@ -118,7 +120,7 @@ class UbisoftConnectService(OnlineService):
         storage_jsons = json.loads("[" + unquoted_url + "]")
         user_data = self.client.authorise_with_local_storage(storage_jsons)
         self.client.set_auth_lost_callback(self.auth_lost)
-        self.emit("service-login")
+        SERVICE_LOGIN.fire(self)
         return (user_data["userId"], user_data["username"])
 
     def is_connected(self):
@@ -139,7 +141,12 @@ class UbisoftConnectService(OnlineService):
         return content
 
     def load(self):
-        self.client.authorise_with_stored_credentials(self.load_credentials())
+        try:
+            self.client.authorise_with_stored_credentials(self.load_credentials())
+        except RuntimeError as ex:
+            logger.error("Failed to authorize with API: %s. Re-login required." % ex)
+            AsyncCall(self.logout, self.login)
+            return
         response = self.client.get_club_titles()
         games = response["data"]["viewer"]["ownedGames"].get("nodes", [])
         ubi_games = []

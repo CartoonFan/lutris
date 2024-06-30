@@ -680,7 +680,7 @@ class wine(Runner):
                 arch = WINE_DEFAULT_ARCH
         return arch
 
-    def get_runner_version(self, version: str = None) -> Dict[str, str]:
+    def get_runner_version(self, version: str = None) -> Optional[Dict[str, str]]:
         if not version:
             default_version_info = get_default_wine_runner_version_info()
             default_version = format_runner_version(default_version_info) if default_version_info else None
@@ -811,7 +811,7 @@ class wine(Runner):
         if not version and use_api:
             # Try to obtain the default wine version from the Lutris API.
             default_version_info = self.get_runner_version()
-            if "version" in default_version_info:
+            if default_version_info and "version" in default_version_info:
                 logger.debug("Default wine version is %s", default_version_info["version"])
                 version = format_runner_version(default_version_info)
 
@@ -1120,7 +1120,7 @@ class wine(Runner):
         env["WINEDLLOVERRIDES"] = get_overrides_env(self.dll_overrides)
 
         if proton.is_proton_path(wine_config_version):
-            # In stable versions of proton this can be dist/bin insteasd of files/bin
+            # In stable versions of proton this can be dist/bin instead of files/bin
             if "files/bin" in wine_exe:
                 env["PROTONPATH"] = wine_exe[: wine_exe.index("files/bin")]
             else:
@@ -1128,6 +1128,12 @@ class wine(Runner):
                     env["PROTONPATH"] = wine_exe[: wine_exe.index("dist/bin")]
                 except ValueError:
                     pass
+
+            locale = env.get("LC_ALL")
+            host_locale = env.get("HOST_LC_ALL")
+            if locale and not host_locale:
+                env["HOST_LC_ALL"] = locale
+
         return env
 
     def get_runtime_env(self):
@@ -1235,28 +1241,36 @@ class wine(Runner):
         """Extracts the 128*128 icon from EXE and saves it, if not resizes the biggest icon found.
         returns true if an icon is saved, false if not"""
 
-        wantedsize = (128, 128)
-        pathtoicon = settings.ICON_PATH + "/lutris_" + game_slug + ".png"
-        if not self.game_exe or os.path.exists(pathtoicon) or not PEFILE_AVAILABLE:
-            return False
+        try:
+            wantedsize = (128, 128)
+            pathtoicon = settings.ICON_PATH + "/lutris_" + game_slug + ".png"
+            exe = self.game_exe
+            if not exe or os.path.exists(pathtoicon) or not PEFILE_AVAILABLE:
+                return False
 
-        extractor = ExtractIcon(self.game_exe)
-        groups = extractor.get_group_icons()
+            extractor = ExtractIcon(self.game_exe)
+            groups = extractor.get_group_icons()
 
-        icons = []
-        biggestsize = (0, 0)
-        biggesticon = -1
-        for i in range(len(groups[0])):
-            icons.append(extractor.export(groups[0], i))
-            if icons[i].size > biggestsize:
-                biggesticon = i
-                biggestsize = icons[i].size
-            elif icons[i].size == wantedsize:
-                icons[i].save(pathtoicon)
+            if not groups:
+                return False
+
+            icons = []
+            biggestsize = (0, 0)
+            biggesticon = -1
+            for i in range(len(groups[0])):
+                icons.append(extractor.export(groups[0], i))
+                if icons[i].size > biggestsize:
+                    biggesticon = i
+                    biggestsize = icons[i].size
+                elif icons[i].size == wantedsize:
+                    icons[i].save(pathtoicon)
+                    return True
+
+            if biggesticon >= 0:
+                resized = icons[biggesticon].resize(wantedsize)
+                resized.save(pathtoicon)
                 return True
-
-        if biggesticon >= 0:
-            resized = icons[biggesticon].resize(wantedsize)
-            resized.save(pathtoicon)
-            return True
-        return False
+            return False
+        except Exception as ex:
+            logger.exception("Unable to extract icon from %s: %s", exe, ex)
+            return False
